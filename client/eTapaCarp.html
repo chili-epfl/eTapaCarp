@@ -1,0 +1,20 @@
+<head>
+  <title>eTapaCarp</title>
+</head>
+
+<body>
+	{{> navbar}}
+	<div class="container">
+	{{#isolate}} {{renderPage}} {{/isolate}}
+	</div>
+</body>
+
+
+<template name="main">
+    <h1>Hello</h1>
+    <div>
+        <span caption="hello">{{lang.hello}}</span>
+        {{lang.bye}}
+    </div>
+    {{greeting}}
+</template>
