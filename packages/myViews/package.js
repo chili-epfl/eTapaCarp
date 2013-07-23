@@ -3,6 +3,6 @@ Package.describe({
 });
 
 Package.on_use(function (api, where) {
-	api.use('three.js');
+	api.use('ThreeJS');
  	api.add_files('views.js', 'client');
 });
