@@ -257,7 +257,7 @@ MarkersDetector.prototype.markersDifference = function(){
         this.change_count++;
     }
     else{
-        if (this.distanceBetweenMarkers(this.markers) > 3){
+        if (this.distanceBetweenMarkers(this.markers) > 5){
             this.change_count++;
         }
     }

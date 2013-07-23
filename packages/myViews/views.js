@@ -54,6 +54,15 @@ Views.prototype.render = function(markers){
     }
 }
 
+Views.prototype.destroy = function(){
+    for (var i in this.views){
+        var view = this.views[i];
+        view.clear();
+        view.scene = null;
+        view.renderer = null;
+    }
+}
+
 function View(name) {
     this.name = name;
     this.dynamic = true;
@@ -90,6 +99,8 @@ View.prototype.render = function (markers) {
         this.selectEdge();
     }
     if (this.isNotJittering || this.changedLayout){
+        console.log('rerender')
+        this.changedLayout = false;
         this.clear();
         for (var i = 0; i < markers.length; i++) {
             var marker = markers[i];
@@ -101,13 +112,13 @@ View.prototype.render = function (markers) {
         else{
             this.showGrid();
         }
-    }
-    if (this.dynamic) {
-        this.computeNewPositions(markers);
+        if (this.dynamic) {
+            this.computeNewPositions(markers);
+        }
+        this.renderer.setSize(this.width, this.height);
+        this.renderer.render(this.scene, this.camera);
     }
     
-    this.renderer.setSize(this.width, this.height);
-    this.renderer.render(this.scene, this.camera);
 };
 
 View.prototype.setDynamic = function (bool) {
@@ -119,8 +130,8 @@ View.prototype.clear = function () {
         for (var j in this.objects[i]){
             this.scene.remove(this.objects[i][j]);
         }
-        this.objects[i] = [];
     }
+    this.objects = [];
     for (var i in this.axisObjects){
         this.scene.remove(this.axisObjects[i]);
     }
@@ -451,7 +462,11 @@ FrontView.prototype.constructor = FrontView;
 
 FrontView.prototype.setCamera = function(){
     this.width = $(this.container).width();
-    this.height = Math.ceil(this.width/(175/135)/2);
+    this.height = Math.ceil(this.width/(180/140)/2);
+    if (this.height*4 > window.innerHeight){
+        this.height = window.innerHeight/4;
+        this.width = Math.ceil(this.height/(140/180)*2);
+    }
     this.camera = new THREE.OrthographicCamera(-WS_WIDTH/2, WS_WIDTH/2, 0, -WS_HEIGHT/2, -200, 200 );
     this.camera.position.z = WS_HEIGHT/2 - 1;
     this.camera.rotation.x = Math.PI/2;
@@ -465,7 +480,11 @@ SideView.prototype = new View();
 SideView.prototype.constructor = SideView;
 SideView.prototype.setCamera = function() {
     this.width = $(this.container).width();
-    this.height = Math.ceil(this.width/(175/135)/2);
+    this.height = Math.ceil(this.width/(180/140)/2);
+    if (this.height*4 > window.innerHeight){
+        this.height = window.innerHeight/4;
+        this.width = Math.ceil(this.height/(140/180)*2);
+    }
     this.camera = new THREE.OrthographicCamera(-WS_WIDTH/2, WS_WIDTH/2, 0, -WS_HEIGHT/2, -200, 200 );
     this.camera.position.z = WS_HEIGHT/2 - 1;
     this.camera.rotation.z = -Math.PI/2;
@@ -481,7 +500,11 @@ TopView.prototype.constructor = TopView;
 
 TopView.prototype.setCamera = function() {
     this.width = $(this.container).width();
-    this.height = Math.ceil(this.width/(175/135));
+    this.height = Math.ceil(this.width/(180/140));
+    if (this.height*2 > window.innerHeight){
+        this.height = window.innerHeight/2;
+        this.width = Math.ceil(this.height/(140/180));
+    }
     this.camera =  new THREE.OrthographicCamera(-WS_WIDTH/2, WS_WIDTH/2, WS_HEIGHT/2, -WS_HEIGHT/2, 1, 1000 );
     this.camera.position.x = 0;
     this.camera.position.y = 0;
@@ -498,7 +521,11 @@ PerspectiveView.prototype.constructor = PerspectiveView;
 
 PerspectiveView.prototype.setCamera = function() {
     this.width = $(this.container).width();
-    this.height = Math.ceil(this.width/(175/135));
+    this.height = Math.ceil(this.width/(180/140));
+    if (this.height*2 > window.innerHeight){
+        this.height = window.innerHeight/2;
+        this.width = Math.ceil(this.height/(140/180));
+    }
     this.camera =  new THREE.PerspectiveCamera( 50, WS_WIDTH/WS_HEIGHT, 1, 1000 );
     this.camera.position.x = 0;
     this.camera.position.y = -300;

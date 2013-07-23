@@ -18,49 +18,47 @@ Template.activity.lang = function(e){
   return Session.get('lang');
 }
 
-Template.activity.rendered = function(){
+var views = new Views();
+var markerDetector;
+var isNotJittering = false;
+var click = null; 
+
+function onDocumentMouseDown( event ) {
+    event.preventDefault();
+    click = event;
+};
+
+function animate() {
+
+	requestAnimationFrame( animate );
+
+    markersDetector.getMarkers();
 	
-	if (!rendered){
-		rendered = true;
-
-		var views = new Views();
-		var markerDetector;
-		var markers_before = [];
-		var isJittering = false;
-		var click = null; 
-
-		function onDocumentMouseDown( event ) {
-		    event.preventDefault();
-		    click = event;
-		};
-
-		function animate() {
-
-			requestAnimationFrame( animate );
-
-		    markersDetector.getMarkers();
-			
-			if ($('#myModal').hasClass('in')){
-				markersDetector.calibrationContext.drawImage(markersDetector.video, 0, 0, markersDetector.calibrationCanvas.width, markersDetector.calibrationCanvas.height);
-				if (markersDetector.corners){
-					if (localStorage.getItem('rotationMatrix') &&
-							localStorage.getItem('translationMatrix') &&
-							localStorage.getItem('intrinsicMatrix')){
-		                markersDetector.drawContour([[-180,-140,0],[-180,140,0],[180,140,0],[180,-140,0]],markersDetector.calibrationContext,"blue");
-		                markersDetector.drawContour([[-180,-140,60],[-180,140,60],[180,140,60],[180,-140,60]],markersDetector.calibrationContext,"red");
-					}
-		            markersDetector.drawCorners(markersDetector.corners,markersDetector.calibrationContext);
-				}
+	if ($('#myModal').hasClass('in')){
+		markersDetector.calibrationContext.drawImage(markersDetector.video, 0, 0, markersDetector.calibrationCanvas.width, markersDetector.calibrationCanvas.height);
+		if (markersDetector.corners){
+			if (localStorage.getItem('rotationMatrix') &&
+					localStorage.getItem('translationMatrix') &&
+					localStorage.getItem('intrinsicMatrix')){
+                markersDetector.drawContour([[-180,-140,0],[-180,140,0],[180,140,0],[180,-140,0]],markersDetector.calibrationContext,"blue");
+                markersDetector.drawContour([[-180,-140,60],[-180,140,60],[180,140,60],[180,-140,60]],markersDetector.calibrationContext,"red");
 			}
-		    isNotJittering = markersDetector.notJittering();
-			
-			views.setClick(click);
-			views.render(markersDetector.markers);
-			click = null;
+            markersDetector.drawCorners(markersDetector.corners,markersDetector.calibrationContext);
+		}
+	}
+    isNotJittering = markersDetector.notJittering();
+    views.setIsNotJittering(isNotJittering);
+	
+	views.setClick(click);
+	views.render(markersDetector.markers);
+	click = null;
+	console.log('loop')
 
-		};
+};
 
-		
+Template.activity.rendered = function(){
+	if(!rendered){
+		rendered = true;
 		MODELS = Session.get('shapes');
 	    markersDetector = new MarkersDetector("cam", "camcanvas");
 	    markersDetector.accessCamera();
@@ -101,4 +99,11 @@ Template.activity.rendered = function(){
 			views.setChangedLayout(true);
 		});
 	}
+}
+
+Template.activity.destroyed = function(){
+	console.log('destroyed');
+	views.destroy();
+	cancelAnimationFrame(animate);
+	rendered = false;
 }
