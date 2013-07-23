@@ -1,0 +1,6 @@
+Install Meteor and Meteorite
+
+Then:
+$ git clone https://github.com/chili-epfl/eTapaCarp.git
+$ cd eTapaCarp
+$ mrt
