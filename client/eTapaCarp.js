@@ -29,7 +29,8 @@ setNav = function(name) {
 };
 
 Meteor.Router.add({
-  '/activity': 'activity',
+  '/activity1': 'activity1',
+  '/activity2': 'activity2',
 
   '/activities': function() {
     setNav('Activities');

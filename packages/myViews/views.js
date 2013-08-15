@@ -1,6 +1,9 @@
 (function(root){
 var WS_WIDTH = 360.0;
 var WS_HEIGHT = 280.0;
+var SHAPES = [6, 20, 64];
+var ACTIVITYTRANSLATION = [];
+var ACTIVITYROTATION = [];
 
 function Views(){
     this.views = {};
@@ -13,7 +16,6 @@ Views.prototype.addView = function(view){
 
 Views.prototype.init = function(){
     for (var i in this.views){
-        console.log('init '+this.views[i].name)
         this.views[i].init(); 
     }
 },
@@ -54,6 +56,105 @@ Views.prototype.render = function(markers){
     }
 }
 
+Views.prototype.changeDifficulty = function(difficulty){
+    for (var i in this.views){
+        this.views[i].difficulty = difficulty;
+    }
+    this.generateRandomPositions();
+}
+
+Views.prototype.checkSolution = function(markers){
+    for (var i in this.views){
+        this.views[i].checkSolution(markers);
+        break;
+    }
+}
+
+Views.prototype.init_objects = function(){
+
+    for (var i in this.views){
+        var view = this.views[i];
+        if (!view.dynamic){
+            view.clear();
+            for (var j = 0; j<view.difficulty; j++){
+                var thisShape = SHAPES[j];
+                view.createObjects(thisShape);
+                for (var k in view.objects[thisShape]){
+                    var object = view.objects[thisShape][k];
+                    object.rotation.z = ACTIVITYROTATION[thisShape];
+                    object.position.x = ACTIVITYTRANSLATION[thisShape][0];
+                    object.position.y = ACTIVITYTRANSLATION[thisShape][1];
+                }
+            }
+            if (view.axis) {
+                view.showAxis();
+            }
+            else{
+                view.showGrid();
+            }
+        }
+    }
+}
+
+Views.prototype.generateRandomPositions = function(){
+    var testObjects = [];
+    var count = 0;
+    var redoRandom = false;
+    for (var name in this.views){
+            var view = this.views[name];
+            view.clear();
+            for (var i = 0; i<view.difficulty; i++){
+                var thisShape = SHAPES[i];
+                var filledShape = view.shape(MODELS[thisShape]);
+                testObjects[thisShape] = new THREE.Mesh(filledShape, new THREE.MeshBasicMaterial());
+                ACTIVITYROTATION[SHAPES[i]] = Math.random()*Math.PI;
+                ACTIVITYTRANSLATION[SHAPES[i]] = [Math.random()*WS_WIDTH-(WS_WIDTH/2),Math.random()*WS_HEIGHT-(WS_HEIGHT/2)];
+            }
+            for (var i in testObjects){
+                var object = testObjects[i];
+                object.rotation.z = ACTIVITYROTATION[i];
+                object.position.x = ACTIVITYTRANSLATION[i][0];
+                object.position.y = ACTIVITYTRANSLATION[i][1];
+                object.updateMatrix();
+                object.geometry.applyMatrix(object.matrix);
+                object.geometry.computeBoundingBox();
+            }
+            for (var i in testObjects){
+                var object1 = testObjects[i];
+                for (var i = 0; i < object1.geometry.vertices.length; i++){
+                    var vertex = object1.geometry.vertices[i];
+                    if (Math.abs(vertex.x) > (WS_WIDTH/2-40) || Math.abs(vertex.y) > (WS_HEIGHT/2-40)){
+                        redoRandom = true;
+                        break;
+                    }
+                }
+            }
+            for (var i in testObjects){
+                var object1 = testObjects[i];
+                for (var j in testObjects){
+                    if (j != i){
+                        var object2 = testObjects[j];
+                        if (object1.geometry.boundingBox.isIntersectionBox(object2.geometry.boundingBox)){
+                            redoRandom = true;
+                            break;
+                        }
+                    }
+                }
+                if (redoRandom){
+                    break;
+                }
+            }
+        break;
+    }
+
+    if (redoRandom){
+        this.generateRandomPositions();
+    }
+    else{
+        this.init_objects();
+    }
+}
+
 Views.prototype.destroy = function(){
     for (var i in this.views){
         var view = this.views[i];
@@ -66,6 +167,7 @@ Views.prototype.destroy = function(){
 function View(name) {
     this.name = name;
     this.dynamic = true;
+    this.difficulty = 1;
     this.selected = [];
     this.click = null;
     this.isNotJittering = false;
@@ -95,29 +197,27 @@ View.prototype.setCamera = function () {
 
 View.prototype.render = function (markers) {
     if (this.click){
-        console.log('click')
         this.selectEdge();
     }
-    if (this.isNotJittering || this.changedLayout){
-        console.log('rerender')
-        this.changedLayout = false;
-        this.clear();
-        for (var i = 0; i < markers.length; i++) {
-            var marker = markers[i];
-            this.createObjects(marker.id);
+    if (this.dynamic) {
+        if (this.isNotJittering || this.changedLayout){
+            this.changedLayout = false;
+            this.clear();
+            for (var i = 0; i < markers.length; i++) {
+                var marker = markers[i];
+                this.createObjects(marker.id);
+            }
+            if (this.axis) {
+                this.showAxis();
+            }
+            else{
+                this.showGrid();
+            }
+                this.computeNewPositions(markers);
         }
-        if (this.axis) {
-            this.showAxis();
-        }
-        else{
-            this.showGrid();
-        }
-        if (this.dynamic) {
-            this.computeNewPositions(markers);
-        }
-        this.renderer.setSize(this.width, this.height);
-        this.renderer.render(this.scene, this.camera);
     }
+    this.renderer.setSize(this.width, this.height);
+    this.renderer.render(this.scene, this.camera);
     
 };
 
@@ -318,6 +418,71 @@ View.prototype.calculateRotation = function (vector1, vector2) {
     }
     return rotation
 };
+
+View.prototype.checkSolution = function(markers){
+    var count = [];
+    for (var i in markers){
+        var marker = markers[i];
+        if (count.indexOf(marker.id) == -1){
+            count.push(marker.id);
+        }
+        for (var j = 0; j<this.difficulty; j++){
+            if (marker.id == SHAPES[j]){
+                var td1 = $($('#rowShape'+marker.id).children()[1]);
+                if (td1.children().length == 0){
+                    td1.append('<i class="icon-ok"></i>');
+                }
+                var Z = this.findZ(marker.id);
+                var marker_position = [marker.corners[0].x, marker.corners[0].y,1];
+                var marker_position2 = [marker.corners[1].x, marker.corners[1].y,1];
+                position = pixel2mm(marker_position[0], marker_position[1], Z);
+                position2 = pixel2mm(marker_position2[0], marker_position2[1], Z);
+                var rotation;
+                var diffx = position.x-position2.x;
+                var diffy = position.y-position2.y;
+                if (diffy == 0){
+                    diffy = 1;
+                }
+                if ((diffx < 0 && diffy > 0) || (diffx > 0 && diffy > 0)){
+                    rotation = -Math.atan(diffx/diffy)+Math.PI/2;
+                }
+                else{
+                    rotation = -Math.atan(diffx/diffy)-Math.PI/2;
+                }
+                var td2 = $($('#rowShape'+marker.id).children()[3]);
+                if (Math.abs(rotation - ACTIVITYROTATION[marker.id]) < 0.2){
+                    if (td2.children().length == 0){
+                        td2.append('<i class="icon-ok"></i>');
+                    }
+                }
+                else{
+                    if (td2.children().length > 0){
+                        td2.children().remove();
+                    }
+                }
+                var td3 = $($('#rowShape'+marker.id).children()[2]);
+                if (Math.abs(position.x - ACTIVITYTRANSLATION[marker.id][0]) < 20 && Math.abs(position.y - ACTIVITYTRANSLATION[marker.id][1]) < 20){
+                    if (td3.children().length == 0){
+                        td3.append('<i class="icon-ok"></i>');
+                    }
+                }
+                else{
+                    if (td3.children().length > 0){
+                        td3.children().remove();
+                    }
+                }
+            }
+        }
+    }
+    for (var j = 0; j<this.difficulty; j++){
+        if (count.indexOf(SHAPES[j]) == -1){
+            var td1 = $($('#rowShape'+SHAPES[j]).children()[1]);
+            if (td1.children().length > 0){
+                td1.children().remove();
+            }
+        }
+    }
+}
 
 View.prototype.showAxis = function(){
     var lineMaterial2 = new THREE.LineBasicMaterial({color: 0xff0000, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1});

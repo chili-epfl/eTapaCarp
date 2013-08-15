@@ -1,0 +1,104 @@
+<template name="activity2">
+	<video id="cam" autoplay="true" style="display:none;"></video>
+	<canvas id="camcanvas" style="width:640px; height:480px; display:none;"></canvas>
+
+	<div id="loader" class="progress progress-striped active" style="display:none;position:absolute;left:45%;margin-top:300px;width:100px;">
+		<div class="bar" style="width: 100%;">{{lang.Loading}}</div>
+	</div>
+	<div class="row-fluid">
+		<div class="span6">
+			<span class="btn btn-info btn-small disabled">
+				{{lang.FrontView}}
+			</span>
+			<br>
+			{{#constant}}
+			<div id="face" class="span12">
+			</div>
+			{{/constant}}
+		</div>
+		<div class="span6">
+			<span class="btn btn-info btn-small disabled">
+				{{lang.SideView}}
+			</span>
+			<br>
+			{{#constant}}
+			<div id="cote" class="span12">
+			</div>
+			{{/constant}}
+		</div>
+	</div>
+	<div class="row-fluid">
+		<div class="span6">
+			<span class="btn btn-info btn-small disabled">
+				{{lang.TopView}}
+			</span>
+			<br>
+			{{#constant}}
+			<div id="dessus" class="span12">
+			</div>
+			{{/constant}}
+		</div>
+		<div class="span6">
+			<div class="row-fluid">
+				<div class="span4">
+					<h6>{{lang.Transparency}}</h6>
+					<div class="btn-group">
+						<button id="transparency-on" class="btn btn-mini btn-primary">ON</button>
+						<button id="transparency-off" class="btn btn-mini">OFF</button>
+					</div>
+				</div>
+				<div class="span4">
+					<h6>{{lang.Axis}}</h6>
+					<div class="btn-group">
+						<button id="axis-on" class="btn btn-mini">ON</button>
+						<button id="axis-off" class="btn btn-mini btn-primary">OFF</button>
+					</div>
+				</div>
+				<div class="span4">
+					<h6>{{lang.NumObjects}}</h6>
+					<div class="btn-group">
+						<button id="difficulty1" class="btn btn-mini btn-primary">1</button>
+						<button id="difficulty2" class="btn btn-mini">2</button>
+						<button id="difficulty3" class="btn btn-mini">3</button>
+					</div>
+				</div>
+			</div>
+			<div class="row-fluid">
+				<br>
+				<button id="newChallenge" class="btn btn-large">{{lang.NewChallenge}}</button>
+			</div>
+			<div class="row-fluid">
+				<table id="feedback" class="table">
+		    		<thead>
+		    			<tr>
+		    				<th>{{lang.Object}}</th>
+		    				<th>{{lang.Detected}}</th>
+		    				<th>{{lang.Position}}</th>
+		    				<th>{{lang.Rotation}}</th>
+	    				</tr>
+		    		</thead>
+		    		<tr id="rowShape6">
+		    			<td><img src="shape6.png"></img></td>
+		    			<td></td>
+		    			<td></td>
+		    			<td></td>
+		    		</tr>
+		    		<tr id="rowShape20" style="display:none;">
+		    			<td><img src="shape20.png"></img></td>
+		    			<td></td>
+		    			<td></td>
+		    			<td></td>
+		    		</tr>
+		    		<tr id="rowShape64" style="display:none;">
+		    			<td><img src="shape64.png"></img></td>
+		    			<td></td>
+		    			<td></td>
+		    			<td></td>
+		    		</tr>
+		    	</table>
+			</div>
+		</div>
+	</div>
+	</div>
+	{{> popupCalibration}}
+</template>

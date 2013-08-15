@@ -1,6 +1,7 @@
 (function(root){
 
 function MarkersDetector(video, canvas){
+    this.stream = null;
     this.video = document.getElementById(video);
     this.camcanvas = document.getElementById(canvas);
     this.context = this.camcanvas.getContext("2d");
@@ -28,6 +29,7 @@ MarkersDetector.prototype.accessCamera = function(){
     if (navigator.getUserMedia){
 
         function successCallback(stream){
+            that.stream = stream;
             if (navigator.getUserMedia == navigator.mozGetUserMedia){
                 that.video.src = window.URL.createObjectURL(stream);
             }
@@ -42,6 +44,12 @@ MarkersDetector.prototype.accessCamera = function(){
         function errorCallback(error){
         }
         navigator.getUserMedia({video: true}, successCallback, errorCallback);
+    }
+};
+
+MarkersDetector.prototype.stopCamera = function(){
+    if (this.stream){
+        this.stream.stop();
     }
 };
 

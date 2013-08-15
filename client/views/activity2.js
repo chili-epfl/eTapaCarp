@@ -1,25 +1,12 @@
-var shapesHandle = Meteor.subscribe('shapes');
-var Shapes = new Meteor.Collection('shapes');
-
 var rendered = false;
+var animationId = null;
 
-Deps.autorun(function() {
-  var data, shapesData;
-  shapesData = {};
-  data = Shapes.find({});
-  data.forEach(function(entry) {
-    return shapesData[entry.id] = entry;
-  });
-  Session.set('shapes', shapesData);
-  return null;
-});
-
-Template.activity.lang = function(e){
+Template.activity2.lang = function(e){
   return Session.get('lang');
 }
 
 var views = new Views();
-var markerDetector;
+var markersDetector;
 var isNotJittering = false;
 var click = null; 
 
@@ -30,7 +17,7 @@ function onDocumentMouseDown( event ) {
 
 function animate() {
 
-	requestAnimationFrame( animate );
+	animationId = requestAnimationFrame( animate );
 
     markersDetector.getMarkers();
 	
@@ -51,22 +38,27 @@ function animate() {
 	
 	views.setClick(click);
 	views.render(markersDetector.markers);
+	views.checkSolution(markersDetector.markers);
 	click = null;
-	console.log('loop')
 
 };
 
-Template.activity.rendered = function(){
+Template.activity2.rendered = function(){
 	if(!rendered){
 		rendered = true;
 		MODELS = Session.get('shapes');
 	    markersDetector = new MarkersDetector("cam", "camcanvas");
 	    markersDetector.accessCamera();
-		views.addView(new FrontView('face'));
-		views.addView(new SideView('cote'));
+	    var frontview = new FrontView('face');
+	    frontview.setDynamic(false);
+		views.addView(frontview);
+	    var sideview = new SideView('cote');
+	    sideview.setDynamic(false);
+		views.addView(sideview);
 		views.addView(new TopView('dessus'));
-		views.addView(new PerspectiveView('perspective'));
-		views.init()
+		views.init();
+		views.setAxis(false);
+		views.generateRandomPositions();
 	    document.addEventListener( 'mousedown', onDocumentMouseDown, false );
 	    document.addEventListener( 'contextmenu', onDocumentMouseDown, false );
 		animate();
@@ -98,12 +90,64 @@ Template.activity.rendered = function(){
 			views.setAxis(false);
 			views.setChangedLayout(true);
 		});
+
+		$('#difficulty1').on('click', function(){
+			var that = this;
+			if (!$(that).hasClass('btn-primary')){
+				$('#loader').show("fast",function(){
+					views.changeDifficulty(1);
+					$('#difficulty2').removeClass("btn-primary");
+					$('#difficulty3').removeClass("btn-primary");
+					$(that).addClass("btn-primary");
+					$('#rowShape20').hide();
+					$('#rowShape64').hide();
+					$('#loader').hide();
+				});
+			}	
+		});
+
+		$('#difficulty2').on('click', function(){
+			var that = this;
+			if (!$(that).hasClass('btn-primary')){
+				$('#loader').show("fast",function(){
+					views.changeDifficulty(2);
+					$('#difficulty1').removeClass("btn-primary");
+					$('#difficulty3').removeClass("btn-primary");
+					$(that).addClass("btn-primary");
+					$('#rowShape20').show();
+					$('#rowShape64').hide();
+					$('#loader').hide();
+				});
+			}	
+		});
+
+		$('#difficulty3').on('click', function(){
+			var that = this;
+			if (!$(that).hasClass('btn-primary')){
+				$('#loader').show("fast",function(){
+					views.changeDifficulty(3);
+					$('#difficulty2').removeClass("btn-primary");
+					$('#difficulty1').removeClass("btn-primary");
+					$(that).addClass("btn-primary");
+					$('#rowShape20').show();
+					$('#rowShape64').show();
+					$('#loader').hide();
+				});
+			}			
+		});
+
+		$('#newChallenge').on('click', function(){
+			$('#loader').show("fast",function(){
+				views.generateRandomPositions();
+				$('#loader').hide();
+			});
+		});
 	}
 }
 
-Template.activity.destroyed = function(){
-	console.log('destroyed');
+Template.activity2.destroyed = function(){
 	views.destroy();
-	cancelAnimationFrame(animate);
+	markersDetector.stopCamera();
+	cancelAnimationFrame(animationId);
 	rendered = false;
 }
