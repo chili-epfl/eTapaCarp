@@ -1,7 +1,16 @@
 <template name="activity2">
+	{{#constant}}
 	<video id="cam" autoplay="true" style="display:none;"></video>
 	<canvas id="camcanvas" style="width:640px; height:480px; display:none;"></canvas>
+	{{/constant}}
 
+	<div class="row-fluid">
+		<div class="span12">
+			<div id="cameraMoved" class="alert alert-error" style="display: none;">
+				{{{lang.Recalibrate}}}
+			</div>
+		</div>
+	</div>
 	<div id="loader" class="progress progress-striped active" style="display:none;position:absolute;left:45%;margin-top:300px;width:100px;">
 		<div class="bar" style="width: 100%;">{{lang.Loading}}</div>
 	</div>
@@ -98,7 +107,6 @@
 		    	</table>
 			</div>
 		</div>
-	</div>
 	</div>
 	{{> popupCalibration}}
 </template>
