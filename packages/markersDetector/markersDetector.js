@@ -21,6 +21,8 @@ function MarkersDetector(video, canvas){
     this.markers = [];
     this.markers_before = [];
     this.change_count = 0;
+    this.countFrames = 0;
+    this.countTags = 0;
 }
 
 MarkersDetector.prototype.accessCamera = function(){
@@ -50,6 +52,163 @@ MarkersDetector.prototype.accessCamera = function(){
 MarkersDetector.prototype.stopCamera = function(){
     if (this.stream){
         this.stream.stop();
+    }
+};
+
+MarkersDetector.prototype.checkSizeRedRectangle = function(){
+    var bottomLeftPoint = mm2pixel(-180, -140, 60);
+    var bottomRightPoint = mm2pixel(180, -140, 60);
+    var topLeftPoint = mm2pixel(-180, 140, 60);
+    var topRightPoint = mm2pixel(180, 140, 60);
+    var d = Math.sqrt(Math.pow(bottomLeftPoint.x-topRightPoint.x,2)+Math.pow(bottomLeftPoint.y-topRightPoint.y,2));
+    var D = Math.sqrt(Math.pow(topLeftPoint.x-bottomRightPoint.x,2)+Math.pow(topLeftPoint.y-bottomRightPoint.y,2));
+    var top = Math.sqrt(Math.pow(bottomLeftPoint.x-bottomRightPoint.x,2)+Math.pow(bottomLeftPoint.y-bottomRightPoint.y,2));
+    var bottom = Math.sqrt(Math.pow(topLeftPoint.x-topRightPoint.x,2)+Math.pow(topLeftPoint.y-topRightPoint.y,2));
+    if (D*d/2 - 640*480/2.5 >= 0){
+        if (bottom > 640 || top > 640){
+            return false;
+        }
+        else{
+            return true;
+        }
+    }
+    else{
+        return false;
+    }
+}
+
+MarkersDetector.prototype.checkRedRectangle = function(){
+    var bottomLeftPoint = mm2pixel(-180, -140, 60);
+    var bottomRightPoint = mm2pixel(180, -140, 60);
+    var topLeftPoint = mm2pixel(-180, 140, 60);
+    var topRightPoint = mm2pixel(180, 140, 60);
+    var maxXValue = Math.max(bottomLeftPoint.x,bottomRightPoint.x,topLeftPoint.x,topRightPoint.x);
+    var maxYValue = Math.max(bottomLeftPoint.y,bottomRightPoint.y,topLeftPoint.y,topRightPoint.y);
+    var minXValue = Math.min(bottomLeftPoint.x,bottomRightPoint.x,topLeftPoint.x,topRightPoint.x);
+    var minYValue = Math.min(bottomLeftPoint.y,bottomRightPoint.y,topLeftPoint.y,topRightPoint.y);
+    if (maxXValue > 640 || maxYValue > 480 || minXValue < 0 || minYValue < 0){
+        return false;
+    }
+    else{
+        return true;
+    }
+}
+
+MarkersDetector.prototype.checkBlueRectangle = function(){
+    var bottomLeftPoint = mm2pixel(-180, -140, 0);
+    var bottomRightPoint = mm2pixel(180, -140, 0);
+    var topLeftPoint = mm2pixel(-180, 140, 0);
+    var topRightPoint = mm2pixel(180, 140, 0);
+    var maxXValue = Math.max(bottomLeftPoint.x,bottomRightPoint.x,topLeftPoint.x,topRightPoint.x);
+    var maxYValue = Math.max(bottomLeftPoint.y,bottomRightPoint.y,topLeftPoint.y,topRightPoint.y);
+    var minXValue = Math.min(bottomLeftPoint.x,bottomRightPoint.x,topLeftPoint.x,topRightPoint.x);
+    var minYValue = Math.min(bottomLeftPoint.y,bottomRightPoint.y,topLeftPoint.y,topRightPoint.y);
+    if (maxXValue > 640 || maxYValue > 480 || minXValue < 0 || minYValue < 0){
+        return false;
+    }
+    else{
+        return true;
+    }
+}
+
+MarkersDetector.prototype.checkCameraAngle = function(){
+    var bottomLeftPoint = mm2pixel(-180, -140, 0);
+    var bottomRightPoint = mm2pixel(180, -140, 0);
+    var topLeftPoint = mm2pixel(-180, 140, 0);
+    var topRightPoint = mm2pixel(180, 140, 0);
+    var left = Math.sqrt(Math.pow(bottomLeftPoint.x-topLeftPoint.x,2)+Math.pow(bottomLeftPoint.y-topLeftPoint.y,2));
+    var right = Math.sqrt(Math.pow(topRightPoint.x-bottomRightPoint.x,2)+Math.pow(topRightPoint.y-bottomRightPoint.y,2));
+    var top = Math.sqrt(Math.pow(topRightPoint.x-topLeftPoint.x,2)+Math.pow(topRightPoint.y-topLeftPoint.y,2));
+    var bottom = Math.sqrt(Math.pow(bottomLeftPoint.x-bottomRightPoint.x,2)+Math.pow(bottomLeftPoint.y-bottomRightPoint.y,2));
+    var ratioTopBottom;
+    if (top > bottom){
+        ratioTopBottom = bottom/top;
+    }
+    else{
+        ratioTopBottom = top/bottom;
+    }
+    var ratioLeftRight
+    if (left > right){
+        ratioLeftRight = right/left;
+    }
+    else{
+        ratioLeftRight = left/right;
+    }
+    var smallerRatio = Math.min(ratioLeftRight,ratioTopBottom);
+    if (smallerRatio >= 0.75){
+        return true;
+    }
+    else{
+        return false;
+    }
+
+}
+
+MarkersDetector.prototype.changeStatus = function(){
+    var sizeOK = this.checkSizeRedRectangle();
+    var angleOK = this.checkCameraAngle();
+    var redRectangleOK = this.checkRedRectangle();
+    var blueRectangleOK = this.checkBlueRectangle();
+    var lastVisibility = Math.floor(this.countTags/(this.countFrames*4)*100);
+    this.countFrames++;
+    this.countTags += this.corners.length;
+    if (this.countFrames == 100){
+        this.countFrames = 0;
+        this.countTags = 0;
+    }
+    var tagVisibility = Math.floor(this.countTags/(this.countFrames*4)*100);
+    if (isNaN(tagVisibility) && lastVisibility >= 90){
+        tagVisibility = lastVisibility;
+    }
+    if (sizeOK){
+        $('#sizeOK').parent().removeClass('alert alert-error');
+        $('#sizeOK').find('.icon-ok').show();
+        $('#sizeOK').find('.icon-remove').hide();
+    }
+    else{
+        $('#sizeOK').parent().addClass('alert alert-error');
+        $('#sizeOK').find('.icon-ok').hide();
+        $('#sizeOK').find('.icon-remove').show();
+    }
+    if (angleOK){
+        $('#angleOK').parent().removeClass('alert alert-error');
+        $('#angleOK').find('.icon-ok').show();
+        $('#angleOK').find('.icon-remove').hide();
+    }
+    else{
+        $('#angleOK').parent().addClass('alert alert-error');
+        $('#angleOK').find('.icon-ok').hide();
+        $('#angleOK').find('.icon-remove').show();
+    }
+    if (redRectangleOK){
+        $('#redRectangleOK').parent().removeClass('alert alert-error');
+        $('#redRectangleOK').find('.icon-ok').show();
+        $('#redRectangleOK').find('.icon-remove').hide();
+    }
+    else{
+        $('#redRectangleOK').parent().addClass('alert alert-error');
+        $('#redRectangleOK').find('.icon-ok').hide();
+        $('#redRectangleOK').find('.icon-remove').show();
+    }
+    if (blueRectangleOK){
+        $('#blueRectangleOK').parent().removeClass('alert alert-error');
+        $('#blueRectangleOK').find('.icon-ok').show();
+        $('#blueRectangleOK').find('.icon-remove').hide();
+    }
+    else{
+        $('#blueRectangleOK').parent().addClass('alert alert-error');
+        $('#blueRectangleOK').find('.icon-ok').hide();
+        $('#blueRectangleOK').find('.icon-remove').show();
+    }
+    if (tagVisibility >= 90){
+        $('#tagVisibility1').parent().removeClass('alert alert-error');
+        $('#tagVisibility2').parent().removeClass('progress-danger').addClass('progress-success');
+        $('#tagVisibility2').width(tagVisibility+"%");
+    }
+    else{
+        $('#tagVisibility1').parent().addClass('alert alert-error');
+        $('#tagVisibility2').parent().removeClass('progress-success').addClass('progress-danger');
+        $('#tagVisibility2').width(tagVisibility+"%");
     }
 };
 

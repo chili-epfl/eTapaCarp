@@ -87,9 +87,9 @@ Meteor.startup(
     add('PerspectiveView', 'Vue en perspective', 'Perspective view', 'Perspective view');
     add('Position', 'Position', 'Position', 'Position');
 
-    add('Recalibrate', '<b>Attention: </b>Votre caméra ou votre zone de travail a bougé!<br>Essayez de <a id="myModalButton" href="#myModal" data-toggle="modal" style="margin-top: 10px;">recalibrer</a>.<button class="close">&times;</button>',
-        '<b>Warning: </b>Your camera or workspace may have moved!<br>Try to <a id="myModalButton" href="#myModal" data-toggle="modal" style="margin-top: 10px;">recalibrate</a>.<button class="close">&times;</button>',
-        '<b>Warning: </b>Your camera or workspace may have moved!<br>Try to <a id="myModalButton" href="#myModal" data-toggle="modal" style="margin-top: 10px;">recalibrate</a>.<button class="close">&times;</button>'
+    add('Recalibrate', '<b>Attention: </b>Votre caméra ou votre zone de travail a bougé!<br>Essayez de <a id="calibrationButton" href="#calibration" data-toggle="modal" style="margin-top: 10px;">recalibrer</a>.<button class="close">&times;</button>',
+        '<b>Warning: </b>Your camera or workspace may have moved!<br>Try to <a id="calibrationButton" href="#calibration" data-toggle="modal" style="margin-top: 10px;">recalibrate</a>.<button class="close">&times;</button>',
+        '<b>Warning: </b>Your camera or workspace may have moved!<br>Try to <a id="calibrationButton" href="#calibration" data-toggle="modal" style="margin-top: 10px;">recalibrate</a>.<button class="close">&times;</button>'
         );
     add('RedRectangle', 'Rectangle rouge', 'Red rectangle', 'Red rectangle');
     add('Rotation', 'Rotation', 'Rotation', 'Rotation');
