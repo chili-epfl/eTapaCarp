@@ -4,9 +4,20 @@
 	<canvas id="camcanvas" style="width:640px; height:480px; display:none;"></canvas>
 	{{/constant}}
 	<div class="row-fluid">
+		<div class="span12">
+			<div id="cameraMoved" class="alert alert-error" style="display: none;">
+				{{{lang.Recalibrate}}}
+			</div>
+		</div>
+	</div>
+	<div class="row-fluid">
 		<div class="span6">
 			<span class="btn btn-info btn-small disabled">
 				{{lang.FrontView}}
+			</span>
+			<span class="btn btn-danger btn-small disabled" style="float:right;">
+				<span id="faceCorrect">0/1</span>
+				<span id="faceError"></span>
 			</span>
 			<br>
 			{{#constant}}
@@ -17,6 +28,10 @@
 		<div class="span5">
 			<span class="btn btn-info btn-small disabled">
 				{{lang.SideView}}
+			</span>
+			<span class="btn btn-danger btn-small disabled" style="float:right;">
+				<span id="coteCorrect">0/1</span>
+				<span id="coteError"></span>
 			</span>
 			<br>
 			{{#constant}}
@@ -30,12 +45,26 @@
 				<button id="axis-on" class="btn btn-mini btn-primary">ON</button>
 				<button id="axis-off" class="btn btn-mini">OFF</button>
 			</div>
+			<h6>{{lang.Transparency}}</h6>
+			<div class="btn-group">
+				<button id="transparency-on" class="btn btn-mini btn-primary">ON</button>
+				<button id="transparency-off" class="btn btn-mini">OFF</button>
+			</div>
+			<h6>{{lang.Feedback}}</h6>
+			<div class="btn-group">
+				<button id="feedback-on" class="btn btn-mini btn-primary">ON</button>
+				<button id="feedback-off" class="btn btn-mini">OFF</button>
+			</div>
 		</div>
 	</div>
 	<div class="row-fluid">
 		<div class="span6">
 			<span class="btn btn-info btn-small disabled">
 				{{lang.TopView}}
+			</span>
+			<span class="btn btn-danger btn-small disabled" style="float:right;">
+				<span id="dessusCorrect">0/1</span>
+				<span id="dessusError"></span>
 			</span>
 			<br>
 			{{#constant}}
@@ -54,21 +83,26 @@
 			{{/constant}}
 		</div>
 		<div class="span1">
-			<h6>{{lang.Transparency}}</h6>
+			<h6>{{lang.NumEdges}}</h6>
 			<div class="btn-group">
-				<button id="transparency-on" class="btn btn-mini btn-primary">ON</button>
-				<button id="transparency-off" class="btn btn-mini">OFF</button>
+				<button id="difficulty1" class="btn btn-mini">1</button>
+				<button id="difficulty2" class="btn btn-mini">2</button>
+				<button id="difficulty3" class="btn btn-mini">3</button>
 			</div>
+			<br>	
+			<button id="selectEdge" class="btn btn-mini">{{lang.NewChallenge}}</button>
 		</div>
 	</div>
-	<div class="row-fluid">
-		<div class="span12">
-			<div id="info_zone" class="alert alert-info">
-				{{lang.ActivityInfo}}
-			</div>
-			<div id="cameraMoved" class="alert alert-error" style="display: none;">
-				{{{lang.Recalibrate}}}
-			</div>
+	<div id="solutionCorrect" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="solutionCorrectLabel" aria-hidden="true">
+		<div class="modal-header">
+		    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+		    <h2>{{lang.Correct}}</h2>
+		</div>
+	</div>
+	<div id="solutionWrong" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="solutionWrongLabel" aria-hidden="true">
+		<div class="modal-header">
+		    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+		    <h2>{{lang.Wrong}}</h2>
 		</div>
 	</div>
 	{{> popupCalibration}}

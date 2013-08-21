@@ -69,10 +69,14 @@ Meteor.startup(
     add('CornersVisibility', 'Visibilité des coins (rouge signifie mauvais et vert signifie bon)',
       'Corners visibility (red means bad, green means OK)',
       'Corners visibility (red means bad, green means OK)');
+    add('Correct', 'Correct!', 'Correct!', 'Correct!');
 
     add('Details', 'Détails', 'Details', 'Details');
     add('Detected', 'Détecté', 'Detected', 'Detected');
 
+    add('Errors', 'erreur(s)', 'error(s)', 'error(s)');
+
+    add('Feedback', 'Feedback', 'Feedback', 'Feedback');
     add('FrontView', 'Vue de face', 'Front view', 'Front View');
 
     add('Home', 'Home', 'Home', 'Home');
@@ -80,6 +84,7 @@ Meteor.startup(
     add('Loading', 'Chargement...', 'Loading...', 'Loading...');
 
     add('NewChallenge', 'Nouveau challenge', 'New challenge', 'New challenge');
+    add('NumEdges', 'Nombre d\'arêtes', 'Number of edges', 'Number of edges');
     add('NumObjects', 'Nombre d\'objects', 'Number of objects', 'Number of objects');
 
     add('Object', 'Objet', 'Object', 'Object');
@@ -98,5 +103,7 @@ Meteor.startup(
 
     add('TopView', 'Vue en plan', 'Top view', 'Top view');
     add('Transparency', 'Transparence', 'Transparency', 'Transparency');
+
+    add('Wrong', 'Faux!', 'Wrong!','Wrong!');
   }
 );

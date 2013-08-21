@@ -1,8 +1,10 @@
 var rendered = false;
 var animationId = null;
+var lang;
 
 Template.activity1.lang = function(e){
-  return Session.get('lang');
+	lang = Session.get('lang');
+	return lang;
 }
 
 var views = new Views();
@@ -15,8 +17,45 @@ function onDocumentMouseDown( event ) {
     click = event;
 };
 
+function updateFeedback(){
+	var correction = views.checkEdgeSolution();
+	for (var i in correction[0]){
+		if (i == 'dessus'){
+			$('#'+i+'Correct').text(correction[0][i]+correction[2]+"/"+views.views[i].difficulty);
+			if (correction[1][i] > 0){
+				$('#'+i+'Error').text(', '+correction[1][i]+' '+lang.Errors);
+			}
+			else{
+				$('#'+i+'Error').text('');
+			}
+			if (correction[0][i] == views.views[i].difficulty-correction[2] && correction[1][i] == 0){
+				$('#'+i+'Correct').parent().removeClass('btn-danger').addClass('btn-success');
+			}
+			else{
+				$('#'+i+'Correct').parent().removeClass('btn-success').addClass('btn-danger');
+			}
+		}
+		else{
+			$('#'+i+'Correct').text(correction[0][i]+"/"+views.views[i].difficulty);
+			if (correction[1][i] > 0){
+				$('#'+i+'Error').text(', '+correction[1][i]+' '+lang.Errors);
+			}
+			else{
+				$('#'+i+'Error').text('');
+			}
+			if (correction[0][i] == views.views[i].difficulty && correction[1][i] == 0){
+				$('#'+i+'Correct').parent().removeClass('btn-danger').addClass('btn-success');
+			}
+			else{
+				$('#'+i+'Correct').parent().removeClass('btn-success').addClass('btn-danger');
+			}
+		}
+	}
+}
+
 function animate() {
 
+	//id to be able to cancel the animation later
 	animationId = requestAnimationFrame( animate );
 
     markersDetector.getMarkers();
@@ -39,14 +78,24 @@ function animate() {
 	
 	views.setClick(click);
 	views.render(markersDetector.markers);
+	if (click){
+		updateFeedback();
+	}
 	click = null;
 
 };
 
 Template.activity1.rendered = function(){
+	//To be sure the models of the shapes are loaded
+	MODELS = Session.get('shapes');
+	if (MODELS == {}){
+		return;
+	}
+
 	if(!rendered){
+		//prevent to do the initialization twice
 		rendered = true;
-		MODELS = Session.get('shapes');
+
 	    markersDetector = new MarkersDetector("cam", "camcanvas");
 	    markersDetector.accessCamera();
 		views.addView(new FrontView('face'));
@@ -84,6 +133,41 @@ Template.activity1.rendered = function(){
 			$('#axis-off').addClass('btn-primary');
 			views.setAxis(false);
 			views.setChangedLayout(true);
+		});
+
+		$('#feedback-on').on('click', function () {
+			$('#feedback-off').removeClass('btn-primary');
+			$('#feedback-on').addClass('btn-primary');
+			$('span[id$=Correct]').parent().show();
+		});
+
+		$('#feedback-off').on('click', function () {
+			$('#feedback-on').removeClass('btn-primary');
+			$('#feedback-off').addClass('btn-primary');
+			$('span[id$=Correct]').parent().hide();
+		});
+
+		$('#selectEdge').on('click', function () {
+			if(markersDetector.markers.length == 1){
+				views.edgeToSelect(markersDetector.markers[0].id,'perspective');
+				updateFeedback();
+			}
+		});
+		$('button[id^="difficulty"]').on('click', function(){
+			var that = this;
+			var level = $(this).attr('id')[$(this).attr('id').length-1];
+
+			if(markersDetector.markers.length == 1){
+				if (!$(that).hasClass('btn-primary')){
+					views.edgeSelectionDifficulty(level);
+					$('#difficulty'+((level+1)%3 || 3)).removeClass("btn-primary");
+					$('#difficulty'+((level+2)%3 || 3)).removeClass("btn-primary");
+					$(that).addClass("btn-primary");
+
+					views.edgeToSelect(markersDetector.markers[0].id,'perspective');
+					updateFeedback();
+				}
+			}	
 		});
 	}
 }

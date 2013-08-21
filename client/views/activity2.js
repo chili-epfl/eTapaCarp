@@ -45,10 +45,17 @@ function animate() {
 };
 
 Template.activity2.rendered = function(){
+	//To be sure the models of the shapes are loaded
+	MODELS = Session.get('shapes');
+	if (typeof(MODELS[6]) == "undefined"){
+		return;
+	}
+
 	if(!rendered){
+		//prevent to do the initialization twice
 		rendered = true;
-		MODELS = Session.get('shapes');
-	    markersDetector = new MarkersDetector("cam", "camcanvas");
+
+		markersDetector = new MarkersDetector("cam", "camcanvas");
 	    markersDetector.accessCamera();
 	    var frontview = new FrontView('face');
 	    frontview.setDynamic(false);
@@ -92,50 +99,45 @@ Template.activity2.rendered = function(){
 			views.setChangedLayout(true);
 		});
 
-		$('#difficulty1').on('click', function(){
+		$('#feedback-on').on('click', function () {
+			$('#feedback-off').removeClass('btn-primary');
+			$('#feedback-on').addClass('btn-primary');
+			$('#feedback').show();
+		});
+
+		$('#feedback-off').on('click', function () {
+			$('#feedback-on').removeClass('btn-primary');
+			$('#feedback-off').addClass('btn-primary');
+			$('#feedback').hide();
+		});
+
+		$('button[id^="difficulty"]').on('click', function(){
 			var that = this;
+			var level = $(this).attr('id')[$(this).attr('id').length-1];
 			if (!$(that).hasClass('btn-primary')){
 				$('#loader').show("fast",function(){
-					views.changeDifficulty(1);
-					$('#difficulty2').removeClass("btn-primary");
-					$('#difficulty3').removeClass("btn-primary");
+					views.modelMatchingDifficulty(level);
+					$('#difficulty'+(((level+1)%3+1))).removeClass("btn-primary");
+					$('#difficulty'+(((level+2)%3+1))).removeClass("btn-primary");
 					$(that).addClass("btn-primary");
-					$('#rowShape20').hide();
-					$('#rowShape64').hide();
+					console.log(level == 2)
+					if (level == 1){
+						$('#rowShape20').hide();
+						$('#rowShape64').hide();
+					}
+					else if (level == 2){
+						$('#rowShape20').show();
+						$('#rowShape64').hide();
+					}
+					else{
+						$('#rowShape20').show();
+						$('#rowShape64').show();
+					}
 					$('#loader').hide();
 				});
 			}	
 		});
 
-		$('#difficulty2').on('click', function(){
-			var that = this;
-			if (!$(that).hasClass('btn-primary')){
-				$('#loader').show("fast",function(){
-					views.changeDifficulty(2);
-					$('#difficulty1').removeClass("btn-primary");
-					$('#difficulty3').removeClass("btn-primary");
-					$(that).addClass("btn-primary");
-					$('#rowShape20').show();
-					$('#rowShape64').hide();
-					$('#loader').hide();
-				});
-			}	
-		});
-
-		$('#difficulty3').on('click', function(){
-			var that = this;
-			if (!$(that).hasClass('btn-primary')){
-				$('#loader').show("fast",function(){
-					views.changeDifficulty(3);
-					$('#difficulty2').removeClass("btn-primary");
-					$('#difficulty1').removeClass("btn-primary");
-					$(that).addClass("btn-primary");
-					$('#rowShape20').show();
-					$('#rowShape64').show();
-					$('#loader').hide();
-				});
-			}			
-		});
 
 		$('#newChallenge').on('click', function(){
 			$('#loader').show("fast",function(){
