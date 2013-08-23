@@ -19,10 +19,11 @@ function MarkersDetector(video, canvas){
     this.detector = new FLARMultiIdMarkerDetector(this.detectorParam, 100);
     this.detector.setContinueMode(true);
     this.markers = [];
-    this.markers_before = [];
+    this.activeMarkersBefore = {};
     this.change_count = 0;
     this.countFrames = 0;
     this.countTags = 0;
+    this.activeMarkers = {};
 }
 
 MarkersDetector.prototype.accessCamera = function(){
@@ -352,34 +353,33 @@ MarkersDetector.prototype.getMarkers = function(){
         this.snapshot();
 
         var markerCount = this.detector.detectMarkerLite(this.raster,110);
-        this.markers = [];
-        this.corners = [];
+        this.markers = {};
+        this.corners = {};
         for (var i = 0; i < markerCount; i++){
             var id = this.detector._callback.result_stack._items[i].arcode_id;
             var marker = {id: id, corners: this.detector._callback.result_stack._items[i].vertex};
-            if (marker.id == 1 || marker.id == 2 || marker.id == 3 || marker.id == 4){
-                var isIn = false;
-                for (var j in this.corners){
-                    var corner = this.corners[j];
-                    if (corner.id == marker.id){
-                        isIn = true;
-                    }
-                }
-                if (!isIn){
-                    this.corners.push(marker)
+            if (marker.id < 5){
+                if (!(marker.id in this.corners)){
+                    this.corners[marker.id] = marker;
                 }
             }
             else{
-                var isIn = false;
-                for (var j in this.markers){
-                    var current_marker = this.markers[j];
-                    if (current_marker.id == marker.id){
-                        isIn = true;
-                    }
+                if (!(marker.id in this.markers)){
+                    this.markers[marker.id] = marker;
                 }
-                if (!isIn){
-                    this.markers.push(marker)
-                }
+            }
+        }
+        for (var i in this.markers){
+            var currentMarker = this.markers[i];
+            currentMarker.active = 10;
+            this.activeMarkers[currentMarker.id] = currentMarker;
+        }
+        for (var i in this.activeMarkers){
+            var currentMarker = this.activeMarkers[i];
+            currentMarker.active--;
+            if (currentMarker.active == 0){
+                delete this.activeMarkers[currentMarker.id];
+                console.log('delete')
             }
         }
         if (!(this.topRight && this.bottomRight && this.bottomLeft && this.topLeft) || this.corners.length == 0){
@@ -398,15 +398,15 @@ MarkersDetector.prototype.getMarkers = function(){
 
 MarkersDetector.prototype.distanceBetweenMarkers = function(){
     var maxdistance = 0;
-    for (var i=0; i < this.markers.length; i++){
+    for (var i in this.activeMarkers){
         var distance = 0;
-        var marker = this.markers[i];
+        var marker = this.activeMarkers[i];
         var marker_before;
-        for (var j=0; j < this.markers_before.length; j++){
-            if (this.markers_before[j].id == marker.id){
-                marker_before = this.markers_before[j];
-                break;
-            }
+        if (marker.id in this.activeMarkersBefore){
+            marker_before = this.activeMarkersBefore[marker.id];
+        }
+        else{
+            break;
         }
         distance += Math.sqrt(Math.pow(marker.corners[0].x-marker_before.corners[0].x,2)+Math.pow(marker.corners[0].y-marker_before.corners[0].y,2));
         distance += Math.sqrt(Math.pow(marker.corners[1].x-marker_before.corners[1].x,2)+Math.pow(marker.corners[1].y-marker_before.corners[1].y,2));
@@ -420,11 +420,19 @@ MarkersDetector.prototype.distanceBetweenMarkers = function(){
 };
 
 MarkersDetector.prototype.markersDifference = function(){
-    if (this.markers.length != this.markers_before.length){
+    var activeMarkers_length = 0;
+    var activeMarkersBefore_length = 0;
+    for (var i in this.activeMarkers){
+        activeMarkers_length++;
+    }
+    for (var i in this.activeMarkersBefore){
+        activeMarkersBefore_length++;
+    }
+    if (activeMarkers_length != activeMarkersBefore_length){
         this.change_count++;
     }
     else{
-        if (this.distanceBetweenMarkers(this.markers) > 5){
+        if (this.distanceBetweenMarkers(this.activeMarkers) > 5){
             this.change_count++;
         }
     }
@@ -434,7 +442,7 @@ MarkersDetector.prototype.notJittering = function(){
     this.markersDifference();
     if (this.change_count > 0){
         this.change_count = 0;
-        this.markers_before = this.markers;
+        this.activeMarkersBefore = jQuery.extend(true, {}, this.activeMarkers);
         return true;
     }
     else{

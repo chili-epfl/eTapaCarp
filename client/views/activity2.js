@@ -38,8 +38,8 @@ function animate() {
     views.setIsNotJittering(isNotJittering);
 	
 	views.setClick(click);
-	views.render(markersDetector.markers);
-	views.checkSolution(markersDetector.markers);
+	views.render(markersDetector.activeMarkers);
+	views.checkSolution(markersDetector.activeMarkers);
 	click = null;
 
 };
@@ -120,7 +120,6 @@ Template.activity2.rendered = function(){
 					$('#difficulty'+(((level+1)%3+1))).removeClass("btn-primary");
 					$('#difficulty'+(((level+2)%3+1))).removeClass("btn-primary");
 					$(that).addClass("btn-primary");
-					console.log(level == 2)
 					if (level == 1){
 						$('#rowShape20').hide();
 						$('#rowShape64').hide();

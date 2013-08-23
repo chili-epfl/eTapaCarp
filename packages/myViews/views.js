@@ -4,6 +4,7 @@ var WS_HEIGHT = 280.0;
 var SHAPES = [6, 20, 64];
 var ACTIVITYTRANSLATION = [];
 var ACTIVITYROTATION = [];
+var COLORS = [0xff0000, 0x00ff00, 0x0000ff, 0xff00ff, 0x00ffff, 0xf0f0f0];
 
 function Views(){
     this.views = {};
@@ -56,7 +57,6 @@ Views.prototype.checkEdgeSolution = function(){
         else{
             if (this.views[i].selected && this.views[i].selected.length > 0){
                 userSol[i] = this.views[i].selected;
-                console.log(userSol[i])
             }
             else{
                 correct[i] = 0;
@@ -95,6 +95,8 @@ Views.prototype.checkEdgeSolution = function(){
             }
         }
     }
+
+    //divided by 2 because there are the stippled and plain lines
     for (var i in correct){
         correct[i] = correct[i]/2;
         wrong[i] = wrong[i]/2;
@@ -159,6 +161,96 @@ Views.prototype.init_objects = function(){
         var view = this.views[i];
         if (!view.dynamic){
             view.init_objects();
+        }
+    }
+}
+
+Views.prototype.clearChoiceEdges = function(){
+    for(var i in this.views){
+        this.views[i].edgesToSelect = [];
+        this.views[i].levels = {};
+        this.views[i].changedLayout = true;
+    }
+}
+
+Views.prototype.showHelpOnSelect = function(click){
+    for (var i in this.views){
+        var currentView = this.views[i];
+        if (currentView instanceof FrontView){
+            var helpingView, sideView;
+            for (var j in this.views){
+                if (this.views[j] instanceof TopView){
+                    helpingView = this.views[j];
+                }
+                else if (this.views[j] instanceof SideView){
+                    sideView = this.views[j];
+                }
+            }
+                
+            if (click.target.parentElement.id == currentView.name){
+                currentView.levels = {};
+                currentView.changedLayout = true;
+                sideView.levels = {};
+                sideView.edgesToSelect = [];
+                sideView.changedLayout = true;
+                helpingView.levels = {};
+                helpingView.edgesToSelect = [];
+            }
+            helpingView.levels.y = {};
+            for (var j in currentView.edgesToSelect){
+                helpingView.levels.y[j] = currentView.edgesToSelect[j];
+            }
+            helpingView.changedLayout = true;
+
+        }
+        else if (currentView instanceof SideView){
+            var helpingView, frontView;
+            for (var j in this.views){
+                if (this.views[j] instanceof TopView){
+                    helpingView = this.views[j];
+                }
+                else if (this.views[j] instanceof FrontView){
+                    frontView = this.views[j];
+                }
+            }
+                
+            if (click.target.parentElement.id == currentView.name){
+                currentView.levels = {};
+                currentView.changedLayout = true;
+                frontView.levels = {};
+                frontView.edgesToSelect = [];
+                frontView.changedLayout = true;
+                helpingView.levels = {};
+                helpingView.edgesToSelect = [];
+            }
+            helpingView.levels.x = {};
+            for (var j in currentView.edgesToSelect){
+                helpingView.levels.x[j] = currentView.edgesToSelect[j];
+            }
+            
+            helpingView.changedLayout = true;
+
+        }
+        else if (currentView instanceof TopView){
+            var helpingView;
+            for (var j in this.views){
+                if (click.target.parentElement.id == currentView.name){
+                    currentView.levels = {};
+                    currentView.changedLayout = true;
+                    if (this.views[j] instanceof FrontView || this.views[j] instanceof SideView){
+                        helpingView = this.views[j];
+                        helpingView.levels = {};
+                        helpingView.edgesToSelect = [];
+                        if (currentView.edgesToSelect.length > 0){
+                            var count = 1;
+                            for (var j in currentView.edgesToSelect){
+                                helpingView.levels[j] = currentView.edgesToSelect[j];
+                            }
+                        }
+                        helpingView.changedLayout = true;
+                    }
+                }
+            }
         }
     }
 }
@@ -244,9 +336,12 @@ function View(name) {
     this.edges = [];
     this.faces = [];
     this.axisObjects = [];
-    this.selected = [];
+    this.selected = {};
     this.edgesToSelect = [];
     this.model = false;
+    this.helpLines = [];
+    this.levels = {};
+    this.levelLines = [];
 }
 
 View.prototype.init = function () {
@@ -273,7 +368,7 @@ View.prototype.render = function (markers) {
         if (this.isNotJittering || this.changedLayout){
             this.changedLayout = false;
             this.clear();
-            for (var i = 0; i < markers.length; i++) {
+            for (var i in markers) {
                 var marker = markers[i];
                 this.createObjects(marker.id);
             }
@@ -313,14 +408,27 @@ View.prototype.clear = function () {
         for (var j in this.edges[i]){
             this.edges[i][j].visible = false;
         }
-    }for(var i in this.faces){
+    }
+    for(var i in this.faces){
         for (var j in this.faces[i]){
             this.faces[i][j].visible = false;
         }
     }
+    for(var i in this.levelLines){
+        this.scene.remove(this.levelLines[i]);
+    }
+    for(var i in this.helpLines){
+        this.scene.remove(this.helpLines[i]);
+    }
     for (var i in this.axisObjects){
         this.scene.remove(this.axisObjects[i]);
     }
+    for (var i in this.texts){
+        this.scene.remove(this.texts[i]);
+    }
+    this.texts = [];
+    this.levelLines = [];
+    this.helpLines = [];
     this.axisObjects = [];
     this.renderer.clear();
 };
@@ -335,11 +443,16 @@ View.prototype.createObjects = function (markerId) {
         filledShape.computeFaceNormals();
         for (var i = 0; i < dashedShape.length; i++){
             dashedShape[i].computeLineDistances();
-            var lineDashedMaterial = new THREE.LineDashedMaterial({color: 0x000000, depthTest: false, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1}); var object1 = new THREE.Line(dashedShape[i], lineDashedMaterial);
-            var lineMaterial = new THREE.LineBasicMaterial({color: 0x000000, depthTest: true, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1});;
+            var lineDashedMaterial = new THREE.LineDashedMaterial({color: 0x000000, depthTest: false});
+            var object1 = new THREE.Line(dashedShape[i], lineDashedMaterial);
+            var lineMaterial = new THREE.LineBasicMaterial({color: 0x000000, depthTest: true});;
             
 
             var object1 = new THREE.Line(dashedShape[i], lineDashedMaterial);
+
+            //To fix problem with stippled lines not showing
+            object1.renderDepth = 9007199254740992;
+            
             object1.selected = false;
             object1.visible = true;
             if (!this.transparency) {
@@ -446,8 +559,10 @@ View.prototype.findZ = function (id) {
 };
 
 View.prototype.computeNewPositions = function (markers) {
+    var numMarkers = 0;
     for (var k in this.edges) {
-        for (var l = 0; l < markers.length; l++) {
+        for (var l in markers) {
+            numMarkers++;
             var marker = markers[l];
             if (k == marker.id) {
                 var Z = this.findZ(marker.id);
@@ -456,7 +571,6 @@ View.prototype.computeNewPositions = function (markers) {
                 var position = pixel2mm(marker_position[0], marker_position[1], Z);
                 var position2 = pixel2mm(marker_position2[0], marker_position2[1], Z);
                 var rotation = this.calculateRotation(position, position2);
-                var count = 0;
                 for (var j in this.faces[k]){
                     this.faces[k][j].position.x = position.x;
                     this.faces[k][j].position.y = position.y;
@@ -468,11 +582,12 @@ View.prototype.computeNewPositions = function (markers) {
                     this.edges[k][j].position.z = 0;
                     this.edges[k][j].rotation.z = rotation;
                 }
-                
             }
         }
     }
-    this.separateEdges();
+    if (numMarkers == 1){
+        this.separateEdges();
+    }
 };
 
 View.prototype.selectEdge = function(){
@@ -506,58 +621,80 @@ View.prototype.selectEdge = function(){
         }
         for (var j in this.edges){
             var intersects = raycaster.intersectObjects( this.edges[j] );
-            if (intersects.length > 0 && intersects.length < 5){
+            if (intersects.length > 0){
                 this.changedLayout = true;
                 if (intersects.length > 2){
                     this.edgesToSelect = [];
                     for (var i in intersects){
-                        this.edgesToSelect.push(intersects[i].object);
+                        var currentObject = intersects[i].object;
+                        var rot = currentObject.rotation.z;
+                        var realPosition = {x:null, y:null};
+                        var y = (intersects[i].point.y - intersects[i].point.x * Math.sin(rot) / Math.cos(rot) + currentObject.position.x * Math.sin(rot) / Math.cos(rot) - currentObject.position.y) / (Math.sin(rot)*Math.sin(rot)/Math.cos(rot)+Math.cos(rot));
+                        var x = (intersects[i].point.x + y * Math.sin(rot) - currentObject.position.x) / Math.cos(rot);
+                        intersects[i].point.x = x;
+                        intersects[i].point.y = y;
+                        this.edgesToSelect.push({object: intersects[i].object, point: intersects[i].point});
                     }
                 }
                 else{
                     for (var i = 0; i < intersects.length; i++ ) {
                         var currentObject = intersects[i].object;
                         for (var j = 0; j < this.edgesToSelect.length; j++){
-                            if (currentObject.id == this.edgesToSelect[j].id){
+                            if (currentObject.id == this.edgesToSelect[j].object.id){
                                 this.edgesToSelect = [];
                             }
                         }
                         if (currentObject.selected){
-                            var tmpSelected = []
                             currentObject.selected = false;
+                            delete this.selected[currentObject.id];
                         }
                         else{
                             currentObject.material.color.setHex( 0xff0000 );
-                            this.selected.push(currentObject);
+                            this.selected[currentObject.id] = currentObject;
                             currentObject.selected = true;
                         }
-                    }
-                    var tmpSelected = [];
-                    for (var i in this.selected){
-                        if (this.selected[i].selected){
-                            tmpSelected.push(this.selected[i]);
-                        }
-                    }
-                    this.selected = tmpSelected;
+                    }   
                 }
             }
         }
     }
 };
 
+View.prototype.selectFromChoice = function(id){
+    var count = 1;
+    for (var i in this.edgesToSelect){
+        if (count == id){
+            this.edgesToSelect[i].object.selected = true;
+            this.selected.push(this.edgesToSelect[i].object);
+        }
+        if (i%2 == 1){
+            count++;
+        }
+    }
+    this.edgesToSelect = [];
+    this.changedLayout = true;
+}
+
 View.prototype.calculateRotation = function (vector1, vector2) {
     var rotation;
-    var diffx = vector1.x - vector2.x;
-    var diffy = vector1.y - vector2.y;
-    if (diffy == 0) {
-        diffx = 0;
-        diffy = 1;
+    var diffx = -(vector1.x - vector2.x);
+    var diffy = -(vector1.y - vector2.y);
+    if (diffx < 0){
+        rotation = Math.atan(diffy/diffx);
     }
-    if ((diffx < 0 && diffy > 0) || (diffx > 0 && diffy > 0)) {
-        rotation = -Math.atan(diffx / diffy) + Math.PI / 2;
+    else if (diffx == 0){
+        if (diffy > 0){
+            rotation = Math.PI/2;
+        }
+        else{
+            rotation = 3*Math.PI/2;
+        }
     }
-    else {
-        rotation = -Math.atan(diffx / diffy) - Math.PI / 2;
+    else if (diffy >= 0){
+        rotation = -Math.PI+Math.atan(diffy/Math.abs(diffx));
+    }
+    else if (diffy < 0){
+        rotation = -Math.PI-Math.atan(Math.abs(diffy)/Math.abs(diffx));
     }
     return rotation
 };
@@ -804,22 +941,48 @@ FrontView.prototype.setCamera = function(){
         this.height = window.innerHeight/4;
         this.width = Math.ceil(this.height/(140/180)*2);
     }
-    this.camera = new THREE.OrthographicCamera(-WS_WIDTH/2, WS_WIDTH/2, 0, -WS_HEIGHT/2, -200, 200 );
+    this.camera = new THREE.OrthographicCamera(-WS_WIDTH/2, WS_WIDTH/2, 0, -WS_HEIGHT/2, -600, 600 );
     this.camera.position.z = WS_HEIGHT/2 - 1;
     this.camera.rotation.x = Math.PI/2;
 };
 
 FrontView.prototype.separateEdges = function(){
-    var count = 1;
+    var count = 0;
     if (this.edgesToSelect.length > 2){
         for (var i in this.edgesToSelect){
-            this.edgesToSelect[i].position.x += count*5;
-            this.edgesToSelect[i].position.y += count*5;
-            this.edgesToSelect[i].position.z += count*5;
-            this.edgesToSelect[i].material.linewidth = 5-count*2;
-            if (i%2 == 1 || !this.transparency){
+            var currentEdge = this.edgesToSelect[i].object;
+            
+            // currentEdge.position.y -= 300;
+            currentEdge.position.z += (count+1)*8;
+            currentEdge.material.color = new THREE.Color(COLORS[count]);
+            currentEdge.material.linewidth = 3;
+            if(i%2 == 1){
                 count++;
             }
+        }
+    }
+    count = 0;
+    for (var i in this.levels){
+        if (i%2 == 1){
+            count++;
+        }
+        else{
+            var level = this.levels[i];
+            var material = new THREE.LineBasicMaterial({color: COLORS[count],linewidth:3, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1});
+            var line = new THREE.Geometry();
+            line.vertices.push(new THREE.Vector3(-WS_WIDTH/2,-200,level.point.z));
+            line.vertices.push(new THREE.Vector3(WS_WIDTH/2,-200,level.point.z));
+            var object = new THREE.Line(line, material);
+            this.levelLines.push(object);
+            this.scene.add(object);
+            var textGeo = new THREE.TextGeometry(Session.get('lang')['Level']+(count+1),{size: 10, height:10, weight: "bold"});
+            var text = new THREE.Mesh(textGeo, new THREE.MeshBasicMaterial({color: COLORS[count]}));
+            text.position.z = level.point.z+2;
+            text.position.x = -WS_WIDTH/2+2;
+            text.position.y = -300;
+            text.rotation.x = Math.PI/2;
+            this.texts.push(text);
+            this.scene.add(text);
         }
     }
 }
@@ -837,23 +1000,49 @@ SideView.prototype.setCamera = function() {
         this.height = window.innerHeight/4;
         this.width = Math.ceil(this.height/(140/180)*2);
     }
-    this.camera = new THREE.OrthographicCamera(-WS_WIDTH/2, WS_WIDTH/2, 0, -WS_HEIGHT/2, -200, 200 );
+    this.camera = new THREE.OrthographicCamera(-WS_WIDTH/2, WS_WIDTH/2, 0, -WS_HEIGHT/2, -600, 600 );
     this.camera.position.z = WS_HEIGHT/2 - 1;
     this.camera.rotation.z = -Math.PI/2;
     this.camera.rotation.y = -Math.PI/2;
 };
 
 SideView.prototype.separateEdges = function(){
-    var count = 1;
+    var count = 0;
     if (this.edgesToSelect.length > 2){
         for (var i in this.edgesToSelect){
-            this.edgesToSelect[i].position.x += count*5;
-            this.edgesToSelect[i].position.y += count*5;
-            this.edgesToSelect[i].position.z += count*5;
-            this.edgesToSelect[i].material.linewidth = 5-count*2;
-            if (i%2 == 1 || !this.transparency){
+            var currentEdge = this.edgesToSelect[i].object;
+            // currentEdge.position.x -= 300;
+            currentEdge.position.z += (count+1)*8;
+            currentEdge.material.color = new THREE.Color(COLORS[count]);
+            currentEdge.material.linewidth = 3;
+            if (i%2 == 1){
                 count++;
             }
+        }
+    }
+    count = 0;
+    for (var i in this.levels){
+        if (i%2 == 1){
+            count++;
+        }
+        else{
+            var level = this.levels[i];
+            var material = new THREE.LineBasicMaterial({color: COLORS[count],linewidth:3, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1});
+            var line = new THREE.Geometry();
+            line.vertices.push(new THREE.Vector3(-300,-WS_HEIGHT/2,level.point.z));
+            line.vertices.push(new THREE.Vector3(-300,WS_HEIGHT/2,level.point.z));
+            var object = new THREE.Line(line, material);
+            this.levelLines.push(object);
+            this.scene.add(object);
+            var textGeo = new THREE.TextGeometry(Session.get('lang')['Level']+(count+1),{size: 10, height:10, weight: "bold"});
+            var text = new THREE.Mesh(textGeo, new THREE.MeshBasicMaterial({color: COLORS[count]}));
+            text.position.z = level.point.z+2;
+            text.position.y = WS_HEIGHT/2-2;
+            text.rotation.y = -Math.PI/2;
+            text.rotation.x = Math.PI/2;
+            text.position.x = -300;
+            this.texts.push(text);
+            this.scene.add(text);
         }
     }
 }
@@ -879,16 +1068,90 @@ TopView.prototype.setCamera = function() {
     this.camera.lookAt(new THREE.Vector3( 0, 0, -WS_WIDTH/2 ));
 };
 
+TopView.prototype.clear = function () {
+    for(var i in this.edges){
+        for (var j in this.edges[i]){
+            this.edges[i][j].visible = false;
+        }
+    }
+    for(var i in this.faces){
+        for (var j in this.faces[i]){
+            this.faces[i][j].visible = false;
+        }
+    }
+    for(var i in this.levelLines){
+        this.scene.remove(this.levelLines[i]);
+    }
+    for(var i in this.helpLines){
+        for (var j in this.helpLines[i]){
+            this.scene.remove(this.helpLines[i][j]);
+        }
+    }
+    for (var i in this.axisObjects){
+        this.scene.remove(this.axisObjects[i]);
+    }
+    for (var i in this.texts){
+        this.scene.remove(this.texts[i]);
+    }
+    this.texts = [];
+    this.levelLines = [];
+    this.helpLines = [];
+    this.axisObjects = [];
+    this.renderer.clear();
+};
+
 TopView.prototype.separateEdges = function(){
-    var count = 1;
+    var that = this;
+    var count = 0;
     if (this.edgesToSelect.length > 2){
         for (var i in this.edgesToSelect){
-            this.edgesToSelect[i].position.x += count*5;
-            this.edgesToSelect[i].position.y += count*5;
-            this.edgesToSelect[i].position.z += 50+count*5;
-            this.edgesToSelect[i].material.linewidth = 5-count*2;
-            if (i%2 == 1 || !this.transparency){
+            var currentEdge = this.edgesToSelect[i].object;
+            var originalEdgeRotation = this.calculateRotation(currentEdge.geometry.vertices[0], currentEdge.geometry.vertices[1]);
+            var rotation = currentEdge.rotation.z;
+            currentEdge.position.x -= (count+1)*8*Math.cos(rotation+Math.PI/2-originalEdgeRotation);
+            currentEdge.position.y -= (count+1)*8*Math.sin(rotation+Math.PI/2-originalEdgeRotation);
+            currentEdge.material.color = new THREE.Color(COLORS[count]);
+            currentEdge.material.linewidth = 3;
+            currentEdge.position.z += 50+(count+1)*5;
+            if (i%2 == 1){
                 count++;
+            }
+        }
+    }
+    for (var i in this.levels){
+        var count = 0;
+        for (var j in this.levels[i]){
+            
+            if (j%2 == 1){
+                count++;
+            }
+            else{
+                var level = this.levels[i][j];
+                var material = new THREE.LineBasicMaterial({color: COLORS[count],linewidth:3, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1});
+                var line = new THREE.Geometry();
+                var textGeo = new THREE.TextGeometry(Session.get('lang')['Level']+(count+1),{size: 10, height:10, weight: "bold"});
+                var text = new THREE.Mesh(textGeo, new THREE.MeshBasicMaterial({color: COLORS[count]}));
+                var x = level.point.x*Math.cos(level.object.rotation.z)-level.point.y*Math.sin(level.object.rotation.z)+level.object.position.x;
+                var y = level.point.x*Math.sin(level.object.rotation.z)+level.point.y*Math.cos(level.object.rotation.z)+level.object.position.y;
+                if (i == "x"){
+                    line.vertices.push(new THREE.Vector3(x,-WS_HEIGHT/2,100));
+                    line.vertices.push(new THREE.Vector3(x,WS_HEIGHT/2,100));
+                    text.position.z = 150;
+                    text.position.y = WS_HEIGHT/2-count*15-12;
+                    text.position.x = x+2;
+                }
+                else{                   
+                    line.vertices.push(new THREE.Vector3(-WS_WIDTH/2,y,100));
+                    line.vertices.push(new THREE.Vector3(WS_WIDTH/2,y,100));
+                    text.position.z = 150;
+                    text.position.x = -WS_WIDTH/2+count*60+2;
+                    text.position.y = y+2;
+                }
+                var object = new THREE.Line(line, material);
+                this.levelLines.push(object);
+                this.scene.add(object);
+                this.texts.push(text);
+                this.scene.add(text);
             }
         }
     }
@@ -916,18 +1179,6 @@ PerspectiveView.prototype.setCamera = function() {
 };
 
 PerspectiveView.prototype.separateEdges = function(){
-    var count = 1;
-    if (this.edgesToSelect.length > 2){
-        for (var i in this.edgesToSelect){
-            this.edgesToSelect[i].position.x += count*5;
-            this.edgesToSelect[i].position.y += count*5;
-            this.edgesToSelect[i].position.z += 50+count*5;
-            this.edgesToSelect[i].material.linewidth = 5-count*2;
-            if (i%2 == 1 || !this.transparency){
-                count++;
-            }
-        }
-    }
 }
 
 root.Views = Views;

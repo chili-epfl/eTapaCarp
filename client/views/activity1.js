@@ -30,6 +30,7 @@ function updateFeedback(){
 			}
 			if (correction[0][i] == views.views[i].difficulty-correction[2] && correction[1][i] == 0){
 				$('#'+i+'Correct').parent().removeClass('btn-danger').addClass('btn-success');
+				$('#'+i+'Error').append('<i class="icon-ok icon-white"></i>');
 			}
 			else{
 				$('#'+i+'Correct').parent().removeClass('btn-success').addClass('btn-danger');
@@ -45,6 +46,7 @@ function updateFeedback(){
 			}
 			if (correction[0][i] == views.views[i].difficulty && correction[1][i] == 0){
 				$('#'+i+'Correct').parent().removeClass('btn-danger').addClass('btn-success');
+				$('#'+i+'Error').append('<i class="icon-ok icon-white"></i>');
 			}
 			else{
 				$('#'+i+'Correct').parent().removeClass('btn-success').addClass('btn-danger');
@@ -77,9 +79,10 @@ function animate() {
     views.setIsNotJittering(isNotJittering);
 	
 	views.setClick(click);
-	views.render(markersDetector.markers);
+	views.render(markersDetector.activeMarkers);
 	if (click){
 		updateFeedback();
+		views.showHelpOnSelect(click);
 	}
 	click = null;
 
@@ -105,6 +108,11 @@ Template.activity1.rendered = function(){
 		views.init()
 	    document.addEventListener( 'mousedown', onDocumentMouseDown, false );
 	    document.addEventListener( 'contextmenu', onDocumentMouseDown, false );
+		$(document).keyup(function(e) {
+			if (e.keyCode == 27){
+				views.clearChoiceEdges();
+			}
+		});
 		animate();
 
 		$('#transparency-on').on('click', function () {
@@ -148,8 +156,14 @@ Template.activity1.rendered = function(){
 		});
 
 		$('#selectEdge').on('click', function () {
-			if(markersDetector.markers.length == 1){
-				views.edgeToSelect(markersDetector.markers[0].id,'perspective');
+			var count = 0;
+			var id = null;
+			for (var i in markersDetector.activeMarkers){
+				id = i;
+				count++;
+			}
+			if(count == 1){
+				views.edgeToSelect(id,'perspective');
 				updateFeedback();
 			}
 		});
@@ -157,14 +171,20 @@ Template.activity1.rendered = function(){
 			var that = this;
 			var level = $(this).attr('id')[$(this).attr('id').length-1];
 
-			if(markersDetector.markers.length == 1){
+			var count = 0;
+			var id = null;
+			for (var i in markersDetector.activeMarkers){
+				id = i;
+				count++
+			}
+			if(count == 1){
 				if (!$(that).hasClass('btn-primary')){
 					views.edgeSelectionDifficulty(level);
 					$('#difficulty'+((level+1)%3 || 3)).removeClass("btn-primary");
 					$('#difficulty'+((level+2)%3 || 3)).removeClass("btn-primary");
 					$(that).addClass("btn-primary");
 
-					views.edgeToSelect(markersDetector.markers[0].id,'perspective');
+					views.edgeToSelect(id,'perspective');
 					updateFeedback();
 				}
 			}	

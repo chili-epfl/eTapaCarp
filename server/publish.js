@@ -5,7 +5,6 @@ this.Shapes = new Meteor.Collection('shapes');
 
 Meteor.publish('shapes', function(){
   var collection = Shapes.find({});
-  console.log(collection.count())
   return collection;
 });
 

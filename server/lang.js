@@ -81,6 +81,7 @@ Meteor.startup(
 
     add('Home', 'Home', 'Home', 'Home');
 
+    add('Level', 'Niveau', 'Level', 'Level');
     add('Loading', 'Chargement...', 'Loading...', 'Loading...');
 
     add('NewChallenge', 'Nouveau challenge', 'New challenge', 'New challenge');

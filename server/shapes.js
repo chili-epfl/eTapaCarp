@@ -1,7 +1,6 @@
 Meteor.startup(
   function(){
     var addShape = function(id, coordinates, edges, faces){
-      console.log('shape added')
       return Shapes.insert({
         id: id,
         coordinates: coordinates,
