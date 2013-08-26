@@ -30,7 +30,6 @@
  *   ilmari.heikkinen@gmail.com
  *
  */
-(function(root){
 if (!window.console) console = { log : function(){} };
 
 ASVector = function(elements) {
@@ -13799,5 +13798,3 @@ TransformedBitmapPickup = ASKlass('TransformedBitmapPickup', NyARColorPatt_Persp
     return this.pickFromRaster(i_src_imege, poinsts);
   }
 })
-
-})(this);

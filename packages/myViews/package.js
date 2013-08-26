@@ -5,4 +5,5 @@ Package.describe({
 Package.on_use(function (api, where) {
 	api.use('ThreeJS');
  	api.add_files('views.js', 'client');
+ 	api.export(['Views','FrontView','SideView','TopView','PerspectiveView'],'client');
 });

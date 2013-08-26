@@ -1,6 +1,4 @@
-(function(root){
-
-function MarkersDetector(video, canvas){
+MarkersDetector = function(video, canvas){
     this.stream = null;
     this.video = document.getElementById(video);
     this.camcanvas = document.getElementById(canvas);
@@ -450,7 +448,3 @@ MarkersDetector.prototype.notJittering = function(){
         return false;
     }
 };
-
-root.MarkersDetector = MarkersDetector;
-
-})(this);

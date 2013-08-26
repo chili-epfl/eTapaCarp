@@ -1,5 +1,4 @@
-(function(root){
-function mm2pixel(x, y, height)
+mm2pixel = function(x, y, height)
 {
 	var new_x, new_y;
 
@@ -28,5 +27,3 @@ function mm2pixel(x, y, height)
 
 	return {x: new_x, y: new_y}
 }
-root.mm2pixel = mm2pixel;
-})(this);

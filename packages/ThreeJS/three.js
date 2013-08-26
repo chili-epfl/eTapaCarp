@@ -1,11 +1,10 @@
-(function(root){
 /**
  * @author mrdoob / http://mrdoob.com/
  * @author Larry Battle / http://bateru.com/news
  * @author bhouston / http://exocortex.com
  */
 
-var THREE = THREE || { REVISION: '59' };
+THREE = THREE || { REVISION: '59' };
 
 self.console = self.console || {
 
@@ -37875,5 +37874,3 @@ THREE.ShaderSprite = {
 	}
 
 };
-root.THREE = THREE;
-})(this);

@@ -1,5 +1,4 @@
-(function(root){
-function pixel2mm(x, y, height)
+pixel2mm = function(x, y, height)
 {
 	var rotationMat, transVector, KK, invA, invRot, new_x, new_y;
 
@@ -36,5 +35,3 @@ function pixel2mm(x, y, height)
 	new_y = m_nProjectionPoint[1];
 	return {x: new_x, y: new_y};
 }
-root.pixel2mm = pixel2mm;
-})(this);

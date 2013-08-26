@@ -1,4 +1,3 @@
-(function(root){
 var WS_WIDTH = 360.0;
 var WS_HEIGHT = 280.0;
 var SHAPES = [6, 20, 64];
@@ -6,7 +5,7 @@ var ACTIVITYTRANSLATION = [];
 var ACTIVITYROTATION = [];
 var COLORS = [0xff0000, 0x00ff00, 0x0000ff, 0xff00ff, 0x00ffff, 0xf0f0f0];
 
-function Views(){
+Views = function(){
     this.views = {};
 }
 
@@ -928,7 +927,7 @@ View.prototype.showGrid = function(){
     }
 };
 
-function FrontView(name){
+FrontView = function(name){
     View.call(this, name);
 }
 FrontView.prototype = new View();
@@ -988,7 +987,7 @@ FrontView.prototype.separateEdges = function(){
 }
 
 
-function SideView(name){
+SideView = function(name){
     View.call(this, name);
 }
 SideView.prototype = new View();
@@ -1047,7 +1046,7 @@ SideView.prototype.separateEdges = function(){
     }
 }
 
-function TopView(name){
+TopView = function(name){
     View.call(this, name);
 }
 
@@ -1157,7 +1156,7 @@ TopView.prototype.separateEdges = function(){
     }
 }
 
-function PerspectiveView(name){
+PerspectiveView = function(name){
     View.call(this, name);
 }
 
@@ -1180,14 +1179,3 @@ PerspectiveView.prototype.setCamera = function() {
 
 PerspectiveView.prototype.separateEdges = function(){
 }
-
-root.Views = Views;
-root.View=View;
-root.FrontView = FrontView;
-root.TopView = TopView;
-root.SideView = SideView;
-root.PerspectiveView = PerspectiveView;
-
-root.WS_WIDTH = WS_WIDTH;
-root.WS_HEIGHT = WS_HEIGHT;
-})(this);
