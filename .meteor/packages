@@ -15,9 +15,11 @@ myViews
 router
 markersDetector
 NumericJS
-ContextMenu
 page-js-ie-support
 JSARToolKit
 CoordinateMapper
 ThreeJS
 page-js
+accounts-facebook
+accounts-google
+accounts-twitter

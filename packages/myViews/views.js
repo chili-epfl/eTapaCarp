@@ -140,17 +140,75 @@ Views.prototype.edgeSelectionDifficulty = function(difficulty){
     }
 }
 
-Views.prototype.modelMatchingDifficulty = function(difficulty){
+Views.prototype.activity2Difficulty = function(difficulty){
     for (var i in this.views){
         this.views[i].difficulty = difficulty;
     }
     this.generateRandomPositions();
 }
 
-Views.prototype.checkSolution = function(markers){
+Views.prototype.updateActivity2Feedback = function(markers){
     for (var i in this.views){
-        this.views[i].checkSolution(markers);
+        this.views[i].updateActivity2Feedback(markers);
         break;
+    }
+}
+
+Views.prototype.checkActivity2Solution = function(markers){
+    for (var i in this.views){
+        if (this.views[i] instanceof FrontView){
+            var count = [];
+            var rotationOK = true;
+            var positionOK = true;
+            var diffRotation = [];
+            for (var j in markers){
+                var marker = markers[j];
+                if (count.indexOf(marker.id) == -1){
+                    count.push(marker.id);
+                }
+                for (var j = 0; j<this.views[i].difficulty; j++){
+                    if (marker.id == SHAPES[j]){
+                        var Z = this.views[i].findZ(marker.id);
+                        var marker_position = [marker.corners[0].x, marker.corners[0].y,1];
+                        var marker_position2 = [marker.corners[1].x, marker.corners[1].y,1];
+                        position = pixel2mm(marker_position[0], marker_position[1], Z);
+                        position2 = pixel2mm(marker_position2[0], marker_position2[1], Z);
+                        var rotation;
+                var diffx = position.x-position2.x;
+                var diffy = position.y-position2.y;
+                if (diffy == 0){
+                    diffy = 1;
+                }
+                if ((diffx < 0 && diffy > 0) || (diffx > 0 && diffy > 0)){
+                    rotation = -Math.atan(diffx/diffy)+Math.PI/2;
+                }
+                else{
+                    rotation = -Math.atan(diffx/diffy)-Math.PI/2;
+                }
+                        diffRotation.push(rotation, ACTIVITYROTATION[marker.id],rotation - ACTIVITYROTATION[marker.id])
+                        if (Math.abs(rotation - ACTIVITYROTATION[marker.id]) > 0.2){
+                            rotationOK = false;
+                        }
+                        if (Math.abs(position.x - ACTIVITYTRANSLATION[marker.id][0]) > 20 || Math.abs(position.y - ACTIVITYTRANSLATION[marker.id][1]) > 20){
+                            positionOK = false;
+                        }
+                    }
+                }
+            }
+            if(!rotationOK){
+                console.log('rotationNOTOK', diffRotation);
+            }
+            if(!positionOK){
+                console.log('positionNOTOK')
+            }
+            if (count.length == this.views[i].difficulty && rotationOK && positionOK){
+                var stopTime = new Date().getTime();
+                return stopTime;
+            }
+            else{
+                return null;
+            }
+        }
     }
 }
 
@@ -698,7 +756,7 @@ View.prototype.calculateRotation = function (vector1, vector2) {
     return rotation
 };
 
-View.prototype.checkSolution = function(markers){
+View.prototype.updateActivity2Feedback = function(markers){
     var count = [];
     for (var i in markers){
         var marker = markers[i];

@@ -8,9 +8,10 @@ MarkersDetector = function(video, canvas){
     this.camcanvas.height = parseInt(this.camcanvas.style.height);
 
     this.calibrationCanvas = document.getElementById("calibrationCanvas");
-    this.calibrationContext = this.calibrationCanvas.getContext("2d");
-
-    this.init_cam();
+    if (this.calibrationCanvas){
+        this.calibrationContext = this.calibrationCanvas.getContext("2d");
+        this.init_cam();
+    }
 
     this.raster = new NyARRgbRaster_Canvas2D(this.camcanvas);
     this.detectorParam = new FLARParam(640, 480);
@@ -150,7 +151,11 @@ MarkersDetector.prototype.changeStatus = function(){
     var blueRectangleOK = this.checkBlueRectangle();
     var lastVisibility = Math.floor(this.countTags/(this.countFrames*4)*100);
     this.countFrames++;
-    this.countTags += this.corners.length;
+    var thisCornersLength = 0;
+    for (var i in this.corners){
+        thisCornersLength++;
+    }
+    this.countTags += thisCornersLength;
     if (this.countFrames == 100){
         this.countFrames = 0;
         this.countTags = 0;
@@ -327,7 +332,7 @@ MarkersDetector.prototype.drawCorners = function(thisMarkers,thisContext){
 
     thisContext.lineWidth = 3;
 
-    for (i = 0; i !== thisMarkers.length; ++ i){
+    for (var i in thisMarkers){
         thisCorners = thisMarkers[i].corners;
 
         thisContext.strokeStyle = "red";
@@ -380,7 +385,11 @@ MarkersDetector.prototype.getMarkers = function(){
                 console.log('delete')
             }
         }
-        if (!(this.topRight && this.bottomRight && this.bottomLeft && this.topLeft) || this.corners.length == 0){
+        var thisCornersLength = 0;
+        for (var i in this.corners){
+            thisCornersLength++;
+        }
+        if (!(this.topRight && this.bottomRight && this.bottomLeft && this.topLeft) || thisCornersLength == 0){
 
             $('#cameraMoved').show();
             this.calibrate();
