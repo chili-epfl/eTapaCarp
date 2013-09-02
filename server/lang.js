@@ -17,6 +17,7 @@ Meteor.startup(
 
     add('About', 'A propos', 'About', 'Über');
     add('Activities', 'Activités', 'Activities', 'Aktivitäten');
+    add('Activity', 'Activité', 'Activity', 'Activity');
     add('Activity1',
       'Trouver l\'arête',
       'Find the edge',
@@ -50,6 +51,7 @@ Meteor.startup(
     add('Calibration', 'Calibration', 'Calibration', 'Calibration');
     add('CameraAngle', 'Angle de la caméra', 'Camera angle', 'Camera angle');
     add('CameraDistance', 'Distance de la caméra', 'Camera distance', 'Camera distance');
+    add('ChallengesTaken', 'Challenges effectués', 'Challenges taken', 'Challenges taken');
     add('CornersVisibility', 'Visibilité des coins (rouge signifie mauvais et vert signifie bon)',
       'Corners visibility (red means bad, green means OK)',
       'Corners visibility (red means bad, green means OK)');
@@ -72,8 +74,11 @@ Meteor.startup(
     add('LevelDifficulty', 'Niveau de difficulté', 'Difficulty level', 'Difficulty level');
     add('Loading', 'Chargement...', 'Loading...', 'Loading...');
 
+    add('MyAccount', 'Mon compte', 'My account', 'My account');
+
     add('NewChallenge', 'Nouveau challenge', 'New challenge', 'New challenge');
     add('NoObjectDetected', 'Aucun object détecté', 'No object detected', 'No object detected');
+    add('NotFinished', 'non terminé(s)', 'not finished', 'not finished');
     add('NumEdges', 'Nombre d\'arêtes', 'Number of edges', 'Number of edges');
     add('NumObjects', 'Nombre d\'objects', 'Number of objects', 'Number of objects');
 
@@ -94,6 +99,7 @@ Meteor.startup(
     add('Rotation', 'Rotation', 'Rotation', 'Rotation');
 
     add('Sec', 'sec.', 'sec.', 'sec.');
+    add('Shapes', 'Formes', 'Shapes', 'Shapes');
     add('SideView', 'Vue de côté', 'Side view', 'Side view');
     add('Start', 'Commencer', 'Start', 'Start');
 

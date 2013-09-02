@@ -57,85 +57,97 @@ Template.practiceActivity2.rendered = function(){
 		views.addView(new TopView('dessus'));
 		views.init();
 		views.setAxis(false);
-		views.generateRandomPositions();
+		var shapes = views.generateRandomPositions();
+		while (shapes[0]){
+			shapes = views.generateRandomPositions();
+		}
+		$("tr[id^='rowShape']").hide();
+		for (var i in shapes[1]){
+			console.log(shapes[1][i])
+			$('#rowShape'+shapes[1][i]).show();
+		}
 		animate();
-
-		$('#transparency-on').on('click', function () {
-			$('#transparency-off').removeClass('btn-primary');
-			$('#transparency-on').addClass('btn-primary');
-			views.setTransparency(true);
-			views.setChangedLayout(true);
-		});
-
-		$('#transparency-off').on('click', function () {
-			$('#transparency-on').removeClass('btn-primary');
-			$('#transparency-off').addClass('btn-primary');
-			views.setTransparency(false);
-			views.setChangedLayout(true);
-		});
-
-		$('#axis-on').on('click', function () {
-			$('#axis-off').removeClass('btn-primary');
-			$('#axis-on').addClass('btn-primary');
-			views.setAxis(true);
-			views.setChangedLayout(true);
-		});
-
-		$('#axis-off').on('click', function () {
-			$('#axis-on').removeClass('btn-primary');
-			$('#axis-off').addClass('btn-primary');
-			views.setAxis(false);
-			views.setChangedLayout(true);
-		});
-
-		$('#feedback-on').on('click', function () {
-			$('#feedback-off').removeClass('btn-primary');
-			$('#feedback-on').addClass('btn-primary');
-			$('#feedback').show();
-		});
-
-		$('#feedback-off').on('click', function () {
-			$('#feedback-on').removeClass('btn-primary');
-			$('#feedback-off').addClass('btn-primary');
-			$('#feedback').hide();
-		});
-
-		$('button[id^="difficulty"]').on('click', function(){
-			var that = this;
-			var level = $(this).attr('id')[$(this).attr('id').length-1];
-			if (!$(that).hasClass('btn-primary')){
-				$('#loader').show("fast",function(){
-					views.activity2Difficulty(level);
-					$('#difficulty'+(((level+1)%3+1))).removeClass("btn-primary");
-					$('#difficulty'+(((level+2)%3+1))).removeClass("btn-primary");
-					$(that).addClass("btn-primary");
-					if (level == 1){
-						$('#rowShape20').hide();
-						$('#rowShape64').hide();
-					}
-					else if (level == 2){
-						$('#rowShape20').show();
-						$('#rowShape64').hide();
-					}
-					else{
-						$('#rowShape20').show();
-						$('#rowShape64').show();
-					}
-					$('#loader').hide();
-				});
-			}	
-		});
-
-
-		$('#newChallenge').on('click', function(){
-			$('#loader').show("fast",function(){
-				views.generateRandomPositions();
-				$('#loader').hide();
-				views.updateActivity2Feedback(markersDetector.activeMarkers);
-			});
-		});
 	}
 }
+
+Template.practiceActivity2.events({
+
+	'click #transparency-on': function (e, tmpl) {
+		$('#transparency-off').removeClass('btn-primary');
+		$('#transparency-on').addClass('btn-primary');
+		views.setTransparency(true);
+		views.setChangedLayout(true);
+	},
+
+	'click #transparency-off': function (e,tmpl) {
+		$('#transparency-on').removeClass('btn-primary');
+		$('#transparency-off').addClass('btn-primary');
+		views.setTransparency(false);
+		views.setChangedLayout(true);
+	},
+
+	'click #axis-on': function (e,tmpl) {
+		$('#axis-off').removeClass('btn-primary');
+		$('#axis-on').addClass('btn-primary');
+		views.setAxis(true);
+		views.setChangedLayout(true);
+	},
+
+	'click #axis-off': function (e,tmpl) {
+		$('#axis-on').removeClass('btn-primary');
+		$('#axis-off').addClass('btn-primary');
+		views.setAxis(false);
+		views.setChangedLayout(true);
+	},
+	'click #feedback-on': function(e, tmpl){
+		$('#feedback-off').removeClass('btn-primary');
+		$('#feedback-on').addClass('btn-primary');
+		$('#feedback').show();
+	},
+	'click #feedback-off': function(e, tmpl){
+		$('#feedback-on').removeClass('btn-primary');
+		$('#feedback-off').addClass('btn-primary');
+		$('#feedback').hide();
+	},
+
+	'click #newChallenge': function(e, tmpl){
+		$('#loader').show("fast",function(){
+			var shapes = views.generateRandomPositions();
+			while (shapes[0]){
+				shapes = views.generateRandomPositions();
+			}
+			$("tr[id^='rowShape']").hide();
+			for (var i in shapes[1]){
+				console.log(shapes[1][i])
+				$('#rowShape'+shapes[1][i]).show();
+			}
+			$('#loader').hide();
+			views.updateActivity2Feedback(markersDetector.activeMarkers);
+		});
+	},
+	'click button[id^="difficulty"]': function(e, tmpl){
+		console.log($(e.target))
+		var that = this;
+		var level = $(e.target).attr('id')[$(e.target).attr('id').length-1];
+		if (!$(that).hasClass('btn-primary')){
+			$('#loader').show("fast",function(){
+				views.activity2Difficulty(level);
+				var shapes = views.generateRandomPositions();
+				while (shapes[0]){
+					shapes = views.generateRandomPositions();
+				}
+				$("tr[id^='rowShape']").hide();
+				for (var i in shapes[1]){
+					console.log(shapes[1][i])
+					$('#rowShape'+shapes[1][i]).show();
+				}
+				$('button[id^="difficulty"').removeClass("btn-primary");
+				$(e.target).addClass("btn-primary");
+				$('#loader').hide();
+			});
+		}
+	}
+});
 
 Template.practiceActivity2.destroyed = function(){
 	views.destroy();

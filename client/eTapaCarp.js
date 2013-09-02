@@ -1,3 +1,9 @@
+Meteor.startup(function(){
+    $(window).resize(function(evt) {
+      Session.set("resized", new Date());
+    });
+});
+
 var langHandle, setNav;
 
 langHandle = Meteor.subscribe('lang');
@@ -88,5 +94,15 @@ Meteor.Router.add({
   '/about': function() {
     setNav('About');
     return 'about';
+  },
+  
+  '/myAccount': function() {
+    if(Meteor.user()){
+      setNav('MyAccount');
+      return 'myAccount';
+    }
+    else{
+      return 'notLoggedIn';
+    }
   }
 });

@@ -1,1 +1,42 @@
-.rowShape {height: 40px;}
+.rowShape {
+	height: 40px;
+}
+div[id|="legend"], div.smallGraph {
+    vertical-align: top;
+    margin: 0 0 10px 10px;
+    background: #FFFFFF;
+    color: #777777;
+    border: 1px solid #d4d4d4;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    border-radius: 4px;
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffffff', endColorstr='#fff2f2f2', GradientType=0);
+    -webkit-box-shadow: 0 1px 4px rgba(0, 0, 0, 0.065);
+    -moz-box-shadow: 0 1px 4px rgba(0, 0, 0, 0.065);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.065);
+}
+div[id|="legend"] li:hover {
+    color: #000000;
+}
+
+div.smallGraph:hover {
+    cursor: pointer;
+    -webkit-box-shadow: 0px 0px 10px rgba(0, 0, 255, 0.75);
+    -moz-box-shadow: 0px 0px 10px rgba(0, 0, 255, 0.75);
+    box-shadow: 0px 0px 10px rgba(0, 0, 255, 0.75);
+}
+
+.ui-slider-horizontal .ui-slider-handle{
+    height: 100%;
+    margin-top: 4px;
+}
+
+.rickshaw_legend .line {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.rickshaw_legend .line img,
+.rickshaw_graph .detail .item img{
+    height: 20px;
+}

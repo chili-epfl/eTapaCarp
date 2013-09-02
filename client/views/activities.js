@@ -11,6 +11,7 @@ Deps.autorun(function() {
     return shapesData[entry.id] = entry;
   });
   Session.set('shapes', shapesData);
+  data = Score.find({'userId':Meteor.userId()});
   return null;
 });
 

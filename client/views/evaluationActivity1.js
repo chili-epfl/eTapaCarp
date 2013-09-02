@@ -24,6 +24,7 @@ var click = null;
 var startTime = null;
 var stopTime = null;
 var scoreId = null;
+var objectDetectedOnce = 0;
 
 function onDocumentMouseDown( event ) {
 	console.log(event)
@@ -76,7 +77,7 @@ Template.evaluationActivity1.animate = function() {
 		}
 	}
 
-	if (objectDetectedOnce != 2){
+	if (objectDetectedOnce < 2){
 		var count = 0;
 		for (var i in markersDetector.activeMarkers){
 			count++;
@@ -87,7 +88,7 @@ Template.evaluationActivity1.animate = function() {
 				console.log(i)
 				views.edgeToSelect(i,'perspective');
 				startTime = new Date().getTime();
-				scoreId = Score.insert({time:null, activity:"activity1", userId:Meteor.userId(), date: new Date()});
+				scoreId = Score.insert({time:null, activity:"activity1", userId:Meteor.userId(), date: new Date(), difficulty: Session.get('activity1Level'), shape: i});
 			}
 		}
 	}
@@ -217,6 +218,12 @@ Template.evaluationActivity1.destroyed = function(){
 	markersDetector.stopCamera();
 	cancelAnimationFrame(animationId);
 	rendered = false;
+	isNotJittering = false;
+	click = null;
+	startTime = null;
+	stopTime = null;
+	scoreId = null;
+	objectDetectedOnce = 0;
 }
 
 Template.activity1Ready.animate = function(){

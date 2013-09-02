@@ -12,6 +12,9 @@
             <li id="set-lang-en"><a href="#">en</a></li>
         </ul>
         <ul class="nav pull-right">
+            {{#if currentUser}}
+            <li id="navbarMyAccount"><a href="myAccount">{{lang.MyAccount}}</a></li>
+            {{/if}}
             <li>{{loginButtons align="right"}}</li>
         </ul>
       </div>

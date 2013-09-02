@@ -1,6 +1,7 @@
 var WS_WIDTH = 360.0;
 var WS_HEIGHT = 280.0;
 var SHAPES = [6, 20, 64];
+var ACTIVITYSHAPES = [];
 var ACTIVITYTRANSLATION = [];
 var ACTIVITYROTATION = [];
 var COLORS = [0xff0000, 0x00ff00, 0x0000ff, 0xff00ff, 0x00ffff, 0xf0f0f0];
@@ -144,7 +145,6 @@ Views.prototype.activity2Difficulty = function(difficulty){
     for (var i in this.views){
         this.views[i].difficulty = difficulty;
     }
-    this.generateRandomPositions();
 }
 
 Views.prototype.updateActivity2Feedback = function(markers){
@@ -194,12 +194,6 @@ Views.prototype.checkActivity2Solution = function(markers){
                         }
                     }
                 }
-            }
-            if(!rotationOK){
-                console.log('rotationNOTOK', diffRotation);
-            }
-            if(!positionOK){
-                console.log('positionNOTOK')
             }
             if (count.length == this.views[i].difficulty && rotationOK && positionOK){
                 var stopTime = new Date().getTime();
@@ -314,17 +308,42 @@ Views.prototype.showHelpOnSelect = function(click){
 
 Views.prototype.generateRandomPositions = function(){
     var testObjects = [];
+    ACTIVITYSHAPES = [];
     var count = 0;
     var redoRandom = false;
+    var randomShape = Math.ceil(Math.random()*SHAPES.length)-1;
     for (var name in this.views){
             var view = this.views[name];
             view.clear();
-            for (var i = 0; i<view.difficulty; i++){
-                var thisShape = SHAPES[i];
-                var filledShape = view.shape(MODELS[thisShape]);
-                testObjects[thisShape] = new THREE.Mesh(filledShape, new THREE.MeshBasicMaterial());
-                ACTIVITYROTATION[SHAPES[i]] = Math.random()*Math.PI;
-                ACTIVITYTRANSLATION[SHAPES[i]] = [Math.random()*WS_WIDTH-(WS_WIDTH/2),Math.random()*WS_HEIGHT-(WS_HEIGHT/2)];
+            for (var i = 0; i<SHAPES.length; i++){
+                if (view.difficulty == 1){
+                    if (i == randomShape){
+                        var thisShape = SHAPES[i];
+                        var filledShape = view.shape(MODELS[thisShape]);
+                        testObjects[thisShape] = new THREE.Mesh(filledShape, new THREE.MeshBasicMaterial());
+                        ACTIVITYSHAPES.push(thisShape);
+                        ACTIVITYROTATION[thisShape] = Math.random()*Math.PI;
+                        ACTIVITYTRANSLATION[thisShape] = [Math.random()*WS_WIDTH-(WS_WIDTH/2),Math.random()*WS_HEIGHT-(WS_HEIGHT/2)];
+                    } 
+                }
+                else if (view.difficulty == 2){
+                    if (i != randomShape){
+                        var thisShape = SHAPES[i];
+                        var filledShape = view.shape(MODELS[thisShape]);
+                        testObjects[thisShape] = new THREE.Mesh(filledShape, new THREE.MeshBasicMaterial());
+                        ACTIVITYSHAPES.push(thisShape);
+                        ACTIVITYROTATION[thisShape] = Math.random()*Math.PI;
+                        ACTIVITYTRANSLATION[thisShape] = [Math.random()*WS_WIDTH-(WS_WIDTH/2),Math.random()*WS_HEIGHT-(WS_HEIGHT/2)];
+                    } 
+                }
+                else{
+                    var thisShape = SHAPES[i];
+                    var filledShape = view.shape(MODELS[thisShape]);
+                    testObjects[thisShape] = new THREE.Mesh(filledShape, new THREE.MeshBasicMaterial());
+                    ACTIVITYSHAPES.push(thisShape);
+                    ACTIVITYROTATION[thisShape] = Math.random()*Math.PI;
+                    ACTIVITYTRANSLATION[thisShape] = [Math.random()*WS_WIDTH-(WS_WIDTH/2),Math.random()*WS_HEIGHT-(WS_HEIGHT/2)];
+                }
             }
             for (var i in testObjects){
                 var object = testObjects[i];
@@ -344,31 +363,31 @@ Views.prototype.generateRandomPositions = function(){
                         break;
                     }
                 }
-            }
-            for (var i in testObjects){
-                var object1 = testObjects[i];
-                for (var j in testObjects){
-                    if (j != i){
-                        var object2 = testObjects[j];
-                        if (object1.geometry.boundingBox.isIntersectionBox(object2.geometry.boundingBox)){
-                            redoRandom = true;
-                            break;
-                        }
-                    }
-                }
                 if (redoRandom){
                     break;
                 }
             }
+            if (!redoRandom){
+                for (var i in testObjects){
+                    var object1 = testObjects[i];
+                    for (var j in testObjects){
+                        if (j != i){
+                            var object2 = testObjects[j];
+                            if (object1.geometry.boundingBox.isIntersectionBox(object2.geometry.boundingBox)){
+                                redoRandom = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (redoRandom){
+                        break;
+                    }
+                }
+            }
         break;
     }
-
-    if (redoRandom){
-        this.generateRandomPositions();
-    }
-    else{
-        this.init_objects();
-    }
+    testObjects = [];
+    return [redoRandom, ACTIVITYSHAPES];
 }
 
 Views.prototype.destroy = function(){
@@ -556,8 +575,8 @@ View.prototype.createObjects = function (markerId) {
 
 View.prototype.init_objects = function(){
     this.clear();
-    for (var j = 0; j<this.difficulty; j++){
-        var thisShape = SHAPES[j];
+    for (var j = 0; j<ACTIVITYSHAPES.length; j++){
+        var thisShape = ACTIVITYSHAPES[j];
         this.createObjects(thisShape);
         for (var k in this.edges[thisShape]){
             var object = this.edges[thisShape][k];
