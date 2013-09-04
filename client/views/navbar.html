@@ -6,6 +6,9 @@
             <li id="navbarHome"><a href="/home">{{lang.Home}}</a></li>
             <li id="navbarActivities"><a href="/activities">{{lang.Activities}}</a></li>
             <li id="navbarAbout"><a href="/about">{{lang.About}}</a></li>
+            {{#if currentUser}}
+            <li id="navbarCreateAnObject"><a href="/createAnObject">{{lang.CreateAnObject}}</a></li>
+            {{/if}}
             <li class="divider-vertical"></li>
             <li id="set-lang-fr"><a href="#">fr</a></li>
             <li id="set-lang-de"><a href="#">de</a></li>

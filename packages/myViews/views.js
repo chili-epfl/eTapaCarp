@@ -166,25 +166,25 @@ Views.prototype.checkActivity2Solution = function(markers){
                 if (count.indexOf(marker.id) == -1){
                     count.push(marker.id);
                 }
-                for (var j = 0; j<this.views[i].difficulty; j++){
-                    if (marker.id == SHAPES[j]){
+                for (var j = 0; j<ACTIVITYSHAPES.length; j++){
+                    if (marker.id == ACTIVITYSHAPES[j]){
                         var Z = this.views[i].findZ(marker.id);
                         var marker_position = [marker.corners[0].x, marker.corners[0].y,1];
                         var marker_position2 = [marker.corners[1].x, marker.corners[1].y,1];
                         position = pixel2mm(marker_position[0], marker_position[1], Z);
                         position2 = pixel2mm(marker_position2[0], marker_position2[1], Z);
                         var rotation;
-                var diffx = position.x-position2.x;
-                var diffy = position.y-position2.y;
-                if (diffy == 0){
-                    diffy = 1;
-                }
-                if ((diffx < 0 && diffy > 0) || (diffx > 0 && diffy > 0)){
-                    rotation = -Math.atan(diffx/diffy)+Math.PI/2;
-                }
-                else{
-                    rotation = -Math.atan(diffx/diffy)-Math.PI/2;
-                }
+                        var diffx = position.x-position2.x;
+                        var diffy = position.y-position2.y;
+                        if (diffy == 0){
+                            diffy = 1;
+                        }
+                        if ((diffx < 0 && diffy > 0) || (diffx > 0 && diffy > 0)){
+                            rotation = -Math.atan(diffx/diffy)+Math.PI/2;
+                        }
+                        else{
+                            rotation = -Math.atan(diffx/diffy)-Math.PI/2;
+                        }
                         diffRotation.push(rotation, ACTIVITYROTATION[marker.id],rotation - ACTIVITYROTATION[marker.id])
                         if (Math.abs(rotation - ACTIVITYROTATION[marker.id]) > 0.2){
                             rotationOK = false;
@@ -418,6 +418,7 @@ function View(name) {
     this.helpLines = [];
     this.levels = {};
     this.levelLines = [];
+    this.tempObject = {points:[], lines:[], faces:[], marker:[]};
 }
 
 View.prototype.init = function () {
@@ -475,6 +476,64 @@ View.prototype.render = function (markers) {
     
 };
 
+View.prototype.renderTempObject = function(model){
+    for (var i in this.tempObject){
+        for (var j in this.tempObject[i]){
+            this.scene.remove(this.tempObject[i][j]);
+        }
+        this.tempObject[i] = [];
+    }
+    if (model.edges.length > 0){
+        var edges = this.shapeLines(model);
+        for (var i in edges){
+            if(this.transparency){
+                var lineDashedMaterial = new THREE.LineDashedMaterial({color: 0x2E9AFE, depthTest: false, linewidth: 2});
+                edges[i].computeLineDistances();
+                var line1 = new THREE.Line(edges[i], lineDashedMaterial);
+                line1.renderDepth = 9007199254740992;
+                this.tempObject.lines.push(line1);
+                this.scene.add(line1);
+            }
+            var lineMaterial = new THREE.LineBasicMaterial({color: 0x2E9AFE, depthTest: true, linewidth: 2});
+            var line2 = new THREE.Line(edges[i], lineMaterial);
+            this.tempObject.lines.push(line2);
+            this.scene.add(line2);
+        }
+    }
+    for (var i in model.coordinates){
+        var point = model.coordinates[i];
+        var geo = new THREE.SphereGeometry(2);
+        var mesh = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({color: 0x000000}));
+        mesh.position.x = point[0];
+        mesh.position.y = point[1];
+        mesh.position.z = point[2];
+        this.tempObject.points.push(mesh);
+        this.scene.add(mesh);
+
+        var textGeo = new THREE.TextGeometry(i,{size: 7, height:5});
+        var text = new THREE.Mesh(textGeo, new THREE.MeshBasicMaterial({color: 0x000000, depthTest: false}));
+        text.renderDepth = 9007199254740992;
+        text.rotation.x = this.camera.rotation.x;
+        text.rotation.y = this.camera.rotation.y;
+        text.rotation.z = this.camera.rotation.z;
+        text.position.x = point[0];
+        text.position.y = point[1];
+        text.position.z = point[2];
+        this.tempObject.points.push(text);
+        this.scene.add(text);
+    }
+    if (model.faces.length > 0){
+        var faces = this.shape(model);
+        var meshMaterial = new THREE.MeshBasicMaterial({color: false, side: THREE.DoubleSide, depthTest: true, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1});
+        var mesh = new THREE.Mesh(faces, meshMaterial);
+        this.tempObject.faces.push(mesh);
+        this.scene.add(mesh);
+
+    }
+
+    this.renderer.render(this.scene, this.camera);
+}
+
 View.prototype.setDynamic = function (bool) {
     this.dynamic = bool;
 };
@@ -521,10 +580,7 @@ View.prototype.createObjects = function (markerId) {
             dashedShape[i].computeLineDistances();
             var lineDashedMaterial = new THREE.LineDashedMaterial({color: 0x000000, depthTest: false});
             var object1 = new THREE.Line(dashedShape[i], lineDashedMaterial);
-            var lineMaterial = new THREE.LineBasicMaterial({color: 0x000000, depthTest: true});;
-            
-
-            var object1 = new THREE.Line(dashedShape[i], lineDashedMaterial);
+            var lineMaterial = new THREE.LineBasicMaterial({color: 0x000000, depthTest: true});
 
             //To fix problem with stippled lines not showing
             object1.renderDepth = 9007199254740992;
@@ -782,8 +838,8 @@ View.prototype.updateActivity2Feedback = function(markers){
         if (count.indexOf(marker.id) == -1){
             count.push(marker.id);
         }
-        for (var j = 0; j<this.difficulty; j++){
-            if (marker.id == SHAPES[j]){
+        for (var j = 0; j<ACTIVITYSHAPES.length; j++){
+            if (marker.id == ACTIVITYSHAPES[j]){
                 var td1 = $($('#rowShape'+marker.id).children()[1]);
                 if (td1.children().length == 0){
                     td1.append('<i class="icon-ok"></i>');
@@ -830,9 +886,9 @@ View.prototype.updateActivity2Feedback = function(markers){
             }
         }
     }
-    for (var j = 0; j<this.difficulty; j++){
-        if (count.indexOf(SHAPES[j]) == -1){
-            var td1 = $($('#rowShape'+SHAPES[j]).children()[1]);
+    for (var j = 0; j<ACTIVITYSHAPES.length; j++){
+        if (count.indexOf(ACTIVITYSHAPES[j]) == -1){
+            var td1 = $($('#rowShape'+ACTIVITYSHAPES[j]).children()[1]);
             if (td1.children().length > 0){
                 td1.children().remove();
             }

@@ -2305,7 +2305,6 @@ Rickshaw.Graph.RangeSlider = Rickshaw.Class.create({
 				}
 			} );
 		} );
-		console.log(element)
 		element[0].style.width = graph.width + 'px';
 	},
 

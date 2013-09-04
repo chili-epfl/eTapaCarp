@@ -67,7 +67,17 @@ Template.myAccount.rendered = function(){
 			lastDate[0] = score.date;
 		}
 		if (!score.date.sameDateAs(lastDate[0])){
-			activity1activity.push({x:new Date(lastDate[0].getFullYear(),lastDate[0].getMonth(),lastDate[0].getDate(),-9).getTime()/1000, y:lastDate[1]});
+			var oldDate = new Date(lastDate[0].getFullYear(),lastDate[0].getMonth(),lastDate[0].getDate());
+			var newDate = new Date(score.date.getFullYear(), score.date.getMonth(), score.date.getDate());
+			var daysBetween = (newDate-oldDate)/1000/60/60/24;
+			console.log(newDate, oldDate);
+			console.log(daysBetween);
+			activity1activity.push({x:oldDate.getTime(), y:lastDate[1]});
+			if (daysBetween > 1){
+				for (var i=1; i<daysBetween;i++){
+					activity1activity.push({x:new Date(lastDate[0].getFullYear(),lastDate[0].getMonth(),lastDate[0].getDate()+i).getTime(), y:0});
+				}
+			}
 			lastDate[0] = score.date;
 			lastDate[1] = 1;
 		}
@@ -153,7 +163,17 @@ Template.myAccount.rendered = function(){
 			}
 		}
 	}
-	activity1activity.push({x:new Date(lastDate[0].getFullYear(),lastDate[0].getMonth(),lastDate[0].getDate(),-9).getTime()/1000, y:lastDate[1]});
+
+	var oldDate = new Date(lastDate[0].getFullYear(),lastDate[0].getMonth(),lastDate[0].getDate());
+	var now = new Date();
+	var newDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+	var daysBetween = (newDate-oldDate)/1000/60/60/24;
+	activity1activity.push({x:oldDate.getTime(), y:lastDate[1]});
+	if (daysBetween > 1){
+		for (var i=1; i<daysBetween;i++){
+			activity1activity.push({x:new Date(lastDate[0].getFullYear(),lastDate[0].getMonth(),lastDate[0].getDate()+i).getTime(), y:0});
+		}
+	}
 
 	var lastDate = [null,0];
 	for (var i in scores2){
@@ -162,7 +182,17 @@ Template.myAccount.rendered = function(){
 			lastDate[0] = score.date;
 		}
 		if (!score.date.sameDateAs(lastDate[0])){
-			activity1activity.push({x:new Date(lastDate[0].getFullYear(),lastDate[0].getMonth(),lastDate[0].getDate(),-9).getTime()/1000, y:lastDate[1]});
+			var oldDate = new Date(lastDate[0].getFullYear(),lastDate[0].getMonth(),lastDate[0].getDate());
+			var newDate = new Date(score.date.getFullYear(), score.date.getMonth(), score.date.getDate());
+			var daysBetween = (newDate-oldDate)/1000/60/60/24;
+			console.log(newDate, oldDate);
+			console.log(daysBetween);
+			activity2activity.push({x:oldDate.getTime(), y:lastDate[1]});
+			if (daysBetween > 1){
+				for (var i=1; i<daysBetween;i++){
+					activity2activity.push({x:new Date(lastDate[0].getFullYear(),lastDate[0].getMonth(),lastDate[0].getDate()+i).getTime(), y:0});
+				}
+			}
 			lastDate[0] = score.date;
 			lastDate[1] = 1;
 		}
@@ -248,7 +278,17 @@ Template.myAccount.rendered = function(){
 			}
 		}
 	}
-	activity2activity.push({x:new Date(lastDate[0].getFullYear(),lastDate[0].getMonth(),lastDate[0].getDate(),-9).getTime()/1000, y:lastDate[1]});
+
+	var oldDate = new Date(lastDate[0].getFullYear(),lastDate[0].getMonth(),lastDate[0].getDate());
+	var now = new Date();
+	var newDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+	var daysBetween = (newDate-oldDate)/1000/60/60/24;
+	activity2activity.push({x:oldDate.getTime(), y:lastDate[1]});
+	if (daysBetween > 1){
+		for (var i=1; i<daysBetween;i++){
+			activity2activity.push({x:new Date(lastDate[0].getFullYear(),lastDate[0].getMonth(),lastDate[0].getDate()+i).getTime(), y:0});
+		}
+	}
 
 	// for (var i in results){
 	// 	if (results[i][0].length == 0){
@@ -288,6 +328,7 @@ Template.myAccount.rendered = function(){
     		{name:"<img src=/shape6.png></img>"+Session.get('lang').OneEdge+" ("+activity11Shape6[1]+" "+Session.get('lang').NotFinished+")", data: activity11Shape6[0], color: palette.color()}
 		]
 	});
+	console.log(activity1activity);
 
 	var graph3 = new Rickshaw.Graph( {
 	        element: document.querySelector("#chart-3"),
@@ -329,6 +370,8 @@ Template.myAccount.rendered = function(){
 		]
 	});
 
+	console.log(activity2activity);
+
 	var graph6 = new Rickshaw.Graph( {
 	        element: document.querySelector("#chart-6"),
 	        renderer: 'bar',
@@ -356,10 +399,13 @@ Template.myAccount.rendered = function(){
 	    xFormatter: function(x) { return x+1; },
 	    yFormatter: function(y) { return y + Session.get('lang').Sec }
 	});
+	var yaxis1 = new Rickshaw.Graph.Axis.Y({
+		graph: graph1
+	});
 
 	function formatDate(x){
 		var date = new Date();
-		date.setTime(x*1000);
+		date.setTime(x);
 		return date.getDate()+"/"+(date.getMonth()+1)+"/"+date.getFullYear();
 	}
 
@@ -380,11 +426,17 @@ Template.myAccount.rendered = function(){
 	    xFormatter: function(x) { return x+1; },
 	    yFormatter: function(y) { return y + Session.get('lang').Sec }
 	});
+	var yaxis2 = new Rickshaw.Graph.Axis.Y({
+		graph: graph2
+	});
 
 	var hoverDetail3 = new Rickshaw.Graph.HoverDetail( {
 	    graph: graph3,
 	    xFormatter: function(x) { return formatDate(x); },
 	    yFormatter: function(y) { return y + " " + Session.get('lang').ChallengesTaken }
+	});
+	var yaxis3 = new Rickshaw.Graph.Axis.Y({
+		graph: graph3
 	});
 
 	var legend4 = new Rickshaw.Graph.Legend({
@@ -404,6 +456,9 @@ Template.myAccount.rendered = function(){
 	    xFormatter: function(x) { return x+1; },
 	    yFormatter: function(y) { return y + Session.get('lang').Sec }
 	});
+	var yaxis4 = new Rickshaw.Graph.Axis.Y({
+		graph: graph4
+	});
 
 	var legend5 = new Rickshaw.Graph.Legend({
 	    graph: graph5,
@@ -422,11 +477,17 @@ Template.myAccount.rendered = function(){
 	    xFormatter: function(x) { return x+1; },
 	    yFormatter: function(y) { return y + Session.get('lang').Sec }
 	});
+	var yaxis5 = new Rickshaw.Graph.Axis.Y({
+		graph: graph5
+	});
 
 	var hoverDetail6 = new Rickshaw.Graph.HoverDetail( {
 	    graph: graph6,
 	    xFormatter: function(x) { return formatDate(x); },
 	    yFormatter: function(y) { return y + " " + Session.get('lang').ChallengesTaken }
+	});
+	var yaxis1 = new Rickshaw.Graph.Axis.Y({
+		graph: graph6
 	});
 
 	graph1.render();

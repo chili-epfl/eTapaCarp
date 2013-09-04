@@ -44,6 +44,10 @@ Meteor.startup(
     add('ActivityInfo', 'Ici vous pouvez simplement bouger vos objets sur la zone de travail pour vérifier que l\'interface est correctement installée.',
       'Here you can simply try to put the shapes you build before and move them on the workspace to see everything is working fine.',
       'Here you can simply try to put the shapes you build before and move them on the workspace to see everything is working fine.');
+    add('AddEdge', 'Ajouter une arête', 'Add an edge', 'Add an edge');
+    add('AddFace', 'Ajouter une face', 'Add a face', 'Add a face');
+    add('AddMarker', 'Ajouter le marker', 'Add the marker', 'Add the marker');
+    add('AddPoint', 'Ajouter un point', 'Add a point', 'Add a point');
     add('Axis', 'Axes', 'Axis', 'Axis');
 
     add('BlueRectangle', 'Rectangle bleu', 'Blue rectangle', 'Blue rectangle');
@@ -52,11 +56,14 @@ Meteor.startup(
     add('CameraAngle', 'Angle de la caméra', 'Camera angle', 'Camera angle');
     add('CameraDistance', 'Distance de la caméra', 'Camera distance', 'Camera distance');
     add('ChallengesTaken', 'Challenges effectués', 'Challenges taken', 'Challenges taken');
+    add('Coordinates', 'Coordonnées', 'Coordinates', 'Coordinates');
     add('CornersVisibility', 'Visibilité des coins (rouge signifie mauvais et vert signifie bon)',
       'Corners visibility (red means bad, green means OK)',
       'Corners visibility (red means bad, green means OK)');
     add('Correct', 'Correct!', 'Correct!', 'Correct!');
+    add('CreateAnObject', 'Créer un objet', 'Create an object', 'Create an object');
 
+    add('Delete', 'Supprimer', 'Delete', 'Delete');
     add('Details', 'Détails', 'Details', 'Details');
     add('Detected', 'Détecté', 'Detected', 'Detected');
 
@@ -69,6 +76,8 @@ Meteor.startup(
     add('GetReady', 'Préparez-vous', 'Get ready', 'Get ready');
 
     add('Home', 'Home', 'Home', 'Home');
+
+    add('InputNotValid', 'Entrée non valide', 'Input not valid', 'Input not valid');
 
     add('Level', 'Niveau', 'Level', 'Level');
     add('LevelDifficulty', 'Niveau de difficulté', 'Difficulty level', 'Difficulty level');
@@ -88,6 +97,7 @@ Meteor.startup(
     add('OneObject', 'Un objet', 'One object', 'One object');
 
     add('PerspectiveView', 'Vue en perspective', 'Perspective view', 'Perspective view');
+    add('Points', 'Points', 'Points', 'Points');
     add('Position', 'Position', 'Position', 'Position');
     add('Practice', 'Entrainement', 'Practice', 'Practice');
 

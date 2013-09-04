@@ -96,6 +96,12 @@ Meteor.Router.add({
     return 'about';
   },
   
+  '/createAnObject': function() {
+    console.log('createAnObject')
+    setNav('CreateAnObject');
+    return 'createAnObject';
+  },
+  
   '/myAccount': function() {
     if(Meteor.user()){
       setNav('MyAccount');
