@@ -476,7 +476,7 @@ View.prototype.render = function (markers) {
     
 };
 
-View.prototype.renderTempObject = function(model){
+View.prototype.renderTempObject = function(model, addNumbers){
     for (var i in this.tempObject){
         for (var j in this.tempObject[i]){
             this.scene.remove(this.tempObject[i][j]);
@@ -509,26 +509,112 @@ View.prototype.renderTempObject = function(model){
         mesh.position.z = point[2];
         this.tempObject.points.push(mesh);
         this.scene.add(mesh);
+        if (addNumbers){
 
-        var textGeo = new THREE.TextGeometry(i,{size: 7, height:5});
-        var text = new THREE.Mesh(textGeo, new THREE.MeshBasicMaterial({color: 0x000000, depthTest: false}));
-        text.renderDepth = 9007199254740992;
-        text.rotation.x = this.camera.rotation.x;
-        text.rotation.y = this.camera.rotation.y;
-        text.rotation.z = this.camera.rotation.z;
-        text.position.x = point[0];
-        text.position.y = point[1];
-        text.position.z = point[2];
-        this.tempObject.points.push(text);
-        this.scene.add(text);
+            var textGeo = new THREE.TextGeometry(i,{size: 7, height:5});
+            var text = new THREE.Mesh(textGeo, new THREE.MeshBasicMaterial({color: 0x000000, depthTest: false}));
+            text.renderDepth = 9007199254740992;
+            text.rotation.x = this.camera.rotation.x;
+            text.rotation.y = this.camera.rotation.y;
+            text.rotation.z = this.camera.rotation.z;
+            text.position.x = point[0];
+            text.position.y = point[1];
+            text.position.z = point[2];
+            this.tempObject.points.push(text);
+            this.scene.add(text);
+        }
     }
-    if (model.faces.length > 0){
-        var faces = this.shape(model);
-        var meshMaterial = new THREE.MeshBasicMaterial({color: false, side: THREE.DoubleSide, depthTest: true, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1});
-        var mesh = new THREE.Mesh(faces, meshMaterial);
-        this.tempObject.faces.push(mesh);
-        this.scene.add(mesh);
+    for (var i in model.faces){
+        var meshMaterial = new THREE.MeshBasicMaterial({color: 0xcccccc, side: THREE.DoubleSide, depthTest: true, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1});
+        var face = model.faces[i];
+        var points = model.coordinates;
+        if (face.length == 3){
+            var geometry = new THREE.Geometry();
+            geometry.vertices.push(new THREE.Vector3(points[face[0]][0], points[face[0]][1], points[face[0]][2]));
+            geometry.vertices.push(new THREE.Vector3(points[face[1]][0], points[face[1]][1], points[face[1]][2]));
+            geometry.vertices.push(new THREE.Vector3(points[face[2]][0], points[face[2]][1], points[face[2]][2]));
+            geometry.faces.push(new THREE.Face3(0,1,2));
+            var mesh = new THREE.Mesh(geometry, meshMaterial);
+            this.tempObject.faces.push(mesh);
+            this.scene.add(mesh);
 
+        }
+        else{
+            //To create faces we need to rotate its 3D plane to 2D plane, triangulate, then rotate back
+            var geometry = new THREE.Geometry();
+            for(var j in face){
+                var point = face[j];
+                geometry.vertices.push(new THREE.Vector3(points[point][0],points[point][1],points[point][2]));
+            }
+            geometry.faces.push(new THREE.Face3(0,1,2));
+            geometry.computeFaceNormals();
+            var M = geometry.faces[0].normal.clone();
+            var N = new THREE.Vector3(0,0,1);
+            var c = M.dot(N);
+            var s = Math.sqrt(1-c*c);
+            var C = 1-c;
+            var axis = new THREE.Vector3().crossVectors(M,N).normalize();
+            var x = axis.x;
+            var y = axis.y;
+            var z = axis.z;
+            var rot = new THREE.Matrix4(x*x*C+c, x*y*C-z*s, x*z*C+y*s, 0,
+                                        y*x*C+z*s, y*y*C+c, y*z*C-x*s, 0,
+                                        z*x*C-y*s, z*y*C+x*s, z*z*C+c, 0,
+                                        0,0,0,1);
+            geometry.applyMatrix(rot);
+            var Points2D = [];
+            var height = 0;
+            for (var j in geometry.vertices){
+                var vertex = geometry.vertices[j];
+                height = vertex.z;
+                Points2D.push(new THREE.Vector2(vertex.x, vertex.y));
+            }
+            var shape = new THREE.Shape( Points2D );
+            var geo = new THREE.ShapeGeometry(shape);
+            var mesh = new THREE.Mesh(geo, meshMaterial);
+            var translate = new THREE.Matrix4(1,0,0,0, 0,1,0,0, 0,0,1,height, 0,0,0,1);
+            mesh.geometry.applyMatrix(translate);
+            var c = N.dot(M);
+            var s = Math.sqrt(1-c*c);
+            var C = 1-c;
+            var axis = new THREE.Vector3().crossVectors(N,M).normalize();
+            var x = axis.x;
+            var y = axis.y;
+            var z = axis.z;
+            var rot = new THREE.Matrix4(x*x*C+c, x*y*C-z*s, x*z*C+y*s, 0,
+                                        y*x*C+z*s, y*y*C+c, y*z*C-x*s, 0,
+                                        z*x*C-y*s, z*y*C+x*s, z*z*C+c, 0,
+                                        0,0,0,1);
+            mesh.geometry.applyMatrix(rot);
+            this.tempObject.faces.push(mesh);
+            this.scene.add(mesh);
+            if (model.marker.length > 0){
+                if (model.marker[0] == i){
+                    var markerGeo = new THREE.CubeGeometry(27,27,0);
+                    var marker = new THREE.Mesh(markerGeo, new THREE.MeshBasicMaterial({color: 0x000000}));
+                    var markerGeo2 = new THREE.CubeGeometry(37,37,0);
+                    var marker2 = new THREE.Mesh(markerGeo2, new THREE.MeshBasicMaterial({color: 0xffffff}));
+                    // var diffx = Math.abs(model.marker[2][0].x-model.marker[2][1].x);
+                    // var diffy = Math.abs(model.marker[2][0].y-model.marker[2][1].y);
+                    // if (diffy != 0){
+                    //     marker.geometry.applyMatrix(new THREE.Matrix4().makeRotationZ(Math.atan2(diffy,diffx)));
+                    //     marker2.geometry.applyMatrix(new THREE.Matrix4().makeRotationZ(Math.atan2(diffy,diffx)));
+                    // }
+                    marker.geometry.applyMatrix(new THREE.Matrix4(1,0,0,model.marker[1].x, 0,1,0,model.marker[1].y, 0,0,1,model.marker[1].z, 0,0,0,1));
+                    marker.geometry.applyMatrix(translate);
+                    marker.geometry.applyMatrix(rot);
+                    marker2.geometry.applyMatrix(new THREE.Matrix4(1,0,0,model.marker[1].x, 0,1,0,model.marker[1].y, 0,0,1,model.marker[1].z, 0,0,0,1));
+                    marker2.geometry.applyMatrix(translate);
+                    marker2.geometry.applyMatrix(rot);
+                    marker.position.z += 1;
+                    
+                    this.tempObject.marker = [marker, marker2];
+                    this.scene.add(marker);
+                    this.scene.add(marker2);
+                }
+            }
+            
+        }
     }
 
     this.renderer.render(this.scene, this.camera);
@@ -926,7 +1012,7 @@ View.prototype.removeSelectedEdges = function(){
 }
 
 View.prototype.showAxis = function(){
-    var lineMaterial2 = new THREE.LineBasicMaterial({color: 0xff0000, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1});
+    var lineMaterial2 = new THREE.LineBasicMaterial({color: 0xff0000});
     var line = new THREE.Geometry();
     line.vertices.push(new THREE.Vector3(WS_WIDTH/2,WS_HEIGHT/2,0));
     line.vertices.push(new THREE.Vector3(-WS_WIDTH/2,WS_HEIGHT/2,0));
@@ -935,7 +1021,7 @@ View.prototype.showAxis = function(){
     this.axisObjects.push(object1);
     this.scene.add(object1);
 
-    lineMaterial2 = new THREE.LineBasicMaterial({color: 0x00ff00, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1});
+    lineMaterial2 = new THREE.LineBasicMaterial({color: 0x00ff00});
     line = new THREE.Geometry();
     line.vertices.push(new THREE.Vector3(WS_WIDTH/2,WS_HEIGHT/2,0));
     line.vertices.push(new THREE.Vector3(WS_WIDTH/2,-WS_HEIGHT/2,0));
@@ -944,7 +1030,7 @@ View.prototype.showAxis = function(){
     this.axisObjects.push(object2);
     this.scene.add(object2);
 
-    lineMaterial2 = new THREE.LineBasicMaterial({color: 0x0000ff, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1});
+    lineMaterial2 = new THREE.LineBasicMaterial({color: 0x0000ff});
     line = new THREE.Geometry();
     line.vertices.push(new THREE.Vector3(WS_WIDTH/2,WS_HEIGHT/2,0));
     line.vertices.push(new THREE.Vector3(WS_WIDTH/2,WS_HEIGHT/2,WS_WIDTH/2));
@@ -981,10 +1067,10 @@ View.prototype.showAxis = function(){
 
     material = new THREE.MeshBasicMaterial({color: 0xffffe0,side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1});
     line = new THREE.Geometry();
-    line.vertices.push(new THREE.Vector3(WS_WIDTH/2,WS_HEIGHT/2,0));
-    line.vertices.push(new THREE.Vector3(-WS_WIDTH/2,WS_HEIGHT/2,0));
-    line.vertices.push(new THREE.Vector3(-WS_WIDTH/2,-WS_HEIGHT/2,0));
-    line.vertices.push(new THREE.Vector3(WS_WIDTH/2,-WS_HEIGHT/2,0));
+    line.vertices.push(new THREE.Vector3(WS_WIDTH/2,WS_HEIGHT/2,-0.1));
+    line.vertices.push(new THREE.Vector3(-WS_WIDTH/2,WS_HEIGHT/2,-0.1));
+    line.vertices.push(new THREE.Vector3(-WS_WIDTH/2,-WS_HEIGHT/2,-0.1));
+    line.vertices.push(new THREE.Vector3(WS_WIDTH/2,-WS_HEIGHT/2,-0.1));
     line.faces.push(new THREE.Face3(0,1,2));
     line.faces.push(new THREE.Face3(0,2,3));
     line.computeFaceNormals();

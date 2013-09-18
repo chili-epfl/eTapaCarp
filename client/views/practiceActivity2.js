@@ -63,7 +63,6 @@ Template.practiceActivity2.rendered = function(){
 		}
 		$("tr[id^='rowShape']").hide();
 		for (var i in shapes[1]){
-			console.log(shapes[1][i])
 			$('#rowShape'+shapes[1][i]).show();
 		}
 		animate();
@@ -118,7 +117,6 @@ Template.practiceActivity2.events({
 			}
 			$("tr[id^='rowShape']").hide();
 			for (var i in shapes[1]){
-				console.log(shapes[1][i])
 				$('#rowShape'+shapes[1][i]).show();
 			}
 			$('#loader').hide();
@@ -126,7 +124,6 @@ Template.practiceActivity2.events({
 		});
 	},
 	'click button[id^="difficulty"]': function(e, tmpl){
-		console.log($(e.target))
 		var that = this;
 		var level = $(e.target).attr('id')[$(e.target).attr('id').length-1];
 		if (!$(that).hasClass('btn-primary')){
@@ -138,7 +135,6 @@ Template.practiceActivity2.events({
 				}
 				$("tr[id^='rowShape']").hide();
 				for (var i in shapes[1]){
-					console.log(shapes[1][i])
 					$('#rowShape'+shapes[1][i]).show();
 				}
 				$('button[id^="difficulty"').removeClass("btn-primary");

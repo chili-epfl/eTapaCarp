@@ -70,8 +70,6 @@ Template.myAccount.rendered = function(){
 			var oldDate = new Date(lastDate[0].getFullYear(),lastDate[0].getMonth(),lastDate[0].getDate());
 			var newDate = new Date(score.date.getFullYear(), score.date.getMonth(), score.date.getDate());
 			var daysBetween = (newDate-oldDate)/1000/60/60/24;
-			console.log(newDate, oldDate);
-			console.log(daysBetween);
 			activity1activity.push({x:oldDate.getTime(), y:lastDate[1]});
 			if (daysBetween > 1){
 				for (var i=1; i<daysBetween;i++){
@@ -185,8 +183,6 @@ Template.myAccount.rendered = function(){
 			var oldDate = new Date(lastDate[0].getFullYear(),lastDate[0].getMonth(),lastDate[0].getDate());
 			var newDate = new Date(score.date.getFullYear(), score.date.getMonth(), score.date.getDate());
 			var daysBetween = (newDate-oldDate)/1000/60/60/24;
-			console.log(newDate, oldDate);
-			console.log(daysBetween);
 			activity2activity.push({x:oldDate.getTime(), y:lastDate[1]});
 			if (daysBetween > 1){
 				for (var i=1; i<daysBetween;i++){
@@ -328,7 +324,6 @@ Template.myAccount.rendered = function(){
     		{name:"<img src=/shape6.png></img>"+Session.get('lang').OneEdge+" ("+activity11Shape6[1]+" "+Session.get('lang').NotFinished+")", data: activity11Shape6[0], color: palette.color()}
 		]
 	});
-	console.log(activity1activity);
 
 	var graph3 = new Rickshaw.Graph( {
 	        element: document.querySelector("#chart-3"),
@@ -370,7 +365,6 @@ Template.myAccount.rendered = function(){
 		]
 	});
 
-	console.log(activity2activity);
 
 	var graph6 = new Rickshaw.Graph( {
 	        element: document.querySelector("#chart-6"),

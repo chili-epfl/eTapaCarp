@@ -13,7 +13,6 @@ var isNotJittering = false;
 var click = null; 
 
 function onDocumentMouseDown( event ) {
-	console.log(event)
 	if (event.which == 1){
     	click = event;
 	}

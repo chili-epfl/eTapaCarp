@@ -97,9 +97,13 @@ Meteor.Router.add({
   },
   
   '/createAnObject': function() {
-    console.log('createAnObject')
     setNav('CreateAnObject');
     return 'createAnObject';
+  },
+  
+  '/importObject': function() {
+    setNav('ImportObject');
+    return 'importObject';
   },
   
   '/myAccount': function() {

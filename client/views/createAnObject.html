@@ -22,6 +22,8 @@
 		<br>
 		<button class="btn" type="submit">{{lang.AddFace}}</button>
 		</form>
+
+		<button class="btn" id="findMarker">{{lang.PlaceMarker}}</button>
 	</div>
 	<div class="span1">
 		<h6>{{lang.Axis}}</h6>
@@ -37,26 +39,26 @@
 	</div>
 	<div class="span8">
 		{{#constant}}
-		<div id="perspective" class="span12">
+		<div id="perspective1" class="span12">
 		</div>
 		{{/constant}}
 	</div>
 </div>
 <div class="row-fluid">
 	<div class="span4">
-		<h6>Points</h6>
+		<h6>{{lang.Points}}</h6>
 		<table class="table" id="listPoints">
 			<tr><th>ID</th><th>{{lang.Coordinates}}</th></tr>
 		</table>
 	</div>
 	<div class="span4">
-		<h6>Edges</h6>
+		<h6>{{lang.Edges}}</h6>
 		<table class="table" id="listEdges">
 			<tr><th>{{lang.Points}}</th></tr>
 		</table>
 	</div>
 	<div class="span4">
-		<h6>Faces</h6>
+		<h6>{{lang.Faces}}</h6>
 		<table class="table" id="listFaces">
 			<tr><th>{{lang.Points}}</th></tr>
 		</table>

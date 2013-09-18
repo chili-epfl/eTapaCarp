@@ -27,7 +27,6 @@ var scoreId = null;
 var objectDetectedOnce = 0;
 
 function onDocumentMouseDown( event ) {
-	console.log(event)
 	if (event.which == 1){
     	click = event;
 	}
@@ -85,7 +84,6 @@ Template.evaluationActivity1.animate = function() {
 		if (count == 1){
 			objectDetectedOnce++;
 			if(objectDetectedOnce == 2){
-				console.log(i)
 				views.edgeToSelect(i,'perspective');
 				startTime = new Date().getTime();
 				scoreId = Score.insert({time:null, activity:"activity1", userId:Meteor.userId(), date: new Date(), difficulty: Session.get('activity1Level'), shape: i});

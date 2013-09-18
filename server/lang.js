@@ -17,7 +17,7 @@ Meteor.startup(
 
     add('About', 'A propos', 'About', 'Über');
     add('Activities', 'Activités', 'Activities', 'Aktivitäten');
-    add('Activity', 'Activité', 'Activity', 'Activity');
+    add('Activity', 'Activité', 'Activity', 'Aktivität');
     add('Activity1',
       'Trouver l\'arête',
       'Find the edge',
@@ -67,26 +67,34 @@ Meteor.startup(
     add('Details', 'Détails', 'Details', 'Details');
     add('Detected', 'Détecté', 'Detected', 'Detected');
 
+    add('Edges', 'Arêtes', 'Edges', 'Edges');
     add('Errors', 'erreur(s)', 'error(s)', 'error(s)');
     add('Evaluation', 'Evaluation', 'Evaluation', 'Evaluation');
 
+    add('Faces', 'Faces', 'Faces', 'Faces');
     add('Feedback', 'Feedback', 'Feedback', 'Feedback');
+    add('FileFormatError', 'Ce format de fichier n\'est pas accepté', 'This file format is not supported', 'This file format is not supported');
     add('FrontView', 'Vue de face', 'Front view', 'Front View');
 
     add('GetReady', 'Préparez-vous', 'Get ready', 'Get ready');
 
     add('Home', 'Home', 'Home', 'Home');
 
+    add('Import', 'Importer', 'Import', 'Import');
+    add('ImportFile', 'Importer un fichier', 'Import a file', 'Import a file');
+    add('ImportObjectFromFile', 'Importer un object à partir d\'un fichier', 'Import an object from a file', 'Import an object from a file');
     add('InputNotValid', 'Entrée non valide', 'Input not valid', 'Input not valid');
 
     add('Level', 'Niveau', 'Level', 'Level');
     add('LevelDifficulty', 'Niveau de difficulté', 'Difficulty level', 'Difficulty level');
     add('Loading', 'Chargement...', 'Loading...', 'Loading...');
 
+    add('Manually', 'Manuellement', 'Manually', 'Manually');
     add('MyAccount', 'Mon compte', 'My account', 'My account');
 
     add('NewChallenge', 'Nouveau challenge', 'New challenge', 'New challenge');
     add('NoObjectDetected', 'Aucun object détecté', 'No object detected', 'No object detected');
+    add('NoPlaceFound', 'Aucun endroit trouvé pour le marker', 'No place found for the marker', 'No place found for the marker');
     add('NotFinished', 'non terminé(s)', 'not finished', 'not finished');
     add('NumEdges', 'Nombre d\'arêtes', 'Number of edges', 'Number of edges');
     add('NumObjects', 'Nombre d\'objects', 'Number of objects', 'Number of objects');
@@ -97,6 +105,7 @@ Meteor.startup(
     add('OneObject', 'Un objet', 'One object', 'One object');
 
     add('PerspectiveView', 'Vue en perspective', 'Perspective view', 'Perspective view');
+    add('PlaceMarker', 'Placer le marker', 'Place the marker', 'Place the marker');
     add('Points', 'Points', 'Points', 'Points');
     add('Position', 'Position', 'Position', 'Position');
     add('Practice', 'Entrainement', 'Practice', 'Practice');
@@ -109,6 +118,7 @@ Meteor.startup(
     add('Rotation', 'Rotation', 'Rotation', 'Rotation');
 
     add('Sec', 'sec.', 'sec.', 'sec.');
+    add('Scale', 'Echelle', 'Scale', 'Scale');
     add('Shapes', 'Formes', 'Shapes', 'Shapes');
     add('SideView', 'Vue de côté', 'Side view', 'Side view');
     add('Start', 'Commencer', 'Start', 'Start');

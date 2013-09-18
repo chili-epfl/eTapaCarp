@@ -8,20 +8,20 @@ var rendered = false;
 
 Template.createAnObject.render = function(){
 	view.render([]);
-	view.renderTempObject(model);
+	view.renderTempObject(model, true);
 	view.renderer.render(view.scene, view.camera)
 }
 
 Template.createAnObject.rendered = function(){
 	if (!rendered){
 		rendered = true;
-		view = new PerspectiveView('perspective');
+		view = new PerspectiveView('perspective1');
 		view.init();
-		view.render([]);
-		controls = new THREE.OrbitControls( view.camera, document.getElementById('perspective') );
+		Template.createAnObject.render();
+		controls = new THREE.OrbitControls( view.camera, document.getElementById('perspective1') );
 		controls.addEventListener( 'change', Template.createAnObject.render );
 	}
-	else if (view != undefined){
+	if (view != undefined){
 		$('.point, .edge, .face').closest('tr').remove();
 		var arrayPoints = model.coordinates;
 		var arrayEdges = model.edges;
@@ -36,7 +36,7 @@ Template.createAnObject.rendered = function(){
 			var string = '<tr><td>['+arrayFaces[i]+']</td><td><a class="face" href="#"><i class="icon-remove"></i></a></td>';
 			$('#listFaces').append(string);
 		}
-		view.renderTempObject(model);
+		Template.createAnObject.render();
 	}
 }
 
@@ -46,7 +46,6 @@ Template.createAnObject.textToArray = function(text){
 	var OK = true;
 	for (var i in textArray){
 		var num = parseInt(textArray[i]);
-		console.log(isNaN(num) , num < 0 , num > model.coordinates.length-1 , array.indexOf(num) != -1)
 		if (isNaN(num) || num < 0 || num > model.coordinates.length-1 || array.indexOf(num) != -1){
 			OK = false;
 			break;
@@ -58,14 +57,17 @@ Template.createAnObject.textToArray = function(text){
 	return {isOK: OK, array: array};
 }
 
-Template.createAnObject.destroy = function(){
+Template.createAnObject.destroyed = function(){
+
 	for (var i in view.tempObject){
         for (var j in view.tempObject[i]){
             view.scene.remove(view.tempObject[i][j]);
         }
         view.tempObject[i] = [];
     }
-	views.destroy();
+    view.clear();
+    view.scene = null;
+    view.renderer = null;
 	rendered = false;
 }
 
@@ -124,13 +126,11 @@ Template.createAnObject.events({
 		else if (e.target.inputFace !== undefined){
 			var array = Template.createAnObject.textToArray(e.target.inputFace.value);
 			if (array.isOK){
-				console.log(array.array.length)
 				var allEdgesExist = true;
 				for (var i = 0; i < array.array.length && allEdgesExist; i++){
 					var edgeExists = false;
 					var val1 = array.array[i];
 					var val2 = array.array[((i+1)%array.array.length)];
-					console.log(val1, val2)
 					for (var j = 0; j < model.edges.length && !edgeExists; j++){
 						if(model.edges[j].indexOf(val1) != 1 && model.edges[j].indexOf(val2) != -1){
 							edgeExists = true;
@@ -145,7 +145,6 @@ Template.createAnObject.events({
 					var string = '<tr>'+
 									'<td>['+array.array+']</td>'+
 									'<td><a class="face" href="#"><i class="icon-remove"></i></a></td>'+
-									'<td><label class="radio"><input type="radio" name="optionsRadios" id="optionsRadios'+(model.faces.length-1)+'" value="'+(model.faces.length-1)+'"></label></td>'+
 								'</tr>';
 					$('#listFaces').append(string);
 				}
@@ -168,7 +167,7 @@ Template.createAnObject.events({
 				alert(Session.get('lang').InputNotValid);
 			}
 		}
-		view.renderTempObject(model);
+		view.renderTempObject(model, true);
 	},
 	'click a.point': function(e, tmpl){
 		e.preventDefault();
@@ -191,19 +190,23 @@ Template.createAnObject.events({
 					}
 					arrayEdges.push(model.edges[j]);
 				}
-				else if (i == 'faces' && model[i][j].indexOf(ID) == -1){
-					for (var k in model.faces[j]){
-						if (ID < model.faces[j][k]){
-							model.faces[j][k]--;
+				else if (i == 'faces'){
+					if (model[i][j].indexOf(ID) == -1){
+						for (var k in model.faces[j]){
+							if (ID < model.faces[j][k]){
+								model.faces[j][k]--;
+							}
 						}
+						arrayFaces.push(model.faces[j]);
 					}
-					arrayFaces.push(model.faces[j]);
+					else if (j == model.marker[0]){
+						model.marker = [];
+					}
 				}
 			}
 		}
 		model = {coordinates:arrayPoints, edges:arrayEdges, faces:arrayFaces, marker:model.marker};
-		console.log(model)
-		view.renderTempObject(model);
+		view.renderTempObject(model,true);
 		$('.point, .edge, .face').closest('tr').remove();
 		for (var i in arrayPoints){
 			$('#listPoints').append('<tr><td>'+(parseInt(i))+'</td><td>['+arrayPoints[i]+']</td><td><a class="point" href="#"><i class="icon-remove"></i></a></td>');
@@ -212,7 +215,7 @@ Template.createAnObject.events({
 			$('#listEdges').append('<tr><td>['+arrayEdges[i]+']</td><td><a class="edge" href="#"><i class="icon-remove"></i></a></td>');
 		}
 		for (var i in arrayFaces){
-			var string = '<tr><td>['+arrayFaces[i]+']</td><td><a class="face" href="#"><i class="icon-remove"></i></a></td><td><label class="radio"><input type="radio" name="optionsRadios" id="optionsRadios'+i+'" value="'+i+'" checked></label></td>';
+			var string = '<tr><td>['+arrayFaces[i]+']</td><td><a class="face" href="#"><i class="icon-remove"></i></a></td>';
 			$('#listFaces').append(string);
 		}
 	},
@@ -231,16 +234,19 @@ Template.createAnObject.events({
 			if(model.faces[i].indexOf(array[0]) == -1 || model.faces[i].indexOf(array[1]) == -1){
 				arrayFaces.push(model.faces[i]);
 			}
+			else if (i == model.marker[0]){
+				model.marker = [];
+			}
 		}
 		model.edges = arrayEdges;
 		model.faces = arrayFaces;
-		view.renderTempObject(model);
+		view.renderTempObject(model,true);
 		$('.edge, .face').closest('tr').remove();
 		for (var i in arrayEdges){
 			$('#listEdges').append('<tr><td>['+arrayEdges[i]+']</td><td><a class="edge" href="#"><i class="icon-remove"></i></a></td>');
 		}
 		for (var i in arrayFaces){
-			var string = '<tr><td>['+arrayFaces[i]+']</td><td><a class="face" href="#"><i class="icon-remove"></i></a></td><td><label class="radio"><input type="radio" name="optionsRadios" id="optionsRadios'+i+'" value="'+i+'" checked></label></td>';
+			var string = '<tr><td>['+arrayFaces[i]+']</td><td><a class="face" href="#"><i class="icon-remove"></i></a></td>';
 			$('#listFaces').append(string);
 		}
 		
@@ -254,16 +260,25 @@ Template.createAnObject.events({
 			if (JSON.stringify(array) != JSON.stringify(model.faces[i])){
 				arrayFaces.push(model.faces[i]);
 			}
+			else if (i == model.marker[0]){
+				model.marker = [];
+			}
 		}
 		model.faces = arrayFaces;
-		view.renderTempObject(model);
+		view.renderTempObject(model,true);
 		$('.face').closest('tr').remove();
 		for (var i in arrayFaces){
-			var string = '<tr><td>['+arrayFaces[i]+']</td><td><a class="face" href="#"><i class="icon-remove"></i></a></td><td><label class="radio"><input type="radio" name="optionsRadios" id="optionsRadios'+i+'" value="'+i+'" checked></label></td>';
+			var string = '<tr><td>['+arrayFaces[i]+']</td><td><a class="face" href="#"><i class="icon-remove"></i></a></td>';
 			$('#listFaces').append(string);
 		}
 	},
+
+	'click #findMarker': function(e, tmpl){
+		findMarkerPosition(20, view, model);
+		Template.createAnObject.render();
+	},
+
 	'change input[type="radio"]': function(e,tmpl){
-		console.log(e);
+		// console.log(e);
 	}
 });
