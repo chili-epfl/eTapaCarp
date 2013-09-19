@@ -105,6 +105,6 @@ Meteor.startup(
     add('TopView', 'Vue en plan', 'Top view', 'Top view');
     add('Transparency', 'Transparence', 'Transparency', 'Transparency');
 
-    add('Wrong', 'Faux!', 'Wrong!','Wrong!');
+    add('Wrong', 'Faux!', 'Wrong!','Falsch!');
   }
 );
