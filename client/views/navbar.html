@@ -6,10 +6,25 @@
             <li id="navbarHome"><a href="/home">{{lang.Home}}</a></li>
             <li id="navbarActivities"><a href="/activities">{{lang.Activities}}</a></li>
             <li id="navbarAbout"><a href="/about">{{lang.About}}</a></li>
+            {{#if currentUser}}
+            <li class="dropdown">
+                <a class="dropdown-toggle" data-toggle="dropdown" href="#">{{lang.CreateAnObject}}<b class="caret"></b></a>
+                <ul class="dropdown-menu">
+                    <li id="navbarCreateAnObject"><a href="/createAnObject">{{lang.Manually}}</a></li>
+                    <li id="navbarImportObject"><a href="/importObject">{{lang.ImportFile}}</a></li>
+                </ul>
+            </li>
+            {{/if}}
             <li class="divider-vertical"></li>
             <li id="set-lang-fr"><a href="#">fr</a></li>
             <li id="set-lang-de"><a href="#">de</a></li>
             <li id="set-lang-en"><a href="#">en</a></li>
+        </ul>
+        <ul class="nav pull-right">
+            {{#if currentUser}}
+            <li id="navbarMyAccount"><a href="myAccount">{{lang.MyAccount}}</a></li>
+            {{/if}}
+            <li>{{loginButtons align="right"}}</li>
         </ul>
       </div>
   </div>

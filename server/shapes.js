@@ -1,14 +1,16 @@
 Meteor.startup(
   function(){
-    var addShape = function(id, coordinates, edges, faces){
-      return Shapes.insert({
-        id: id,
-        coordinates: coordinates,
-        edges: edges,
-        faces: faces
-      });
+    var addShape = function(id, coordinates, edges, faces, markerZ){
+      if ((Shapes.find({id: id})).count() == 0) {
+        return Shapes.insert({
+          id: id,
+          coordinates: coordinates,
+          edges: edges,
+          faces: faces,
+          markerZ: markerZ
+        });
+      }
     };
-    Shapes.remove({});
     addShape(
       6,
       [
@@ -36,7 +38,8 @@ Meteor.startup(
         [1,8,9,2],
         [8,5,6,9],
         [7,3,2,9,6]
-      ]);
+      ],
+      45.0);
     addShape(
       20,
       [ 
@@ -61,7 +64,8 @@ Meteor.startup(
       [5,6,2,1],
       [3,7,6,2],
       [0,4,5,1]
-    ]);
+    ],
+    30.0);
     addShape(
       64,
       [ 
@@ -87,6 +91,7 @@ Meteor.startup(
       [4,0,1,5],
       [1,5,6,2],
       [7,3,2,6]
-    ]);
+    ],
+    55.0);
   }
 );

@@ -5,8 +5,12 @@
 		 		<img src="click.png" alt="">
 		 		<h3>{{lang.Activity1}}</h3>
 		 		<p>
-		 			<a href="/activity1" class="btn btn-primary">Go!</a>
-		 			<a class="btn details">{{lang.Details}}</a>
+		 			<a href="/activity1/practice" class="btn btn-info">{{lang.Practice}}</a>
+		 			{{#if currentUser}}
+		 			<a href="/activity1/scoring/difficulty" class="btn btn-info">{{lang.Evaluation}}</a>
+		 			{{/if}}
+		 			<br>
+		 			<a class="btn btn-link details">{{lang.Details}}</a>
 		 		</p>
 		 		<p class="hide">{{lang.Activity1Desc}}</p>
 		 	</div>
@@ -16,8 +20,12 @@
 		 		<img src="click.png" alt="">
 		 		<h3>{{lang.Activity2}}</h3>
 		 		<p>
-		 			<a href="/activity2" class="btn btn-primary">Go!</a>
-		 			<a class="btn details">{{lang.Details}}</a>
+		 			<a href="/activity2/practice" class="btn btn-info">{{lang.Practice}}</a>
+		 			{{#if currentUser}}
+		 			<a href="/activity2/scoring/difficulty" class="btn btn-info">{{lang.Evaluation}}</a>
+		 			{{/if}}
+		 			<br>
+		 			<a class="btn btn-link details">{{lang.Details}}</a>
 		 		</p>
 		 		<p class="hide">{{lang.Activity2Desc}}</p>
 		 	</div>
@@ -27,8 +35,12 @@
 		 		<img src="click.png" alt="">
 		 		<h3>{{lang.Activity3}}</h3>
 		 		<p>
-		 			<a href="/activity" class="btn btn-primary">Go!</a>
-		 			<a class="btn details">{{lang.Details}}</a>
+		 			<a href="/activity3/practice" class="btn btn-info">{{lang.Practice}}</a>
+		 			{{#if currentUser}}
+		 			<a href="/activity3/scoring" class="btn btn-info">{{lang.Evaluation}}</a>
+		 			{{/if}}
+		 			<br>
+		 			<a class="btn btn-link details">{{lang.Details}}</a>
 		 		</p>
 		 		<p class="hide">{{lang.Activity3Desc}}</p>
 		 	</div>
@@ -38,8 +50,12 @@
 		 		<img src="click.png" alt="">
 		 		<h3>{{lang.Activity4}}</h3>
 		 		<p>
-		 			<a href="/activity" class="btn btn-primary">Go!</a>
-		 			<a class="btn details">{{lang.Details}}</a>
+		 			<a href="/activity4/practice" class="btn btn-info">{{lang.Practice}}</a>
+		 			{{#if currentUser}}
+		 			<a href="/activity4/scoring" class="btn btn-info">{{lang.Evaluation}}</a>
+		 			{{/if}}
+		 			<br>
+		 			<a class="btn btn-link details">{{lang.Details}}</a>
 		 		</p>
 		 		<p class="hide">{{lang.Activity4Desc}}</p>
 		 	</div>

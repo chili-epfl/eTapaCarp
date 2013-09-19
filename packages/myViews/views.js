@@ -1,6 +1,7 @@
 var WS_WIDTH = 360.0;
 var WS_HEIGHT = 280.0;
 var SHAPES = [6, 20, 64];
+var ACTIVITYSHAPES = [];
 var ACTIVITYTRANSLATION = [];
 var ACTIVITYROTATION = [];
 var COLORS = [0xff0000, 0x00ff00, 0x0000ff, 0xff00ff, 0x00ffff, 0xf0f0f0];
@@ -140,17 +141,68 @@ Views.prototype.edgeSelectionDifficulty = function(difficulty){
     }
 }
 
-Views.prototype.modelMatchingDifficulty = function(difficulty){
+Views.prototype.activity2Difficulty = function(difficulty){
     for (var i in this.views){
         this.views[i].difficulty = difficulty;
     }
-    this.generateRandomPositions();
 }
 
-Views.prototype.checkSolution = function(markers){
+Views.prototype.updateActivity2Feedback = function(markers){
     for (var i in this.views){
-        this.views[i].checkSolution(markers);
+        this.views[i].updateActivity2Feedback(markers);
         break;
+    }
+}
+
+Views.prototype.checkActivity2Solution = function(markers){
+    for (var i in this.views){
+        if (this.views[i] instanceof FrontView){
+            var count = [];
+            var rotationOK = true;
+            var positionOK = true;
+            var diffRotation = [];
+            for (var j in markers){
+                var marker = markers[j];
+                if (count.indexOf(marker.id) == -1){
+                    count.push(marker.id);
+                }
+                for (var j = 0; j<ACTIVITYSHAPES.length; j++){
+                    if (marker.id == ACTIVITYSHAPES[j]){
+                        var Z = this.views[i].markerZ[marker.id];
+                        var marker_position = [marker.corners[0].x, marker.corners[0].y,1];
+                        var marker_position2 = [marker.corners[1].x, marker.corners[1].y,1];
+                        position = pixel2mm(marker_position[0], marker_position[1], Z);
+                        position2 = pixel2mm(marker_position2[0], marker_position2[1], Z);
+                        var rotation;
+                        var diffx = position.x-position2.x;
+                        var diffy = position.y-position2.y;
+                        if (diffy == 0){
+                            diffy = 1;
+                        }
+                        if ((diffx < 0 && diffy > 0) || (diffx > 0 && diffy > 0)){
+                            rotation = -Math.atan(diffx/diffy)+Math.PI/2;
+                        }
+                        else{
+                            rotation = -Math.atan(diffx/diffy)-Math.PI/2;
+                        }
+                        diffRotation.push(rotation, ACTIVITYROTATION[marker.id],rotation - ACTIVITYROTATION[marker.id])
+                        if (Math.abs(rotation - ACTIVITYROTATION[marker.id]) > 0.2){
+                            rotationOK = false;
+                        }
+                        if (Math.abs(position.x - ACTIVITYTRANSLATION[marker.id][0]) > 20 || Math.abs(position.y - ACTIVITYTRANSLATION[marker.id][1]) > 20){
+                            positionOK = false;
+                        }
+                    }
+                }
+            }
+            if (count.length == this.views[i].difficulty && rotationOK && positionOK){
+                var stopTime = new Date().getTime();
+                return stopTime;
+            }
+            else{
+                return null;
+            }
+        }
     }
 }
 
@@ -256,17 +308,42 @@ Views.prototype.showHelpOnSelect = function(click){
 
 Views.prototype.generateRandomPositions = function(){
     var testObjects = [];
+    ACTIVITYSHAPES = [];
     var count = 0;
     var redoRandom = false;
+    var randomShape = Math.ceil(Math.random()*SHAPES.length)-1;
     for (var name in this.views){
             var view = this.views[name];
             view.clear();
-            for (var i = 0; i<view.difficulty; i++){
-                var thisShape = SHAPES[i];
-                var filledShape = view.shape(MODELS[thisShape]);
-                testObjects[thisShape] = new THREE.Mesh(filledShape, new THREE.MeshBasicMaterial());
-                ACTIVITYROTATION[SHAPES[i]] = Math.random()*Math.PI;
-                ACTIVITYTRANSLATION[SHAPES[i]] = [Math.random()*WS_WIDTH-(WS_WIDTH/2),Math.random()*WS_HEIGHT-(WS_HEIGHT/2)];
+            for (var i = 0; i<SHAPES.length; i++){
+                if (view.difficulty == 1){
+                    if (i == randomShape){
+                        var thisShape = SHAPES[i];
+                        var filledShape = view.shape(MODELS[thisShape]);
+                        testObjects[thisShape] = new THREE.Mesh(filledShape, new THREE.MeshBasicMaterial());
+                        ACTIVITYSHAPES.push(thisShape);
+                        ACTIVITYROTATION[thisShape] = Math.random()*Math.PI;
+                        ACTIVITYTRANSLATION[thisShape] = [Math.random()*WS_WIDTH-(WS_WIDTH/2),Math.random()*WS_HEIGHT-(WS_HEIGHT/2)];
+                    } 
+                }
+                else if (view.difficulty == 2){
+                    if (i != randomShape){
+                        var thisShape = SHAPES[i];
+                        var filledShape = view.shape(MODELS[thisShape]);
+                        testObjects[thisShape] = new THREE.Mesh(filledShape, new THREE.MeshBasicMaterial());
+                        ACTIVITYSHAPES.push(thisShape);
+                        ACTIVITYROTATION[thisShape] = Math.random()*Math.PI;
+                        ACTIVITYTRANSLATION[thisShape] = [Math.random()*WS_WIDTH-(WS_WIDTH/2),Math.random()*WS_HEIGHT-(WS_HEIGHT/2)];
+                    } 
+                }
+                else{
+                    var thisShape = SHAPES[i];
+                    var filledShape = view.shape(MODELS[thisShape]);
+                    testObjects[thisShape] = new THREE.Mesh(filledShape, new THREE.MeshBasicMaterial());
+                    ACTIVITYSHAPES.push(thisShape);
+                    ACTIVITYROTATION[thisShape] = Math.random()*Math.PI;
+                    ACTIVITYTRANSLATION[thisShape] = [Math.random()*WS_WIDTH-(WS_WIDTH/2),Math.random()*WS_HEIGHT-(WS_HEIGHT/2)];
+                }
             }
             for (var i in testObjects){
                 var object = testObjects[i];
@@ -286,31 +363,31 @@ Views.prototype.generateRandomPositions = function(){
                         break;
                     }
                 }
-            }
-            for (var i in testObjects){
-                var object1 = testObjects[i];
-                for (var j in testObjects){
-                    if (j != i){
-                        var object2 = testObjects[j];
-                        if (object1.geometry.boundingBox.isIntersectionBox(object2.geometry.boundingBox)){
-                            redoRandom = true;
-                            break;
-                        }
-                    }
-                }
                 if (redoRandom){
                     break;
                 }
             }
+            if (!redoRandom){
+                for (var i in testObjects){
+                    var object1 = testObjects[i];
+                    for (var j in testObjects){
+                        if (j != i){
+                            var object2 = testObjects[j];
+                            if (object1.geometry.boundingBox.isIntersectionBox(object2.geometry.boundingBox)){
+                                redoRandom = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (redoRandom){
+                        break;
+                    }
+                }
+            }
         break;
     }
-
-    if (redoRandom){
-        this.generateRandomPositions();
-    }
-    else{
-        this.init_objects();
-    }
+    testObjects = [];
+    return [redoRandom, ACTIVITYSHAPES];
 }
 
 Views.prototype.destroy = function(){
@@ -341,6 +418,8 @@ function View(name) {
     this.helpLines = [];
     this.levels = {};
     this.levelLines = [];
+    this.tempObject = {points:[], texts:[], edges:[], stippledEdges:[], faces:[], marker:[]};
+    this.markerZ = {};
 }
 
 View.prototype.init = function () {
@@ -398,6 +477,187 @@ View.prototype.render = function (markers) {
     
 };
 
+View.prototype.renderTempObject = function(model, addNumbers){
+    for (var i in this.tempObject){
+        for (var j in this.tempObject[i]){
+            this.scene.remove(this.tempObject[i][j]);
+        }
+        this.tempObject[i] = [];
+    }
+    if (model.edges.length > 0){
+        var edges = this.shapeLines(model);
+        for (var i in edges){
+            if(this.transparency){
+                var lineDashedMaterial = new THREE.LineDashedMaterial({color: 0x2E9AFE, depthTest: false, linewidth: 2});
+                edges[i].computeLineDistances();
+                var line1 = new THREE.Line(edges[i], lineDashedMaterial);
+                line1.renderDepth = 9007199254740992;
+                this.tempObject.stippledEdges.push(line1);
+                this.scene.add(line1);
+            }
+            var lineMaterial = new THREE.LineBasicMaterial({color: 0x2E9AFE, depthTest: true, linewidth: 2});
+            var line2 = new THREE.Line(edges[i], lineMaterial);
+            this.tempObject.edges.push(line2);
+            this.scene.add(line2);
+        }
+    }
+    for (var i in model.coordinates){
+        var point = model.coordinates[i];
+        var geo = new THREE.SphereGeometry(2);
+        var mesh = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({color: 0x000000}));
+        mesh.geometry.applyMatrix(new THREE.Matrix4(1,0,0,point[0], 0,1,0,point[1], 0,0,1,point[2], 0,0,0,1));
+        this.tempObject.points.push(mesh);
+        this.scene.add(mesh);
+
+        if (addNumbers){
+            var textGeo = new THREE.TextGeometry(i,{size: 7, height:5});
+            var text = new THREE.Mesh(textGeo, new THREE.MeshBasicMaterial({color: 0x000000, depthTest: false}));
+            text.renderDepth = 9007199254740992;
+            text.rotation.x = this.camera.rotation.x;
+            text.rotation.y = this.camera.rotation.y;
+            text.rotation.z = this.camera.rotation.z;
+            text.position.x = point[0];
+            text.position.y = point[1];
+            text.position.z = point[2];
+            // text.geometry.applyMatrix(new THREE.Matrix4(1,0,0,point[0], 0,1,0,point[1], 0,0,1,point[2], 0,0,0,1));
+            this.tempObject.texts.push(text);
+            this.scene.add(text);
+        }
+    }
+    for (var i in model.faces){
+        var meshMaterial = new THREE.MeshBasicMaterial({color: 0xcccccc, side: THREE.DoubleSide, depthTest: true, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1});
+        var face = model.faces[i];
+        var points = model.coordinates;
+        if (face.length == 3){
+            var geometry = new THREE.Geometry();
+            geometry.vertices.push(new THREE.Vector3(points[face[0]][0], points[face[0]][1], points[face[0]][2]));
+            geometry.vertices.push(new THREE.Vector3(points[face[1]][0], points[face[1]][1], points[face[1]][2]));
+            geometry.vertices.push(new THREE.Vector3(points[face[2]][0], points[face[2]][1], points[face[2]][2]));
+            geometry.faces.push(new THREE.Face3(0,1,2));
+            var mesh = new THREE.Mesh(geometry, meshMaterial);
+            this.tempObject.faces.push(mesh);
+            this.scene.add(mesh);
+
+        }
+        else{
+            //To create faces we need to rotate its 3D plane to 2D plane, triangulate, then rotate back
+            var geometry = new THREE.Geometry();
+            for(var j in face){
+                var point = face[j];
+                geometry.vertices.push(new THREE.Vector3(points[point][0],points[point][1],points[point][2]));
+            }
+            geometry.faces.push(new THREE.Face3(0,1,2));
+            geometry.computeFaceNormals();
+            var M = geometry.faces[0].normal.clone();
+            var N = new THREE.Vector3(0,0,1);
+            var c = M.dot(N);
+            var s = Math.sqrt(1-c*c);
+            var C = 1-c;
+            var axis = new THREE.Vector3().crossVectors(M,N).normalize();
+            var x = axis.x;
+            var y = axis.y;
+            var z = axis.z;
+            var rot = new THREE.Matrix4(x*x*C+c, x*y*C-z*s, x*z*C+y*s, 0,
+                                        y*x*C+z*s, y*y*C+c, y*z*C-x*s, 0,
+                                        z*x*C-y*s, z*y*C+x*s, z*z*C+c, 0,
+                                        0,0,0,1);
+            geometry.applyMatrix(rot);
+            var Points2D = [];
+            var height = 0;
+            for (var j in geometry.vertices){
+                var vertex = geometry.vertices[j];
+                height = vertex.z;
+                Points2D.push(new THREE.Vector2(vertex.x, vertex.y));
+            }
+            var shape = new THREE.Shape( Points2D );
+            var geo = new THREE.ShapeGeometry(shape);
+            var mesh = new THREE.Mesh(geo, meshMaterial);
+            var translate = new THREE.Matrix4(1,0,0,0, 0,1,0,0, 0,0,1,height, 0,0,0,1);
+            mesh.geometry.applyMatrix(translate);
+            var c = N.dot(M);
+            var s = Math.sqrt(1-c*c);
+            var C = 1-c;
+            var axis = new THREE.Vector3().crossVectors(N,M).normalize();
+            var x = axis.x;
+            var y = axis.y;
+            var z = axis.z;
+            var rot = new THREE.Matrix4(x*x*C+c, x*y*C-z*s, x*z*C+y*s, 0,
+                                        y*x*C+z*s, y*y*C+c, y*z*C-x*s, 0,
+                                        z*x*C-y*s, z*y*C+x*s, z*z*C+c, 0,
+                                        0,0,0,1);
+            mesh.geometry.applyMatrix(rot);
+            this.tempObject.faces.push(mesh);
+            this.scene.add(mesh);
+            if (model.marker.length > 0){
+                if (model.marker[0] == i){
+                    var markerGeo = new THREE.CubeGeometry(27,27,0);
+                    var marker = new THREE.Mesh(markerGeo, new THREE.MeshBasicMaterial({color: 0x000000}));
+                    var markerGeo2 = new THREE.CubeGeometry(37,37,0);
+                    var marker2 = new THREE.Mesh(markerGeo2, new THREE.MeshBasicMaterial({color: 0xffffff}));
+                    marker.geometry.applyMatrix(new THREE.Matrix4(1,0,0,model.marker[1].x, 0,1,0,model.marker[1].y, 0,0,1,model.marker[1].z, 0,0,0,1));
+                    marker.geometry.applyMatrix(translate);
+                    marker.geometry.applyMatrix(rot);
+                    marker2.geometry.applyMatrix(new THREE.Matrix4(1,0,0,model.marker[1].x, 0,1,0,model.marker[1].y, 0,0,1,model.marker[1].z, 0,0,0,1));
+                    marker2.geometry.applyMatrix(translate);
+                    marker2.geometry.applyMatrix(rot);
+                    marker.position.z += 1;
+                    
+                    this.tempObject.marker = [marker, marker2];
+                    this.scene.add(marker);
+                    this.scene.add(marker2);
+                    
+                }
+            }
+            
+        }
+    }
+    if (model.marker.length > 0 && model.markerZ == null){
+        var maxX = minY = maxZ = null;
+        for (var j in this.tempObject.marker[0].geometry.vertices){
+            var vertex = this.tempObject.marker[0].geometry.vertices[j];
+            if (maxZ == null || maxZ < vertex.z){
+                maxZ = vertex.z;
+            }
+            if (maxX == null || maxX < vertex.x){
+                maxX = vertex.x;
+            }
+            if (minY == null || minY > vertex.y){
+                minY = vertex.y;
+            }
+        }
+        model.markerZ = maxZ;
+        model.coordinates = [];
+        console.log(model.coordinates.length, this.tempObject.points.length)
+        for (var i in this.tempObject){
+            if (i != 'edges' && i != 'stippledEdges'){
+                for (var j in this.tempObject[i]){
+                    var mesh = this.tempObject[i][j];
+                    mesh.geometry.applyMatrix(new THREE.Matrix4(1,0,0,-maxX, 0,1,0,-minY, 0,0,1,0, 0,0,0,1));
+                    if (i == 'points'){
+                        console.log('bla')
+                        mesh.geometry.computeBoundingBox();
+                        var center = mesh.geometry.boundingBox.center();
+                        model.coordinates.push([center.x, center.y, center.z]);
+                    }
+                }
+            }
+            else{
+                for (var j in this.tempObject[i]){
+                    var mesh = this.tempObject[i][j];
+                    if (this.transparency){
+                        mesh.geometry.applyMatrix(new THREE.Matrix4(1,0,0,-maxX/2, 0,1,0,-minY/2, 0,0,1,0, 0,0,0,1));
+                    }
+                    else{
+                        mesh.geometry.applyMatrix(new THREE.Matrix4(1,0,0,-maxX, 0,1,0,-minY, 0,0,1,0, 0,0,0,1));
+                    }
+                }
+            }
+        }
+        model.marker[1] = new THREE.Vector3(-13.5,13.5,0);
+    }
+    this.renderer.render(this.scene, this.camera);
+}
+
 View.prototype.setDynamic = function (bool) {
     this.dynamic = bool;
 };
@@ -436,6 +696,8 @@ View.prototype.createObjects = function (markerId) {
     if (typeof(this.edges[markerId]) == "undefined") {
         this.edges[markerId] = [];
         this.faces[markerId] = [];
+        console.log(MODELS[markerId])
+        this.markerZ[markerId] = MODELS[markerId].markerZ;
         var meshMaterial = new THREE.MeshBasicMaterial({color: false, side: THREE.DoubleSide, depthTest: true, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1});
         var filledShape = this.shape(MODELS[markerId]);
         var dashedShape = this.shapeLines(MODELS[markerId]);
@@ -444,10 +706,7 @@ View.prototype.createObjects = function (markerId) {
             dashedShape[i].computeLineDistances();
             var lineDashedMaterial = new THREE.LineDashedMaterial({color: 0x000000, depthTest: false});
             var object1 = new THREE.Line(dashedShape[i], lineDashedMaterial);
-            var lineMaterial = new THREE.LineBasicMaterial({color: 0x000000, depthTest: true});;
-            
-
-            var object1 = new THREE.Line(dashedShape[i], lineDashedMaterial);
+            var lineMaterial = new THREE.LineBasicMaterial({color: 0x000000, depthTest: true});
 
             //To fix problem with stippled lines not showing
             object1.renderDepth = 9007199254740992;
@@ -498,8 +757,8 @@ View.prototype.createObjects = function (markerId) {
 
 View.prototype.init_objects = function(){
     this.clear();
-    for (var j = 0; j<this.difficulty; j++){
-        var thisShape = SHAPES[j];
+    for (var j = 0; j<ACTIVITYSHAPES.length; j++){
+        var thisShape = ACTIVITYSHAPES[j];
         this.createObjects(thisShape);
         for (var k in this.edges[thisShape]){
             var object = this.edges[thisShape][k];
@@ -546,17 +805,6 @@ View.prototype.shapeLines = function (loadedShape) {
     return geometries;
 };
 
-View.prototype.findZ = function (id) {
-    var coordinates = MODELS[id]['coordinates'];
-    var maxZ = coordinates[0][2];
-    for (var i = 1; i < coordinates.length; i++) {
-        if (coordinates[i][2] > maxZ) {
-            maxZ = coordinates[i][2];
-        }
-    }
-    return maxZ;
-};
-
 View.prototype.computeNewPositions = function (markers) {
     var numMarkers = 0;
     for (var k in this.edges) {
@@ -564,7 +812,7 @@ View.prototype.computeNewPositions = function (markers) {
             numMarkers++;
             var marker = markers[l];
             if (k == marker.id) {
-                var Z = this.findZ(marker.id);
+                var Z = this.markerZ[marker.id];
                 var marker_position = [marker.corners[0].x, marker.corners[0].y, 1];
                 var marker_position2 = [marker.corners[1].x, marker.corners[1].y, 1];
                 var position = pixel2mm(marker_position[0], marker_position[1], Z);
@@ -698,20 +946,20 @@ View.prototype.calculateRotation = function (vector1, vector2) {
     return rotation
 };
 
-View.prototype.checkSolution = function(markers){
+View.prototype.updateActivity2Feedback = function(markers){
     var count = [];
     for (var i in markers){
         var marker = markers[i];
         if (count.indexOf(marker.id) == -1){
             count.push(marker.id);
         }
-        for (var j = 0; j<this.difficulty; j++){
-            if (marker.id == SHAPES[j]){
+        for (var j = 0; j<ACTIVITYSHAPES.length; j++){
+            if (marker.id == ACTIVITYSHAPES[j]){
                 var td1 = $($('#rowShape'+marker.id).children()[1]);
                 if (td1.children().length == 0){
                     td1.append('<i class="icon-ok"></i>');
                 }
-                var Z = this.findZ(marker.id);
+                var Z = this.markerZ[marker.id];
                 var marker_position = [marker.corners[0].x, marker.corners[0].y,1];
                 var marker_position2 = [marker.corners[1].x, marker.corners[1].y,1];
                 position = pixel2mm(marker_position[0], marker_position[1], Z);
@@ -753,9 +1001,9 @@ View.prototype.checkSolution = function(markers){
             }
         }
     }
-    for (var j = 0; j<this.difficulty; j++){
-        if (count.indexOf(SHAPES[j]) == -1){
-            var td1 = $($('#rowShape'+SHAPES[j]).children()[1]);
+    for (var j = 0; j<ACTIVITYSHAPES.length; j++){
+        if (count.indexOf(ACTIVITYSHAPES[j]) == -1){
+            var td1 = $($('#rowShape'+ACTIVITYSHAPES[j]).children()[1]);
             if (td1.children().length > 0){
                 td1.children().remove();
             }
@@ -793,7 +1041,7 @@ View.prototype.removeSelectedEdges = function(){
 }
 
 View.prototype.showAxis = function(){
-    var lineMaterial2 = new THREE.LineBasicMaterial({color: 0xff0000, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1});
+    var lineMaterial2 = new THREE.LineBasicMaterial({color: 0xff0000});
     var line = new THREE.Geometry();
     line.vertices.push(new THREE.Vector3(WS_WIDTH/2,WS_HEIGHT/2,0));
     line.vertices.push(new THREE.Vector3(-WS_WIDTH/2,WS_HEIGHT/2,0));
@@ -802,7 +1050,7 @@ View.prototype.showAxis = function(){
     this.axisObjects.push(object1);
     this.scene.add(object1);
 
-    lineMaterial2 = new THREE.LineBasicMaterial({color: 0x00ff00, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1});
+    lineMaterial2 = new THREE.LineBasicMaterial({color: 0x00ff00});
     line = new THREE.Geometry();
     line.vertices.push(new THREE.Vector3(WS_WIDTH/2,WS_HEIGHT/2,0));
     line.vertices.push(new THREE.Vector3(WS_WIDTH/2,-WS_HEIGHT/2,0));
@@ -811,7 +1059,7 @@ View.prototype.showAxis = function(){
     this.axisObjects.push(object2);
     this.scene.add(object2);
 
-    lineMaterial2 = new THREE.LineBasicMaterial({color: 0x0000ff, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1});
+    lineMaterial2 = new THREE.LineBasicMaterial({color: 0x0000ff});
     line = new THREE.Geometry();
     line.vertices.push(new THREE.Vector3(WS_WIDTH/2,WS_HEIGHT/2,0));
     line.vertices.push(new THREE.Vector3(WS_WIDTH/2,WS_HEIGHT/2,WS_WIDTH/2));
@@ -848,10 +1096,10 @@ View.prototype.showAxis = function(){
 
     material = new THREE.MeshBasicMaterial({color: 0xffffe0,side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1});
     line = new THREE.Geometry();
-    line.vertices.push(new THREE.Vector3(WS_WIDTH/2,WS_HEIGHT/2,0));
-    line.vertices.push(new THREE.Vector3(-WS_WIDTH/2,WS_HEIGHT/2,0));
-    line.vertices.push(new THREE.Vector3(-WS_WIDTH/2,-WS_HEIGHT/2,0));
-    line.vertices.push(new THREE.Vector3(WS_WIDTH/2,-WS_HEIGHT/2,0));
+    line.vertices.push(new THREE.Vector3(WS_WIDTH/2,WS_HEIGHT/2,-0.1));
+    line.vertices.push(new THREE.Vector3(-WS_WIDTH/2,WS_HEIGHT/2,-0.1));
+    line.vertices.push(new THREE.Vector3(-WS_WIDTH/2,-WS_HEIGHT/2,-0.1));
+    line.vertices.push(new THREE.Vector3(WS_WIDTH/2,-WS_HEIGHT/2,-0.1));
     line.faces.push(new THREE.Face3(0,1,2));
     line.faces.push(new THREE.Face3(0,2,3));
     line.computeFaceNormals();

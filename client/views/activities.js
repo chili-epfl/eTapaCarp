@@ -1,5 +1,7 @@
 var shapesHandle = Meteor.subscribe('shapes');
-var Shapes = new Meteor.Collection('shapes');
+this.Shapes = new Meteor.Collection('shapes');
+var scoreHandle = Meteor.subscribe('score');
+this.Score = new Meteor.Collection('score');
 
 Deps.autorun(function() {
   var data, shapesData;
@@ -9,6 +11,7 @@ Deps.autorun(function() {
     return shapesData[entry.id] = entry;
   });
   Session.set('shapes', shapesData);
+  data = Score.find({'userId':Meteor.userId()});
   return null;
 });
 

@@ -1,0 +1,49 @@
+<template name="importObject">
+<h2>{{lang.ImportObjectFromFile}}</h2>
+<div class="row-fluid">
+	<div class="span3">
+		<form>
+			<input id="uploadedFile" class="file-inputs" type="file" accept="*.sat"></input>
+			<br>
+			{{#constant}}
+			<div id="sliderScale"></div>
+			{{/constant}}
+			<br>
+			<div>{{lang.Scale}}: {{#constant}}<span id="scale">100</span>%{{/constant}}</div>
+			<button type="submit" class="btn">{{lang.Import}}</button>
+		</form>
+		<button class="btn" id="findMarker">{{lang.PlaceMarker}}</button>
+		<br>
+		<button class="btn btn-large btn-success disabled" id="saveObject">{{lang.SaveObject}}</button>
+	</div>
+	<div class="span1">
+		<h6>{{lang.Axis}}</h6>
+		<div class="btn-group">
+			<button id="axis-on" class="btn btn-mini btn-primary">ON</button>
+			<button id="axis-off" class="btn btn-mini">OFF</button>
+		</div>
+		<h6>{{lang.Transparency}}</h6>
+		<div class="btn-group">
+			<button id="transparency-on" class="btn btn-mini btn-primary">ON</button>
+			<button id="transparency-off" class="btn btn-mini">OFF</button>
+		</div>
+	</div>
+	<div class="span8">
+		{{#constant}}
+		<div id="perspective" class="span12">
+		</div>
+		{{/constant}}
+	</div>
+</div>
+<div id="drawings0"></div>
+<div id="drawings1"></div>
+<div id="drawings2"></div>
+<div id="drawings3"></div>
+<div id="drawings4"></div>
+<div id="drawings5"></div>
+<div id="drawings6"></div>
+<div id="drawings7"></div>
+<div id="drawings8"></div>
+<div id="drawings9"></div>
+<div id="drawings10"></div>
+</template>

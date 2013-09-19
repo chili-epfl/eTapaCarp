@@ -1,6 +1,7 @@
 {
   "packages": {
     "router": {},
-    "page-js": {}
+    "page-js": {},
+    "jquery-ui": {}
   }
 }

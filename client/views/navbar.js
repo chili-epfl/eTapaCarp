@@ -14,6 +14,12 @@ Template.navbar.events({
         return Meteor.Router.to('/home');
       case 'navbarAbout':
         return Meteor.Router.to('/about');
+      case 'navbarCreateAnObject':
+        return Meteor.Router.to('/createAnObject');
+      case 'navbarImportObject':
+        return Meteor.Router.to('/importObject');
+      case 'navbarMyAccount':
+        return Meteor.Router.to('/myAccount');
       case 'set-lang-fr':
         return Session.set('lang_id', 'fr');
       case 'set-lang-de':
