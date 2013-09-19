@@ -1,4 +1,4 @@
-{}var rendered = false;
+var rendered = false;
 var animationId = null;
 var lang;
 

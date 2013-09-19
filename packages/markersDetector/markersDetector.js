@@ -347,6 +347,9 @@ MarkersDetector.prototype.drawCorners = function(thisMarkers,thisContext){
 
         thisContext.stroke();
         thisContext.closePath();
+        thisContext.strokeStyle = "blue";
+        thisContext.fillRect(thisCorners[0].x/640*thisContext.canvas.width-2.5,thisCorners[0].y/480*thisContext.canvas.height-2.5,5,5)
+        thisContext.fillRect(thisCorners[1].x/640*thisContext.canvas.width-2.5,thisCorners[1].y/480*thisContext.canvas.height-2.5,5,5)
     }
 };
 

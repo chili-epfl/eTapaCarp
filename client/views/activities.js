@@ -1,5 +1,5 @@
 var shapesHandle = Meteor.subscribe('shapes');
-var Shapes = new Meteor.Collection('shapes');
+this.Shapes = new Meteor.Collection('shapes');
 var scoreHandle = Meteor.subscribe('score');
 this.Score = new Meteor.Collection('score');
 

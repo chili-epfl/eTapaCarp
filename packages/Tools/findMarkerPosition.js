@@ -68,12 +68,6 @@ findMarkerPosition = function(angle,view,model){
 		    camera.position.x = 0;
 		    camera.position.y = 0;
 		    camera.position.z = 100;
-		    // var renderer = new THREE.WebGLRenderer();
-		    // var c = document.getElementById('drawings'+i);
-		    // c.appendChild(renderer.domElement);
-		    // var scene = new THREE.Scene();
-		    // renderer.setSize(width,height);
-		    // scene.add(mymesh)
             for (var j = 0; j < 15; j++){
             	for (var k = 0; k < 15; k++){
 	            	var x = width/15*j; 
@@ -105,28 +99,21 @@ findMarkerPosition = function(angle,view,model){
 	            			minDist[1].x = -centerX-point.x;
 	            			minDist[1].y = -centerY-point.y;
             			}
-            			minDist[2] = [segmentPoint1,segmentPoint2];
             		}
         		}
             	if (minDist[0] > max[0]){
             		max = minDist;
             	}
             }
-   //  		var geo = new THREE.CubeGeometry(5,5,0);
-   //  		var cube = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({color:0xff0000}))
-   //  		cube.position.x = -(max[1].x-centerX);
-   //  		cube.position.y = -(max[1].y-centerY);
-   //  		cube.position.z = 500;
-			// scene.add(cube)
-		 //    renderer.render(scene, camera);
+            
             if (max[0] > Math.sqrt(27*27+27*27)/2){
             	if (highestZ >= highestFace[0]){
             		if (rot < highestFace[1]){
-	            		model.marker = [i, max[1], max[2]];
+	            		model.marker = [i, max[1]];
 	            		highestFace = [highestZ, rot];
             		}
             		else if (180-rot < highestFace[1]){
-	            		model.marker = [i, max[1], max[2]];
+	            		model.marker = [i, max[1]];
 	            		highestFace = [highestZ, rot];
             		}
             	}
@@ -135,6 +122,9 @@ findMarkerPosition = function(angle,view,model){
 	}
 	if (highestFace[0] == 0){
 		alert(Session.get('lang').NoPlaceFound);
+	}
+	else{
+		$('#saveObject').removeClass('disabled')
 	}
 	
 	return model.marker;

@@ -168,7 +168,7 @@ Views.prototype.checkActivity2Solution = function(markers){
                 }
                 for (var j = 0; j<ACTIVITYSHAPES.length; j++){
                     if (marker.id == ACTIVITYSHAPES[j]){
-                        var Z = this.views[i].findZ(marker.id);
+                        var Z = this.views[i].markerZ[marker.id];
                         var marker_position = [marker.corners[0].x, marker.corners[0].y,1];
                         var marker_position2 = [marker.corners[1].x, marker.corners[1].y,1];
                         position = pixel2mm(marker_position[0], marker_position[1], Z);
@@ -418,7 +418,8 @@ function View(name) {
     this.helpLines = [];
     this.levels = {};
     this.levelLines = [];
-    this.tempObject = {points:[], lines:[], faces:[], marker:[]};
+    this.tempObject = {points:[], texts:[], edges:[], stippledEdges:[], faces:[], marker:[]};
+    this.markerZ = {};
 }
 
 View.prototype.init = function () {
@@ -491,12 +492,12 @@ View.prototype.renderTempObject = function(model, addNumbers){
                 edges[i].computeLineDistances();
                 var line1 = new THREE.Line(edges[i], lineDashedMaterial);
                 line1.renderDepth = 9007199254740992;
-                this.tempObject.lines.push(line1);
+                this.tempObject.stippledEdges.push(line1);
                 this.scene.add(line1);
             }
             var lineMaterial = new THREE.LineBasicMaterial({color: 0x2E9AFE, depthTest: true, linewidth: 2});
             var line2 = new THREE.Line(edges[i], lineMaterial);
-            this.tempObject.lines.push(line2);
+            this.tempObject.edges.push(line2);
             this.scene.add(line2);
         }
     }
@@ -504,13 +505,11 @@ View.prototype.renderTempObject = function(model, addNumbers){
         var point = model.coordinates[i];
         var geo = new THREE.SphereGeometry(2);
         var mesh = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({color: 0x000000}));
-        mesh.position.x = point[0];
-        mesh.position.y = point[1];
-        mesh.position.z = point[2];
+        mesh.geometry.applyMatrix(new THREE.Matrix4(1,0,0,point[0], 0,1,0,point[1], 0,0,1,point[2], 0,0,0,1));
         this.tempObject.points.push(mesh);
         this.scene.add(mesh);
-        if (addNumbers){
 
+        if (addNumbers){
             var textGeo = new THREE.TextGeometry(i,{size: 7, height:5});
             var text = new THREE.Mesh(textGeo, new THREE.MeshBasicMaterial({color: 0x000000, depthTest: false}));
             text.renderDepth = 9007199254740992;
@@ -520,7 +519,8 @@ View.prototype.renderTempObject = function(model, addNumbers){
             text.position.x = point[0];
             text.position.y = point[1];
             text.position.z = point[2];
-            this.tempObject.points.push(text);
+            // text.geometry.applyMatrix(new THREE.Matrix4(1,0,0,point[0], 0,1,0,point[1], 0,0,1,point[2], 0,0,0,1));
+            this.tempObject.texts.push(text);
             this.scene.add(text);
         }
     }
@@ -594,12 +594,6 @@ View.prototype.renderTempObject = function(model, addNumbers){
                     var marker = new THREE.Mesh(markerGeo, new THREE.MeshBasicMaterial({color: 0x000000}));
                     var markerGeo2 = new THREE.CubeGeometry(37,37,0);
                     var marker2 = new THREE.Mesh(markerGeo2, new THREE.MeshBasicMaterial({color: 0xffffff}));
-                    // var diffx = Math.abs(model.marker[2][0].x-model.marker[2][1].x);
-                    // var diffy = Math.abs(model.marker[2][0].y-model.marker[2][1].y);
-                    // if (diffy != 0){
-                    //     marker.geometry.applyMatrix(new THREE.Matrix4().makeRotationZ(Math.atan2(diffy,diffx)));
-                    //     marker2.geometry.applyMatrix(new THREE.Matrix4().makeRotationZ(Math.atan2(diffy,diffx)));
-                    // }
                     marker.geometry.applyMatrix(new THREE.Matrix4(1,0,0,model.marker[1].x, 0,1,0,model.marker[1].y, 0,0,1,model.marker[1].z, 0,0,0,1));
                     marker.geometry.applyMatrix(translate);
                     marker.geometry.applyMatrix(rot);
@@ -611,12 +605,56 @@ View.prototype.renderTempObject = function(model, addNumbers){
                     this.tempObject.marker = [marker, marker2];
                     this.scene.add(marker);
                     this.scene.add(marker2);
+                    
                 }
             }
             
         }
     }
-
+    if (model.marker.length > 0 && model.markerZ == null){
+        var maxX = minY = maxZ = null;
+        for (var j in this.tempObject.marker[0].geometry.vertices){
+            var vertex = this.tempObject.marker[0].geometry.vertices[j];
+            if (maxZ == null || maxZ < vertex.z){
+                maxZ = vertex.z;
+            }
+            if (maxX == null || maxX < vertex.x){
+                maxX = vertex.x;
+            }
+            if (minY == null || minY > vertex.y){
+                minY = vertex.y;
+            }
+        }
+        model.markerZ = maxZ;
+        model.coordinates = [];
+        console.log(model.coordinates.length, this.tempObject.points.length)
+        for (var i in this.tempObject){
+            if (i != 'edges' && i != 'stippledEdges'){
+                for (var j in this.tempObject[i]){
+                    var mesh = this.tempObject[i][j];
+                    mesh.geometry.applyMatrix(new THREE.Matrix4(1,0,0,-maxX, 0,1,0,-minY, 0,0,1,0, 0,0,0,1));
+                    if (i == 'points'){
+                        console.log('bla')
+                        mesh.geometry.computeBoundingBox();
+                        var center = mesh.geometry.boundingBox.center();
+                        model.coordinates.push([center.x, center.y, center.z]);
+                    }
+                }
+            }
+            else{
+                for (var j in this.tempObject[i]){
+                    var mesh = this.tempObject[i][j];
+                    if (this.transparency){
+                        mesh.geometry.applyMatrix(new THREE.Matrix4(1,0,0,-maxX/2, 0,1,0,-minY/2, 0,0,1,0, 0,0,0,1));
+                    }
+                    else{
+                        mesh.geometry.applyMatrix(new THREE.Matrix4(1,0,0,-maxX, 0,1,0,-minY, 0,0,1,0, 0,0,0,1));
+                    }
+                }
+            }
+        }
+        model.marker[1] = new THREE.Vector3(-13.5,13.5,0);
+    }
     this.renderer.render(this.scene, this.camera);
 }
 
@@ -658,6 +696,8 @@ View.prototype.createObjects = function (markerId) {
     if (typeof(this.edges[markerId]) == "undefined") {
         this.edges[markerId] = [];
         this.faces[markerId] = [];
+        console.log(MODELS[markerId])
+        this.markerZ[markerId] = MODELS[markerId].markerZ;
         var meshMaterial = new THREE.MeshBasicMaterial({color: false, side: THREE.DoubleSide, depthTest: true, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1});
         var filledShape = this.shape(MODELS[markerId]);
         var dashedShape = this.shapeLines(MODELS[markerId]);
@@ -765,17 +805,6 @@ View.prototype.shapeLines = function (loadedShape) {
     return geometries;
 };
 
-View.prototype.findZ = function (id) {
-    var coordinates = MODELS[id]['coordinates'];
-    var maxZ = coordinates[0][2];
-    for (var i = 1; i < coordinates.length; i++) {
-        if (coordinates[i][2] > maxZ) {
-            maxZ = coordinates[i][2];
-        }
-    }
-    return maxZ;
-};
-
 View.prototype.computeNewPositions = function (markers) {
     var numMarkers = 0;
     for (var k in this.edges) {
@@ -783,7 +812,7 @@ View.prototype.computeNewPositions = function (markers) {
             numMarkers++;
             var marker = markers[l];
             if (k == marker.id) {
-                var Z = this.findZ(marker.id);
+                var Z = this.markerZ[marker.id];
                 var marker_position = [marker.corners[0].x, marker.corners[0].y, 1];
                 var marker_position2 = [marker.corners[1].x, marker.corners[1].y, 1];
                 var position = pixel2mm(marker_position[0], marker_position[1], Z);
@@ -930,7 +959,7 @@ View.prototype.updateActivity2Feedback = function(markers){
                 if (td1.children().length == 0){
                     td1.append('<i class="icon-ok"></i>');
                 }
-                var Z = this.findZ(marker.id);
+                var Z = this.markerZ[marker.id];
                 var marker_position = [marker.corners[0].x, marker.corners[0].y,1];
                 var marker_position2 = [marker.corners[1].x, marker.corners[1].y,1];
                 position = pixel2mm(marker_position[0], marker_position[1], Z);

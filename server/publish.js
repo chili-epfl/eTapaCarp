@@ -10,7 +10,9 @@ Meteor.publish('shapes', function(){
 
 Shapes.allow({
   insert: function(userId, doc) {
-    return userId && Meteor.user().admin;
+    if (Shapes.find({userId: userId}).count() < 3){
+      return userId;
+    }
   },
   update: function(userId, doc) {
     return userId && Meteor.user().admin;

@@ -6,7 +6,25 @@ var model = {coordinates:[], edges:[], faces:[], marker:[]};
 var view;
 var rendered = false;
 
+model.coordinates = [[0,0,0],[100,0,0],[100,60,0],[0,60,0],[0,0,50],[100,0,50],[100,60,50],[0,60,50]];
+model.edges = [[0,1],[1,2],[2,3],[3,0],[0,4],[1,5],[2,6],[3,7],[4,5],[5,6],[6,7],[7,4]];
+model.faces = [[0,1,2,3],[4,5,6,7],[2,3,7,6],[0,3,7,4],[1,2,6,5],[0,1,5,4]];
+
 Template.createAnObject.render = function(){
+	$('.point, .edge, .face').closest('tr').remove();
+	var arrayPoints = model.coordinates;
+	var arrayEdges = model.edges;
+	var arrayFaces = model.faces;
+	for (var i in arrayPoints){
+		$('#listPoints').append('<tr><td>'+parseInt(i)+'</td><td>['+arrayPoints[i]+']</td><td><a class="point" href="#"><i class="icon-remove"></i></a></td>');
+	}
+	for (var i in arrayEdges){
+		$('#listEdges').append('<tr><td>['+arrayEdges[i]+']</td><td><a class="edge" href="#"><i class="icon-remove"></i></a></td>');
+	}
+	for (var i in arrayFaces){
+		var string = '<tr><td>['+arrayFaces[i]+']</td><td><a class="face" href="#"><i class="icon-remove"></i></a></td>';
+		$('#listFaces').append(string);
+	}
 	view.render([]);
 	view.renderTempObject(model, true);
 	view.renderer.render(view.scene, view.camera)
@@ -22,20 +40,7 @@ Template.createAnObject.rendered = function(){
 		controls.addEventListener( 'change', Template.createAnObject.render );
 	}
 	if (view != undefined){
-		$('.point, .edge, .face').closest('tr').remove();
-		var arrayPoints = model.coordinates;
-		var arrayEdges = model.edges;
-		var arrayFaces = model.faces;
-		for (var i in arrayPoints){
-			$('#listPoints').append('<tr><td>'+parseInt(i)+'</td><td>['+arrayPoints[i]+']</td><td><a class="point" href="#"><i class="icon-remove"></i></a></td>');
-		}
-		for (var i in arrayEdges){
-			$('#listEdges').append('<tr><td>['+arrayEdges[i]+']</td><td><a class="edge" href="#"><i class="icon-remove"></i></a></td>');
-		}
-		for (var i in arrayFaces){
-			var string = '<tr><td>['+arrayFaces[i]+']</td><td><a class="face" href="#"><i class="icon-remove"></i></a></td>';
-			$('#listFaces').append(string);
-		}
+		
 		Template.createAnObject.render();
 	}
 }
@@ -274,11 +279,20 @@ Template.createAnObject.events({
 	},
 
 	'click #findMarker': function(e, tmpl){
-		findMarkerPosition(20, view, model);
-		Template.createAnObject.render();
+		if (!$(e.target).hasClass('disabled')){
+			model.marker = findMarkerPosition(40, view, model);
+			if (model.marker.length > 0){
+				$('#saveObject').removeClass('disabled');
+				$('#findMarker').addClass('disabled');
+			}
+			Template.createAnObject.render();
+		}
 	},
 
-	'change input[type="radio"]': function(e,tmpl){
-		// console.log(e);
+	'click #saveObject': function(e, tmpl){
+		if (!$(e.target).hasClass('disabled')){
+			saveObject(model);
+			$('#saveObject').addClass('disabled');
+		}
 	}
 });

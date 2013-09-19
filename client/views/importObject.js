@@ -3,7 +3,7 @@ Template.importObject.lang = function(e){
 }
 
 
-var model = {coordinates:[], edges:[], faces:[], marker:[]};
+var model = {coordinates:[], edges:[], faces:[], marker:[], markerZ: null};
 var view;
 var rendered = false;
 var controls;
@@ -98,6 +98,8 @@ Template.importObject.events({
 	'submit': function(e,tmpl){
 		e.preventDefault();
 		var file = document.getElementById('uploadedFile').files[0];
+		$('#saveObject').addClass('disabled');
+		$('#findMarker').removeClass('disabled');
 		if (file.name.substring(file.name.length-4,file.name.length) == '.sat' || file.name.substring(file.name.length-4,file.name.length) == '.obj'){
 			var reader = new FileReader();
 			reader.onloadend = function(e) {
@@ -132,7 +134,20 @@ Template.importObject.events({
 	},
 
 	'click #findMarker': function(e, tmpl){
-		model.marker = findMarkerPosition(40, view, model);
-		Template.importObject.render();
+		if (!$(e.target).hasClass('disabled')){
+			model.marker = findMarkerPosition(40, view, model);
+			if (model.marker.length > 0){
+				$('#saveObject').removeClass('disabled');
+				$('#findMarker').addClass('disabled');
+			}
+			Template.importObject.render();
+		}
+	},
+
+	'click #saveObject': function(e, tmpl){
+		if (!$(e.target).hasClass('disabled')){
+			saveObject(model);
+			$('#saveObject').addClass('disabled');
+		}
 	}
 });

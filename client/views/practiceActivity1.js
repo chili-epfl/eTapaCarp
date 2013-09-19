@@ -74,6 +74,7 @@ function animate() {
                 markersDetector.drawContour([[-180,-140,60],[-180,140,60],[180,140,60],[180,-140,60]],markersDetector.calibrationContext,"red");
 			}
             markersDetector.drawCorners(markersDetector.corners,markersDetector.calibrationContext);
+            markersDetector.drawCorners(markersDetector.markers,markersDetector.calibrationContext);
 		}
 	}
     isNotJittering = markersDetector.notJittering();

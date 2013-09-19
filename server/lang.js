@@ -87,6 +87,7 @@ Meteor.startup(
 
     add('Level', 'Niveau', 'Level', 'Level');
     add('LevelDifficulty', 'Niveau de difficulté', 'Difficulty level', 'Difficulty level');
+    add('LimitObject', 'Vous ne pouvez créer que 3 objets.', 'You can only create 3 objects.', 'You can only create 3 objects.');
     add('Loading', 'Chargement...', 'Loading...', 'Loading...');
 
     add('Manually', 'Manuellement', 'Manually', 'Manually');
@@ -117,6 +118,7 @@ Meteor.startup(
     add('RedRectangle', 'Rectangle rouge', 'Red rectangle', 'Red rectangle');
     add('Rotation', 'Rotation', 'Rotation', 'Rotation');
 
+    add('SaveObject', 'Sauvegarder l\'object', 'Save the object', 'Save the object');
     add('Sec', 'sec.', 'sec.', 'sec.');
     add('Scale', 'Echelle', 'Scale', 'Scale');
     add('Shapes', 'Formes', 'Shapes', 'Shapes');
