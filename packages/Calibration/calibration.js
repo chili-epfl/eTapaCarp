@@ -1,0 +1,22 @@
+CalibStatic = {
+ 	recalibrate : function(markersDetector) {
+ 		markersDetector.changeStatus();
+ 		markersDetector.calibrationContext.drawImage(markersDetector.video, 0, 0, markersDetector.calibrationCanvas.width, markersDetector.calibrationCanvas.height);
+ 		if (markersDetector.corners){
+ 			if (localStorage.getItem('rotationMatrix') &&
+ 			localStorage.getItem('translationMatrix') &&
+ 			localStorage.getItem('intrinsicMatrix')){
+ 				markersDetector.drawContour([[-180,-140,0],[-180,140,0],[180,140,0],[180,-140,0]],markersDetector.calibrationContext,"blue");
+ 				markersDetector.drawContour([[-180,-140,60],[-180,140,60],[180,140,60],[180,-140,60]],markersDetector.calibrationContext,"red");
+ 			}
+ 			markersDetector.drawCorners(markersDetector.corners,markersDetector.calibrationContext);
+ 			markersDetector.drawCorners(markersDetector.markers,markersDetector.calibrationContext);
+ 		}
+ 	},
+ 	needCalibration : function() {
+ 		return ($('#calibration').hasClass('in'));
+ 	}	
+	
+	//TODO put the calibration functions of the MarkerDetector package here
+}
+
