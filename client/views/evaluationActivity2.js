@@ -39,19 +39,7 @@ Template.evaluationActivity2.animate = function() {
 		});
     }
 	
-	if ($('#calibration').hasClass('in')){
-		markersDetector.changeStatus();
-		markersDetector.calibrationContext.drawImage(markersDetector.video, 0, 0, markersDetector.calibrationCanvas.width, markersDetector.calibrationCanvas.height);
-		if (markersDetector.corners){
-			if (localStorage.getItem('rotationMatrix') &&
-					localStorage.getItem('translationMatrix') &&
-					localStorage.getItem('intrinsicMatrix')){
-                markersDetector.drawContour([[-180,-140,0],[-180,140,0],[180,140,0],[180,-140,0]],markersDetector.calibrationContext,"blue");
-                markersDetector.drawContour([[-180,-140,60],[-180,140,60],[180,140,60],[180,-140,60]],markersDetector.calibrationContext,"red");
-			}
-            markersDetector.drawCorners(markersDetector.corners,markersDetector.calibrationContext);
-		}
-	}
+	if (CalibStatic.needCalibration) { CalibStatic.recalibrate(markersDetector); }
 	
 	if (startTime != null){
 
@@ -88,13 +76,13 @@ Template.evaluationActivity2.rendered = function(){
 
 		markersDetector = new MarkersDetector("cam", "camcanvas");
 	    markersDetector.accessCamera();
-	    var frontview = new FrontView('face');
+	    var frontview = new FrontView('front');
 	    frontview.setDynamic(false);
 		views.addView(frontview);
-	    var sideview = new SideView('cote');
+	    var sideview = new SideView('side');
 	    sideview.setDynamic(false);
 		views.addView(sideview);
-		views.addView(new TopView('dessus'));
+		views.addView(new TopView('top'));
 		views.init();
 		views.setAxis(false);
 		views.activity2Difficulty(Session.get('activity2Level'));
@@ -165,19 +153,8 @@ Template.activity2Ready.animate = function(){
 
     markersDetector.getMarkers();
 	
-	if ($('#calibration').hasClass('in')){
-		markersDetector.changeStatus();
-		markersDetector.calibrationContext.drawImage(markersDetector.video, 0, 0, markersDetector.calibrationCanvas.width, markersDetector.calibrationCanvas.height);
-		if (markersDetector.corners){
-			if (localStorage.getItem('rotationMatrix') &&
-					localStorage.getItem('translationMatrix') &&
-					localStorage.getItem('intrinsicMatrix')){
-                markersDetector.drawContour([[-180,-140,0],[-180,140,0],[180,140,0],[180,-140,0]],markersDetector.calibrationContext,"blue");
-                markersDetector.drawContour([[-180,-140,60],[-180,140,60],[180,140,60],[180,-140,60]],markersDetector.calibrationContext,"red");
-			}
-            markersDetector.drawCorners(markersDetector.corners,markersDetector.calibrationContext);
-		}
-	}
+	if (CalibStatic.needCalibration) { CalibStatic.recalibrate(markersDetector); }
+	
 	if ($('#cameraMoved').is(":visible")){
         $('#calibrated').parent().addClass('alert alert-error');
 		$('#calibrated').text('');

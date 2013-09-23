@@ -21,7 +21,7 @@ function onDocumentMouseDown( event ) {
 function updateFeedback(){
 	var correction = views.checkEdgeSolution();
 	for (var i in correction[0]){
-		if (i == 'dessus'){
+		if (i == 'top'){
 			$('#'+i+'Correct').text(correction[0][i]+correction[2]+"/"+views.views[i].difficulty);
 			if (correction[1][i] > 0){
 				$('#'+i+'Error').text(', '+correction[1][i]+' '+lang.Errors);
@@ -56,27 +56,15 @@ function updateFeedback(){
 	}
 }
 
-function animate() {
 
+function animate() {
 	//id to be able to cancel the animation later
 	animationId = requestAnimationFrame( animate );
 
     markersDetector.getMarkers();
 	
-	if ($('#calibration').hasClass('in')){
-		markersDetector.changeStatus();
-		markersDetector.calibrationContext.drawImage(markersDetector.video, 0, 0, markersDetector.calibrationCanvas.width, markersDetector.calibrationCanvas.height);
-		if (markersDetector.corners){
-			if (localStorage.getItem('rotationMatrix') &&
-					localStorage.getItem('translationMatrix') &&
-					localStorage.getItem('intrinsicMatrix')){
-                markersDetector.drawContour([[-180,-140,0],[-180,140,0],[180,140,0],[180,-140,0]],markersDetector.calibrationContext,"blue");
-                markersDetector.drawContour([[-180,-140,60],[-180,140,60],[180,140,60],[180,-140,60]],markersDetector.calibrationContext,"red");
-			}
-            markersDetector.drawCorners(markersDetector.corners,markersDetector.calibrationContext);
-            markersDetector.drawCorners(markersDetector.markers,markersDetector.calibrationContext);
-		}
-	}
+	if (CalibStatic.needCalibration) { CalibStatic.recalibrate(markersDetector); }
+
     isNotJittering = markersDetector.notJittering();
     views.setIsNotJittering(isNotJittering);
 	
@@ -103,11 +91,12 @@ Template.practiceActivity1.rendered = function(){
 
 	    markersDetector = new MarkersDetector("cam", "camcanvas");
 	    markersDetector.accessCamera();
-		views.addView(new FrontView('face'));
-		views.addView(new SideView('cote'));
-		views.addView(new TopView('dessus'));
+		views.addView(new FrontView('front'));
+		views.addView(new SideView('side'));
+		views.addView(new TopView('top'));
 		views.addView(new PerspectiveView('perspective'));
 		views.init()
+
 	    document.addEventListener( 'mousedown', onDocumentMouseDown, false );
 		$(document).keyup(function(e) {
 			if (e.keyCode == 27){

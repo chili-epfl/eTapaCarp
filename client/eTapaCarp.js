@@ -26,9 +26,6 @@ Deps.autorun(function() {
   return null;
 });
 
-Template.main.lang = function(e){
-	return Session.get('lang');
-}
 
 setNav = function(name) {
   return Session.set('navbar:navId', name);

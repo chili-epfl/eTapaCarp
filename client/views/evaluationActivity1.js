@@ -36,7 +36,7 @@ function updateFeedback(){
 	var correct = true;
 	var correction = views.checkEdgeSolution();
 	for (var i in correction[0]){
-		if (i == 'dessus'){
+		if (i == 'top'){
 			if (correction[0][i] != views.views[i].difficulty-correction[2] || correction[1][i] != 0){
 				correct = false;
 			}
@@ -54,48 +54,40 @@ function updateFeedback(){
 }
 
 var objectDetectedOnce = 0;
+var timerStarted = false;
 
 Template.evaluationActivity1.animate = function() {
 
 	//id to be able to cancel the animation later
 	animationId = requestAnimationFrame( Template.evaluationActivity1.animate );
 
-    markersDetector.getMarkers();
+    markersDetector.getMarkers();	
 	
-	if ($('#calibration').hasClass('in')){
-		markersDetector.changeStatus();
-		markersDetector.calibrationContext.drawImage(markersDetector.video, 0, 0, markersDetector.calibrationCanvas.width, markersDetector.calibrationCanvas.height);
-		if (markersDetector.corners){
-			if (localStorage.getItem('rotationMatrix') &&
-					localStorage.getItem('translationMatrix') &&
-					localStorage.getItem('intrinsicMatrix')){
-                markersDetector.drawContour([[-180,-140,0],[-180,140,0],[180,140,0],[180,-140,0]],markersDetector.calibrationContext,"blue");
-                markersDetector.drawContour([[-180,-140,60],[-180,140,60],[180,140,60],[180,-140,60]],markersDetector.calibrationContext,"red");
-			}
-            markersDetector.drawCorners(markersDetector.corners,markersDetector.calibrationContext);
-		}
-	}
-
-	if (objectDetectedOnce < 2){
-		var count = 0;
-		for (var i in markersDetector.activeMarkers){
-			count++;
-		}
-		if (count == 1){
-			objectDetectedOnce++;
-			if(objectDetectedOnce == 2){
-				views.edgeToSelect(i,'perspective');
-				startTime = new Date().getTime();
-				scoreId = Score.insert({time:null, activity:"activity1", userId:Meteor.userId(), date: new Date(), difficulty: Session.get('activity1Level'), shape: i});
-			}
-		}
-	}
+	if (CalibStatic.needCalibration) { CalibStatic.recalibrate(markersDetector); }
 
     isNotJittering = markersDetector.notJittering();
     views.setIsNotJittering(isNotJittering);
 	
 	views.setClick(click);
 	views.render(markersDetector.activeMarkers);
+	
+	if(!timerStarted){
+		var count = 0;
+		var markerId = -1;
+		for (var i in markersDetector.activeMarkers) {
+			count++;
+			markerId = i;
+		}
+		if (count == 1){
+			objectDetectedOnce++;
+				views.edgeToSelect(markerId,'perspective');
+				startTime = new Date().getTime();
+				scoreId = Score.insert({time:null, activity:"activity1", userId:Meteor.userId(), date: new Date(), difficulty: Session.get('activity1Level'), shape: i});
+				timerStarted = true;
+		}
+	}
+
+
 	if (click){
 		updateFeedback();
 		views.showHelpOnSelect(click);
@@ -132,9 +124,9 @@ Template.evaluationActivity1.rendered = function(){
 
 	    markersDetector = new MarkersDetector("cam", "camcanvas");
 	    markersDetector.accessCamera();
-		views.addView(new FrontView('face'));
-		views.addView(new SideView('cote'));
-		views.addView(new TopView('dessus'));
+		views.addView(new FrontView('front'));
+		views.addView(new SideView('side'));
+		views.addView(new TopView('top'));
 		views.addView(new PerspectiveView('perspective'));
 		views.init()
 	    document.addEventListener( 'mousedown', onDocumentMouseDown, false );
@@ -230,19 +222,8 @@ Template.activity1Ready.animate = function(){
 
     markersDetector.getMarkers();
 	
-	if ($('#calibration').hasClass('in')){
-		markersDetector.changeStatus();
-		markersDetector.calibrationContext.drawImage(markersDetector.video, 0, 0, markersDetector.calibrationCanvas.width, markersDetector.calibrationCanvas.height);
-		if (markersDetector.corners){
-			if (localStorage.getItem('rotationMatrix') &&
-					localStorage.getItem('translationMatrix') &&
-					localStorage.getItem('intrinsicMatrix')){
-                markersDetector.drawContour([[-180,-140,0],[-180,140,0],[180,140,0],[180,-140,0]],markersDetector.calibrationContext,"blue");
-                markersDetector.drawContour([[-180,-140,60],[-180,140,60],[180,140,60],[180,-140,60]],markersDetector.calibrationContext,"red");
-			}
-            markersDetector.drawCorners(markersDetector.corners,markersDetector.calibrationContext);
-		}
-	}
+	if (CalibStatic.needCalibration) { CalibStatic.recalibrate(markersDetector); }	
+	
 	if ($('#cameraMoved').is(":visible")){
         $('#calibrated').parent().addClass('alert alert-error');
 		$('#calibrated').text('');
@@ -267,7 +248,7 @@ Template.activity1Ready.animate = function(){
 		$('#objectDetected').text('');
 		$('#objectDetected').append('<img class="rowShape" src="/shape'+i+'.png"></img>');
 	}
-	if (numMarkers == 1 && !$('#cameraMoved').is(":visible")){
+	if (numMarkers == 1 && !$('#cameraMoved').is(":visible")) {
 		$('#startButton').removeClass("disabled");
 	}
 	else {
