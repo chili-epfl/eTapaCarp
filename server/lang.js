@@ -50,12 +50,15 @@ Meteor.startup(
     add('AddPoint', 'Ajouter un point', 'Add a point', 'Add a point');
     add('Axis', 'Axes', 'Axis', 'Axis');
 
+	add('BackToActivities', 'Retour aux activités', 'Back to activities', 'Zurück zu den Aktivitäten');
     add('BlueRectangle', 'Rectangle bleu', 'Blue rectangle', 'Blue rectangle');
 
     add('Calibration', 'Calibration', 'Calibration', 'Calibration');
     add('CameraAngle', 'Angle de la caméra', 'Camera angle', 'Camera angle');
     add('CameraDistance', 'Distance de la caméra', 'Camera distance', 'Camera distance');
     add('ChallengesTaken', 'Challenges effectués', 'Challenges taken', 'Challenges taken');
+	add('Congrats', 'Bravo!', "Congrats!", "Prima --");
+	add('Close', 'Fermer', 'Close', 'Schliessen');
     add('Coordinates', 'Coordonnées', 'Coordinates', 'Coordinates');
     add('CornersVisibility', 'Visibilité des coins (rouge signifie mauvais et vert signifie bon)',
       'Corners visibility (red means bad, green means OK)',
@@ -115,6 +118,7 @@ Meteor.startup(
         '<b>Warning: </b>Your camera or workspace may have moved!<br>Try to <a id="calibrationButton" href="#calibration" data-toggle="modal" style="margin-top: 10px;">recalibrate</a>.<button class="close">&times;</button>',
         '<b>Warning: </b>Your camera or workspace may have moved!<br>Try to <a id="calibrationButton" href="#calibration" data-toggle="modal" style="margin-top: 10px;">recalibrate</a>.<button class="close">&times;</button>'
         );
+	add('Redo', 'Refaire', 'Redo', 'Noch mals!')
     add('RedRectangle', 'Rectangle rouge', 'Red rectangle', 'Red rectangle');
     add('Rotation', 'Rotation', 'Rotation', 'Rotation');
 

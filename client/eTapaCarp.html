@@ -2,9 +2,16 @@
   <title>eTapaCarp</title>
 </head>
 
+
 <body>
     <div class="container">
     	{{> navbar}}
+		
+		{{#constant}}
+		<video id="cam" autoplay="true" style="display:none;"></video>
+		<canvas id="camcanvas" style="width:640px; height:480px; display:none;"></canvas>
+		{{/constant}}
+		
     	<div>
     	{{#isolate}} {{renderPage}} {{/isolate}}
     	</div>

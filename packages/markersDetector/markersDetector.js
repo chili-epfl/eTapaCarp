@@ -8,13 +8,14 @@ MarkersDetector = function(video, canvas){
     this.camcanvas.height = parseInt(this.camcanvas.style.height);
 
     this.calibrationCanvas = document.getElementById("calibrationCanvas");
+	this.CAM_RES = {x :640, y: 480 };
     if (this.calibrationCanvas){
         this.calibrationContext = this.calibrationCanvas.getContext("2d");
         this.init_cam();
     }
-
+	
     this.raster = new NyARRgbRaster_Canvas2D(this.camcanvas);
-    this.detectorParam = new FLARParam(640, 480);
+    this.detectorParam = new FLARParam(this.CAM_RES.x, this.CAM_RES.y);
     this.detector = new FLARMultiIdMarkerDetector(this.detectorParam, 100);
     this.detector.setContinueMode(true);
     this.markers = [];
@@ -23,6 +24,40 @@ MarkersDetector = function(video, canvas){
     this.countFrames = 0;
     this.countTags = 0;
     this.activeMarkers = {};
+	this.animationId = null;
+//	this.activityCallback = null; // activity callback
+	this.activity = null;
+
+	this.accessCamera();	
+}
+
+MarkersDetector.prototype.Start = function() {
+	//detectTags(this);
+	var that = this;
+	that.animationId = requestAnimationFrame(function(){
+//		console.log(that instanceof MarkersDetector)		
+		that.Start();
+	});
+	that.getMarkers();
+	if (CalibStatic.needCalibration) { CalibStatic.recalibrate(that)}; 
+	if (!that.isJittering()){ 
+	 	that.activity.update(that)
+	}
+	
+}
+
+
+function detectTags(markersDetector){
+	console.log(arguments)
+	console.log(markersDetector instanceof MarkersDetector)
+	markersDetector.animationId = requestAnimationFrame(detectTags);
+	
+	
+}
+
+MarkersDetector.prototype.stopTagDetection = function() {
+	stopCamera();
+	cancelAnimationFrame(animationId);
 }
 
 MarkersDetector.prototype.accessCamera = function(){
@@ -31,7 +66,7 @@ MarkersDetector.prototype.accessCamera = function(){
     if (navigator.getUserMedia){
 
         function successCallback(stream){
-            that.stream = stream;
+			that.stream = stream;
             if (navigator.getUserMedia == navigator.mozGetUserMedia){
                 that.video.src = window.URL.createObjectURL(stream);
             }
@@ -144,7 +179,7 @@ MarkersDetector.prototype.checkCameraAngle = function(){
 
 }
 
-MarkersDetector.prototype.changeStatus = function(){
+MarkersDetector.prototype.updateDisplayInfo = function(){
     var sizeOK = this.checkSizeRedRectangle();
     var angleOK = this.checkCameraAngle();
     var redRectangleOK = this.checkRedRectangle();
@@ -219,7 +254,7 @@ MarkersDetector.prototype.changeStatus = function(){
 MarkersDetector.prototype.init_cam = function(){
         var width = 520;
         this.calibrationCanvas.width = width;
-        this.calibrationCanvas.height = Math.ceil(width/(640/480));
+        this.calibrationCanvas.height = Math.ceil(width/(this.CAM_RES.x/this.CAM_RES.y));
         this.calibrationContext.translate(this.calibrationCanvas.width, this.calibrationCanvas.height);
         this.calibrationContext.scale(-1, -1);
     }; 
@@ -430,15 +465,12 @@ MarkersDetector.prototype.distanceBetweenMarkers = function(){
 };
 
 MarkersDetector.prototype.markersDifference = function(){
-    var activeMarkers_length = 0;
-    var activeMarkersBefore_length = 0;
-    for (var i in this.activeMarkers){
-        activeMarkers_length++;
-    }
-    for (var i in this.activeMarkersBefore){
-        activeMarkersBefore_length++;
-    }
-    if (activeMarkers_length != activeMarkersBefore_length){
+	 var attrLength = function(obj) {
+		var count = 0;
+		for (var i in obj) {count++	}
+		return count;
+	}
+    if (attrLength(this.activeMarkers) != attrLength(this.activeMarkersBefore)) {
         this.change_count++;
     }
     else{
@@ -448,15 +480,20 @@ MarkersDetector.prototype.markersDifference = function(){
     }
 };
 
-MarkersDetector.prototype.notJittering = function(){
+MarkersDetector.prototype.isJittering = function(){
     this.markersDifference();
     if (this.change_count > 0){
         this.change_count = 0;
         this.activeMarkersBefore = jQuery.extend(true, {}, this.activeMarkers);
-        return true;
+        return false;
     }
     else{
         this.change_count = 0;
-        return false;
+        return true;
     }
 };
+
+MarkersDetector.prototype.setActivity = function(activity) {
+//	this.activityCallback = activity.update(this);
+	this.activity = activity;
+}

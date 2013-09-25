@@ -1,6 +1,6 @@
 CalibStatic = {
  	recalibrate : function(markersDetector) {
- 		markersDetector.changeStatus();
+ 		markersDetector.updateDisplayInfo();
  		markersDetector.calibrationContext.drawImage(markersDetector.video, 0, 0, markersDetector.calibrationCanvas.width, markersDetector.calibrationCanvas.height);
  		if (markersDetector.corners){
  			if (localStorage.getItem('rotationMatrix') &&

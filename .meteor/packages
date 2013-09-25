@@ -11,7 +11,8 @@ accounts-ui
 coffeescript
 accounts-password
 standard-app-packages
-myViews
+Views
+ViewManager
 router
 markersDetector
 NumericJS
