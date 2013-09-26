@@ -13,20 +13,18 @@
 </template>
 
 <template name="activity1Ready">
-
-	<div class="row-fluid">
-		<div class="span12">
-			<div id="cameraMoved" class="alert alert-error" style="display: none;">
-				{{{lang.Recalibrate}}}
-			</div>
-		</div>
-	</div>
 	<div id="difficultyLevel" class="modal" role="dialog" aria-labelledby="difficultyLevelLabel" aria-hidden="true">
 	  <div class="modal-header">
-	    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
 	    <h2>{{lang.GetReady}}</h2>
 	  </div>
 	  <div class="modal-body">
+		<div class="row-fluid">
+			<div class="span12">
+				<div id="cameraMoved" class="alert alert-error" style="display: none;">
+					{{{lang.Recalibrate}}}
+				</div>
+			</div>
+		</div>
 	  	<table class="table">
 	  		<tr>
 	  			<td>{{lang.Calibration}}</td>
@@ -131,4 +129,5 @@
 		<span id="time"></span>
 	</div>
 	{{> popupCalibration}}
+	{{> popupActivityFinish}}
 </template>

@@ -39,7 +39,12 @@ MarkersDetector.prototype.Start = function() {
 		that.Start();
 	});
 	that.getMarkers();
-	if (CalibStatic.needCalibration) { CalibStatic.recalibrate(that)}; 
+	if (CalibStatic.needCalibration) {
+        CalibStatic.recalibrate(that);
+        if (CalibStatic.needCalibrationCallback){
+            CalibStatic.needCalibrationCallback(that.activeMarkers);
+        }
+    }
 	if (!that.isJittering()){ 
 	 	that.activity.update(that)
 	}
@@ -56,8 +61,8 @@ function detectTags(markersDetector){
 }
 
 MarkersDetector.prototype.stopTagDetection = function() {
-	stopCamera();
-	cancelAnimationFrame(animationId);
+	this.stopCamera();
+	cancelAnimationFrame(this.animationId);
 }
 
 MarkersDetector.prototype.accessCamera = function(){
@@ -305,6 +310,10 @@ MarkersDetector.prototype.calibrate = function(){
                 localStorage.setItem('translationMatrix', JSON.stringify(data.translationMatrix));
                 localStorage.setItem('intrinsicMatrix', JSON.stringify(data.intrinsic_matrix));
                 localStorage.setItem('angle', JSON.stringify(data.angle));
+                CalibStatic.needCalibration = false;
+                if (CalibStatic.needCalibrationCallback){
+                    CalibStatic.needCalibrationCallback(this.activeMarkers);
+                }
             }
         );
     }
@@ -430,6 +439,7 @@ MarkersDetector.prototype.getMarkers = function(){
         if (!(this.topRight && this.bottomRight && this.bottomLeft && this.topLeft) || thisCornersLength == 0){
 
             $('#cameraMoved').show();
+            CalibStatic.needCalibration = true;
             this.calibrate();
         }
         else{

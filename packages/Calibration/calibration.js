@@ -13,8 +13,12 @@ CalibStatic = {
  			markersDetector.drawCorners(markersDetector.markers,markersDetector.calibrationContext);
  		}
  	},
- 	needCalibration : function() {
- 		return ($('#calibration').hasClass('in'));
+ 	needCalibration : true,
+
+ 	setNeedCalibrationCallback: function(context, callback){
+ 		CalibStatic.needCalibrationCallback = function(param) {
+			callback.call(context, param);
+		}
  	}	
 	
 	//TODO put the calibration functions of the MarkerDetector package here

@@ -5,6 +5,9 @@ Activity1 = function() {
 	this.template = null;
 	this.objectId = -1;
 	this.lastActiveMarkers = null;
+    this.objectDetected = false;
+    this.evaluationMode = false;
+    this.evaluationStarted = false;
 }
 
 Activity1.prototype.update = function(markersDetector) {
@@ -13,6 +16,23 @@ Activity1.prototype.update = function(markersDetector) {
 	}
 	
 	this.renderingCallback(this.lastActiveMarkers);
+
+    if (this.evaluationMode && !this.evaluationStarted){
+        var numMarkers = 0;
+        var markerId = null;
+        for (var i in this.lastActiveMarkers){
+            numMarkers++;
+            markerId = i;
+        }
+        if (numMarkers == 1 && !this.objectDetected){
+            this.objectDetected = true;
+        }
+        if (numMarkers == 1 && this.objectDetected){
+            this.evaluationStarted = true;
+            this.objectDetected = true;
+            this.template.startActivity(markerId);
+        }
+    }
 	
 	if (this.isFinished) 
 		this.template.activityFinished();
@@ -24,6 +44,40 @@ Activity1.prototype.setRenderingCallback = function(context, callback){
 		callback.call(context, markers);
 	}
 //	this.renderingCallback = callback;
+}
+
+Activity1.prototype.updateReadyInfo = function(markers){
+    console.log(CalibStatic.needCalibration)
+    if (CalibStatic.needCalibration) {
+        $('#calibrated').parent().addClass('alert alert-error');
+        $('#calibrated').text('');
+        $('#calibrated').append('<i class="icon-remove"></i>');
+    }
+    else{
+        $('#calibrated').parent().removeClass('alert alert-error');
+        $('#calibrated').text('');
+        $('#calibrated').append('<i class="icon-ok"></i>');
+    }
+    var numMarkers = 0;
+    for (var i in markers){
+        numMarkers++;
+    }
+    if (numMarkers != 1){
+        $('#objectDetected').parent().addClass('alert alert-error');
+        $('#objectDetected').text('');
+        $('#objectDetected').append('<i class="icon-remove"></i>');
+    }
+    else{
+        $('#objectDetected').parent().removeClass('alert alert-error');
+        $('#objectDetected').text('');
+        $('#objectDetected').append('<img class="rowShape" src="/shape'+i+'.png"></img>');
+    }
+    if (numMarkers == 1 && !CalibStatic.needCalibration) {
+        $('#startButton').removeClass("disabled");
+    }
+    else {
+        $('#startButton').addClass("disabled");
+    }
 }
 
 

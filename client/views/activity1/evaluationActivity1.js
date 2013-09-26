@@ -1,4 +1,4 @@
-/*
+
 var rendered = false;
 var animationId = null;
 var lang;
@@ -18,18 +18,27 @@ Template.activity1Ready.lang = function(){
 	return lang;
 }
 
-var views = new ViewManager();
+var viewManager = new ViewManager();
 var markersDetector;
-var isNotJittering = false;
-var click = null;
+var activity;
 var startTime = null;
-var stopTime = null;}
+var stopTime = null;
+var timerStarted = false;
+var timer = null;
 var scoreId = null;
 var objectDetectedOnce = 0;
 
+
 function onDocumentMouseDown( event ) {
 	if (event.which == 1){
-    	click = event;
+		var clickedView = viewManager.findClickedView(event);
+		if(clickedView !== undefined){
+			clickedView.selectEdge(event);
+			var correction = activity.checkSolution(viewManager.views);
+			updateFeedback(correction);
+			viewManager.showHelpOnSelect(event);
+			activity.update(markersDetector)
+		}
 	}
 };
 
@@ -54,8 +63,6 @@ function updateFeedback(){
 	return correct;
 }
 
-var objectDetectedOnce = 0;
-var timerStarted = false;
 
 Template.evaluationActivity1.animate = function() {
 
@@ -112,6 +119,14 @@ Template.evaluationActivity1.animate = function() {
 
 };
 
+Template.evaluationActivity1.updateTime = function(){
+	if (timer){
+		var endTime = (new Date().getTime()-startTime)/1000.0;
+		$('#time').text(endTime);
+		timer = setTimeout(Template.evaluationActivity1.updateTime, 100);
+	}
+}
+
 Template.evaluationActivity1.rendered = function(){
 
 	if (!Utils.areModelsLoaded()) {return;}
@@ -120,164 +135,129 @@ Template.evaluationActivity1.rendered = function(){
 		//prevent to do the initialization twice
 		rendered = true;
 
-	    markersDetector = new MarkersDetector("cam", "camcanvas");
-	    markersDetector.accessCamera();
-		views.addView(new FrontView('front'));
-		views.addView(new SideView('side'));
-		views.addView(new TopView('top'));
-		views.addView(new PerspectiveView('perspective'));
-		views.init()
+		CalibStatic.needCalibrationCallback = null;
+		activity.setRenderingCallback(viewManager, viewManager.render);
+		activity.template = Template.evaluationActivity1;
+		activity.evaluationMode = true;
+
+	    markersDetector = new MarkersDetector("cam", "camcanvas");		
+		markersDetector.setActivity(activity);
+		markersDetector.Start();
+
+		viewManager.addView(new FrontView('front'));
+		viewManager.addView(new SideView('side'));
+		viewManager.addView(new TopView('top'));
+		viewManager.addView(new PerspectiveView('perspective'));
+		viewManager.init();
+		viewManager.addStandardDisplayOptions();
+
+		// handle clicks on edges
 	    document.addEventListener( 'mousedown', onDocumentMouseDown, false );
 		$(document).keyup(function(e) {
 			if (e.keyCode == 27){
-				views.clearChoiceEdges();
+				viewManager.clearChoiceEdges();
 			}
 		});
-		views.edgeSelectionDifficulty(Session.get('activity1Level'));
-		Template.evaluationActivity1.animate();
 
-		$('#transparency-on').on('click', function () {
-			$('#transparency-off').removeClass('btn-primary');
-			$('#transparency-on').addClass('btn-primary');
-			views.setTransparency(true);
-			views.setChangedLayout(true);
-		});
-
-		$('#transparency-off').on('click', function () {
-			$('#transparency-on').removeClass('btn-primary');
-			$('#transparency-off').addClass('btn-primary');
-			views.setTransparency(false);
-			views.setChangedLayout(true);
-		});
-
-		$('#axis-on').on('click', function () {
-			$('#axis-off').removeClass('btn-primary');
-			$('#axis-on').addClass('btn-primary');
-			views.setAxis(true);
-			views.setChangedLayout(true);
-		});
-
-		$('#axis-off').on('click', function () {
-			$('#axis-on').removeClass('btn-primary');
-			$('#axis-off').addClass('btn-primary');
-			views.setAxis(false);
-			views.setChangedLayout(true);
-		});
-
-		$('#selectEdge').on('click', function () {
-			var count = 0;
-			var id = null;
-			for (var i in markersDetector.activeMarkers){
-				id = i;
-				count++;
-			}
-			if(count == 1){
-				views.edgeToSelect(id,'perspective');
-				updateFeedback();
-			}
-		});
-		$('button[id^="difficulty"]').on('click', function(){
-			var that = this;
-			var level = $(this).attr('id')[$(this).attr('id').length-1];
-
-			var count = 0;
-			var id = null;
-			for (var i in markersDetector.activeMarkers){
-				id = i;
-				count++
-			}
-			if(count == 1){
-				if (!$(that).hasClass('btn-primary')){
-					views.edgeSelectionDifficulty(level);
-					$('#difficulty'+((level+1)%3 || 3)).removeClass("btn-primary");
-					$('#difficulty'+((level+2)%3 || 3)).removeClass("btn-primary");
-					$(that).addClass("btn-primary");
-
-					views.edgeToSelect(id,'perspective');
-					updateFeedback();
-				}
-			}	
-		});
+		createNextActivityHandler();
+		
+		viewManager.render({});
 	}
+}
+
+
+function initActivity() {
+	startTime = null;
+	stopTime = null;
+	timerStarted = false;
+	timer = null;
+	scoreId = null;
+	activity.isFinished = false;
+	activity.lastActiveMarkers = null;
+    activity.objectDetected = false;
+    activity.evaluationStarted = false;
+}
+
+
+function createNextActivityHandler() {
+	$("#nextActivityButton").on('click', function() {
+		console.log('next activity')
+		newDiff = Math.min(activity.difficulty + 1, Config.Activity1.MAX_DIFFICULTY);
+		newChallenge(newDiff);
+	});
+}
+
+function newChallenge(difficulty) {
+	activity.difficulty = difficulty;
+
+	initActivity();
+}
+
+Template.evaluationActivity1.startActivity = function(markerId){
+	console.log('startActivity',markerId, activity.difficulty)
+	viewManager.edgeToSelect(markerId, activity.difficulty, 'perspective');
+	startTime = new Date().getTime();
+	scoreId = Score.insert({time:null, activity:"activity1", userId:Meteor.userId(), date: new Date(), difficulty: activity.difficulty, shape: markerId});
+	timerStarted = true;
+	timer = setTimeout(Template.evaluationActivity1.updateTime, 100);
+}
+
+Template.evaluationActivity1.activityFinished = function() {
+	timer = null;
+	var stopTime = new Date().getTime();
+	endTime = (stopTime-startTime)/1000.0;
+	Score.update({'_id':scoreId},{$set:{time:endTime}});
+	$('#time').text(endTime);
+	$("#activityFinish").modal('show');
 }
 
 Template.evaluationActivity1.destroyed = function(){
-	views.destroy();
-	markersDetector.stopCamera();
-	cancelAnimationFrame(animationId);
+	viewManager.destroy();
+	markersDetector.stopTagDetection();
 	rendered = false;
-	isNotJittering = false;
-	click = null;
 	startTime = null;
 	stopTime = null;
 	scoreId = null;
-	objectDetectedOnce = 0;
-}
-
-Template.activity1Ready.animate = function(){
-
-	animationId = requestAnimationFrame( Template.activity1Ready.animate );
-
-    markersDetector.getMarkers();
-	
-	if (CalibStatic.needCalibration) { CalibStatic.recalibrate(markersDetector); }	
-	
-	if ($('#cameraMoved').is(":visible")){
-        $('#calibrated').parent().addClass('alert alert-error');
-		$('#calibrated').text('');
-		$('#calibrated').append('<i class="icon-remove"></i>');
-	}
-	else{
-        $('#calibrated').parent().removeClass('alert alert-error');
-		$('#calibrated').text('');
-		$('#calibrated').append('<i class="icon-ok"></i>');
-	}
-	var numMarkers = 0;
-	for (var i in markersDetector.activeMarkers){
-		numMarkers++;
-	}
-	if (numMarkers != 1){
-        $('#objectDetected').parent().addClass('alert alert-error');
-		$('#objectDetected').text('');
-		$('#objectDetected').append('<i class="icon-remove"></i>');
-	}
-	else{
-        $('#objectDetected').parent().removeClass('alert alert-error');
-		$('#objectDetected').text('');
-		$('#objectDetected').append('<img class="rowShape" src="/shape'+i+'.png"></img>');
-	}
-	if (numMarkers == 1 && !$('#cameraMoved').is(":visible")) {
-		$('#startButton').removeClass("disabled");
-	}
-	else {
-		$('#startButton').addClass("disabled");
-	}
-
+	timer = null;
+	activity.isFinished = false;
 }
 
 Template.activity1Difficulty.events({
 	'click a[id^="difficulty"]': function(e, tmpl){
-		Session.set('activity1Level',e.target.id.split('difficulty')[1]);
+		activity = new Activity1();
+		activity.difficulty = e.target.id.split('difficulty')[1];
 		Meteor.Router.to('/activity1/scoring/ready');
 	}
 });
 
 Template.activity1Ready.events({
 	'click #startButton': function(e,tmpl) {
-		if (!$('#startButton').hasClass('disabled')){
+		var numMarkers = 0;
+		for (var i in markersDetector.activeMarkers){
+			numMarkers++;
+		}
+		if (numMarkers == 1 && !CalibStatic.needCalibration) {
+			activity.lastActiveMarkers = null;
 			Meteor.Router.to('/activity1/scoring');
 		}
 	}
 })
 
 Template.activity1Ready.rendered = function(){
+
+	if (!Utils.areModelsLoaded()) { return; }
+
 	if(!rendered){
 		//prevent to do the initialization twice
 		rendered = true;
+		console.log(activity)
+		activity.setRenderingCallback(activity, activity.updateReadyInfo);
+		CalibStatic.setNeedCalibrationCallback(activity, activity.update);
 
-		markersDetector = new MarkersDetector("cam", "camcanvas");
-	    markersDetector.accessCamera();
-		Template.activity1Ready.animate();
+	    markersDetector = new MarkersDetector("cam", "camcanvas");		
+		markersDetector.setActivity(activity);
+		markersDetector.Start();
+
 	}
 }
 
@@ -286,4 +266,3 @@ Template.activity1Ready.destroyed = function(){
 	cancelAnimationFrame(animationId);
 	rendered = false;
 }
-*/

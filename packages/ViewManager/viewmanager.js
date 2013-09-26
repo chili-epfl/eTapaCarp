@@ -77,12 +77,14 @@ ViewManager.prototype.addFeedbackDisplay = function() {
 }
 
 ViewManager.prototype.findClickedView = function(click){
-	for (var i in this.views){
-		var currView = this.views[i];
-		if (click.target.parentElement.id == currView.name && !(currView instanceof PerspectiveView)){
-			return this.views[i];
-		}
-	}
+    if(click.target && click.target.parentElement){
+    	for (var i in this.views){
+    		var currView = this.views[i];
+    		if (click.target.parentElement.id == currView.name && !(currView instanceof PerspectiveView)){
+    			return this.views[i];
+    		}
+    	}
+    }
 }
 
 // ViewManager.prototype.setChangedLayout = function(bool){
