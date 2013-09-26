@@ -14,6 +14,7 @@ function View(name) {
     this.scene = new THREE.Scene();
     this.transparency = true;
     this.axis = true;
+    this.brickManager = new BrickManager();
     // this.changedLayout = true;
     this.edges = [];
     this.faces = [];
@@ -218,14 +219,12 @@ View.prototype.renderTempObject = function(model, addNumbers){
         }
         model.markerZ = maxZ;
         model.coordinates = [];
-        console.log(model.coordinates.length, this.tempObject.points.length)
         for (var i in this.tempObject){
             if (i != 'edges' && i != 'stippledEdges'){
                 for (var j in this.tempObject[i]){
                     var mesh = this.tempObject[i][j];
                     mesh.geometry.applyMatrix(new THREE.Matrix4(1,0,0,-maxX, 0,1,0,-minY, 0,0,1,0, 0,0,0,1));
                     if (i == 'points'){
-                        console.log('bla')
                         mesh.geometry.computeBoundingBox();
                         var center = mesh.geometry.boundingBox.center();
                         model.coordinates.push([center.x, center.y, center.z]);
@@ -254,15 +253,8 @@ View.prototype.setDynamic = function (bool) {
 };
 
 View.prototype.clear = function () {
-    for(var i in this.edges){
-        for (var j in this.edges[i]){
-            this.edges[i][j].visible = false;
-        }
-    }
-    for(var i in this.faces){
-        for (var j in this.faces[i]){
-            this.faces[i][j].visible = false;
-        }
+    for(var i in this.brickManager.bricks){
+        this.brickManager.bricks[i].changeVisibility(false);
     }
     for(var i in this.levelLines){
         this.scene.remove(this.levelLines[i]);
@@ -284,64 +276,13 @@ View.prototype.clear = function () {
 };
 
 View.prototype.createObjects = function (markerId) {
-    if (typeof(this.edges[markerId]) == "undefined") {
-        this.edges[markerId] = [];
-        this.faces[markerId] = [];
-        this.markerZ[markerId] = MODELS[markerId].markerZ;
-        var meshMaterial = new THREE.MeshBasicMaterial({color: false, side: THREE.DoubleSide, depthTest: true, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1});
-        var filledShape = this.shape(MODELS[markerId]);
-        var dashedShape = this.shapeLines(MODELS[markerId]);
-        filledShape.computeFaceNormals();
-        for (var i = 0; i < dashedShape.length; i++){
-            dashedShape[i].computeLineDistances();
-            var lineDashedMaterial = new THREE.LineDashedMaterial({color: 0x000000, depthTest: false});
-            var object1 = new THREE.Line(dashedShape[i], lineDashedMaterial);
-            var lineMaterial = new THREE.LineBasicMaterial({color: 0x000000, depthTest: true});
-
-            //To fix problem with stippled lines not showing
-            object1.renderDepth = 9007199254740992;
-            
-            object1.selected = false;
-            object1.visible = true;
-            if (!this.transparency) {
-                object1.visible = false;
-            }
-            this.edges[markerId].push(object1);
-            this.scene.add(object1);
-
-            var object2 = new THREE.Line(dashedShape[i], lineMaterial);
-            object2.selected = false;
-            object2.visible = true;
-            this.edges[markerId].push(object2);
-            this.scene.add(object2);
-        }
-
-        var object3 = new THREE.Mesh(filledShape, meshMaterial);
-        this.faces[markerId].push(object3);
-        this.scene.add(object3);
+    if (!this.brickManager.bricks[markerId]) {
+        this.brickManager.addBrick(new Brick(markerId, this.scene));
     }
     else{
-        for (var j in this.edges[markerId]){
-            var object = this.edges[markerId][j];
-            if (object.selected){
-                object.material.color.setHex( 0xff0000 );
-                object.material.linewidth = 3;
-            }
-            else{
-                object.material.color.setHex( 0x000000 );
-                object.material.linewidth = 1;
-            }
-            if (!this.transparency && object.material instanceof THREE.LineDashedMaterial) {
-                object.visible = false;
-            }
-            else{
-                object.visible = true;
-            }
-        }
-        for (var j in this.faces[markerId]){
-            var object = this.faces[markerId][j];
-            object.visible = true;
-        }
+        this.brickManager.bricks[markerId].changeVisibility(true);
+        this.brickManager.bricks[markerId].setSelectedToRed();
+        this.brickManager.bricks[markerId].setRotationAndTranslation(0,{x:0,y:0});
     }
 };
 
@@ -365,60 +306,21 @@ View.prototype.init_objects = function(){
     }
 }
 
-View.prototype.shape = function (loadedShape) {
-    var geometry = new THREE.Geometry();
-    var points = loadedShape.coordinates;
-    var faces = loadedShape.faces;
-    for (var i = 0; i < points.length; i++) {
-        geometry.vertices.push(new THREE.Vector3(points[i][0], points[i][1], points[i][2]));
-    }
-    for (var j = 0; j < faces.length; j++) {
-        var face = faces[j];
-        for (var k = 0; k < face.length - 2; k++) {
-            geometry.faces.push(new THREE.Face3(face[0], face[k + 1], face[k + 2]));
-        }
-    }
-    return geometry;
-};
-
-View.prototype.shapeLines = function (loadedShape) {
-    var geometries = [];
-    var points = loadedShape.coordinates;
-    var edges = loadedShape.edges;
-    for (var i = 0; i < edges.length; i++) {
-        var geometry = new THREE.Geometry();
-        var edge = edges[i];
-        geometry.vertices.push(new THREE.Vector3(points[edge[0]][0], points[edge[0]][1], points[edge[0]][2]));
-        geometry.vertices.push(new THREE.Vector3(points[edge[1]][0], points[edge[1]][1], points[edge[1]][2]));
-        geometries.push(geometry);
-    }
-    return geometries;
-};
-
 View.prototype.computeNewPositions = function (markers) {
     var numMarkers = 0;
-    for (var k in this.edges) {
+    for (var k in this.brickManager.bricks) {
+        var brick = this.brickManager.bricks[k];
         for (var l in markers) {
             numMarkers++;
             var marker = markers[l];
             if (k == marker.id) {
-                var Z = this.markerZ[marker.id];
+                var Z = brick.markerZ;
                 var marker_position = [marker.corners[0].x, marker.corners[0].y, 1];
                 var marker_position2 = [marker.corners[1].x, marker.corners[1].y, 1];
                 var position = pixel2mm(marker_position[0], marker_position[1], Z);
                 var position2 = pixel2mm(marker_position2[0], marker_position2[1], Z);
                 var rotation = this.calculateRotation(position, position2);
-                for (var j in this.faces[k]){
-                    this.faces[k][j].position.x = position.x;
-                    this.faces[k][j].position.y = position.y;
-                    this.faces[k][j].rotation.z = rotation;
-                }
-                for (var j in this.edges[k]){
-                    this.edges[k][j].position.x = position.x;
-                    this.edges[k][j].position.y = position.y;
-                    this.edges[k][j].position.z = 0;
-                    this.edges[k][j].rotation.z = rotation;
-                }
+                brick.setRotationAndTranslation(rotation, {x:position.x,y:position.y});
             }
         }
     }
@@ -455,8 +357,14 @@ View.prototype.selectEdge = function(click){
             raycaster = projector.pickingRay( vector, camera);
             raycaster.linePrecision = 3;
         }
-        for (var j in this.edges){
-            var intersects = raycaster.intersectObjects( this.edges[j] );
+        for (var j in this.brickManager.bricks){
+            var brick = this.brickManager.bricks[j];
+            var alllines = [];
+            for (var i in brick.lines){
+                alllines.push(brick.lines[i])
+                alllines.push(brick.stippledLines[i])
+            }
+            var intersects = raycaster.intersectObjects( alllines );
             if (intersects.length > 0){
 //                this.changedLayout = true;
                 if (intersects.length > 2){
@@ -481,12 +389,14 @@ View.prototype.selectEdge = function(click){
                             }
                         }
                         if (currentObject.selected){
+                            currentObject.material.color.setHex( 0x000000 );
+                            currentObject.material.linewidth = 1;
                             currentObject.selected = false;
-                            delete this.selected[currentObject.id];
+                            delete brick.selectedLines[currentObject.id];
                         }
                         else{
                             currentObject.material.color.setHex( 0xff0000 );
-                            this.selected[currentObject.id] = currentObject;
+                            brick.selectedLines[currentObject.id] = currentObject;
                             currentObject.selected = true;
                         }
                     }   
@@ -494,21 +404,6 @@ View.prototype.selectEdge = function(click){
             }
         }
 };
-
-View.prototype.selectFromChoice = function(id){
-    var count = 1;
-    for (var i in this.edgesToSelect){
-        if (count == id){
-            this.edgesToSelect[i].object.selected = true;
-            this.selected.push(this.edgesToSelect[i].object);
-        }
-        if (i%2 == 1){
-            count++;
-        }
-    }
-    this.edgesToSelect = [];
-//    this.changedLayout = true;
-}
 
 View.prototype.calculateRotation = function (vector1, vector2) {
     var rotation;
@@ -600,31 +495,37 @@ View.prototype.updateActivity2Feedback = function(markers){
 };
 
 View.prototype.edgeToSelect = function(markerId, difficulty){
-    var range = this.edges[markerId].length-1;
+    var brick = this.brickManager.bricks[markerId];
+    var range = brick.lines.length-1;
     var selectedEdges = [];
-    while (selectedEdges.length < difficulty*2){
+    while (selectedEdges.length < difficulty){
         var edge = Math.ceil(Math.random()*range);
-        if (edge % 2 == 1){
-            edge--;
-        }
         if (selectedEdges.indexOf(edge) == -1){
             selectedEdges.push(edge);
-            selectedEdges.push(edge+1);
         }
     }
-    this.removeSelectedEdges();
+    this.removeSelectedEdges(brick);
     for (var i in selectedEdges){
-        this.edges[markerId][selectedEdges[i]].selected = true;
-        this.selected.push(this.edges[markerId][selectedEdges[i]]);
+        var line = brick.lines[selectedEdges[i]];
+        var stippledLine = brick.stippledLines[selectedEdges[i]];
+        line.selected = true;
+        stippledLine.selected = true;
+        brick.selectedLines[line.id] = line;
+        brick.selectedLines[stippledLine.id] = stippledLine;
     }
     // this.changedLayout = true;
 };
 
 View.prototype.removeSelectedEdges = function(){
-    for (var i in this.selected){
-        this.selected[i].selected = false;
+    for (var j in this.brickManager.bricks){
+        var brick = this.brickManager.bricks[j];
+        for (var i in brick.selectedLines){
+            brick.selectedLines[i].material.color.setHex( 0x000000 );
+            brick.selectedLines[i].material.linewidth = 1;
+            brick.selectedLines[i].selected = false;
+        }
+        brick.selectedLines = {};
     }
-    this.selected = [];
     // this.changedLayout = true;
 }
 

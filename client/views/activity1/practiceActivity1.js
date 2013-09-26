@@ -134,14 +134,14 @@ function onDocumentMouseDown( event ) {
 function updateFeedback(correction){
 	for (var i in correction[0]){
 		if (i == 'top'){
-			$('#'+i+'Correct').text(correction[0][i]+correction[2]+"/"+viewManager.views[i].difficulty);
+			$('#'+i+'Correct').text(correction[0][i]+correction[2]+"/"+activity.difficulty);
 			if (correction[1][i] > 0){
 				$('#'+i+'Error').text(', '+correction[1][i]+' '+lang.Errors);
 			}
 			else{
 				$('#'+i+'Error').text('');
 			}
-			if (correction[0][i] == viewManager.views[i].difficulty-correction[2] && correction[1][i] == 0){
+			if (correction[0][i] == activity.difficulty-correction[2] && correction[1][i] == 0){
 				$('#'+i+'Correct').parent().removeClass('btn-danger').addClass('btn-success');
 				$('#'+i+'Error').append('<i class="icon-ok icon-white"></i>');
 			}
@@ -150,14 +150,14 @@ function updateFeedback(correction){
 			}
 		}
 		else{
-			$('#'+i+'Correct').text(correction[0][i]+"/"+viewManager.views[i].difficulty);
+			$('#'+i+'Correct').text(correction[0][i]+"/"+activity.difficulty);
 			if (correction[1][i] > 0){
 				$('#'+i+'Error').text(', '+correction[1][i]+' '+lang.Errors);
 			}
 			else{
 				$('#'+i+'Error').text('');
 			}
-			if (correction[0][i] == viewManager.views[i].difficulty && correction[1][i] == 0){
+			if (correction[0][i] == activity.difficulty && correction[1][i] == 0){
 				$('#'+i+'Correct').parent().removeClass('btn-danger').addClass('btn-success');
 				$('#'+i+'Error').append('<i class="icon-ok icon-white"></i>');
 			}

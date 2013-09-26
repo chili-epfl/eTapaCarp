@@ -17,7 +17,8 @@ ViewManager.prototype.init = function(){
 
 ViewManager.prototype.setTransparency = function(bool){
     for (var i in this.views){
-        this.views[i].transparency = bool; 
+        this.views[i].transparency = bool;
+        this.views[i].brickManager.setTransparency(bool); 
     }
 };
 
@@ -33,31 +34,32 @@ ViewManager.prototype.edgeToSelect = function(markerId, difficulty, name){
 };
 
 ViewManager.prototype.addStandardDisplayOptions = function() {
+    var that = this;
 	$('#transparency-on').on('click', function () {
 		$('#transparency-off').removeClass('btn-primary');
 		$('#transparency-on').addClass('btn-primary');
-		views.setTransparency(true);
+		that.setTransparency(true);
 		// views.setChangedLayout(true);
 	});
 
 	$('#transparency-off').on('click', function () {
 		$('#transparency-on').removeClass('btn-primary');
 		$('#transparency-off').addClass('btn-primary');
-		views.setTransparency(false);
+		that.setTransparency(false);
 		// views.setChangedLayout(true);
 	});
 
 	$('#axis-on').on('click', function () {
 		$('#axis-off').removeClass('btn-primary');
 		$('#axis-on').addClass('btn-primary');
-		views.setAxis(true);
+		that.setAxis(true);
 		// views.setChangedLayout(true);
 	});
 
 	$('#axis-off').on('click', function () {
 		$('#axis-on').removeClass('btn-primary');
 		$('#axis-off').addClass('btn-primary');
-		views.setAxis(false);
+		that.setAxis(false);
 		// views.setChangedLayout(true);
 	});
 }

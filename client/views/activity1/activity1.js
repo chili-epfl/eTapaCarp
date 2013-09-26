@@ -26,6 +26,7 @@ Activity1.prototype.update = function(markersDetector) {
         }
         if (numMarkers == 1 && !this.objectDetected){
             this.objectDetected = true;
+            this.objectId = markerId;
         }
         if (numMarkers == 1 && this.objectDetected){
             this.evaluationStarted = true;
@@ -88,9 +89,10 @@ Activity1.prototype.checkSolution = function(views){
     var userSol = [];
     var correctSol = null;
     var verticalEdge = 0;
+    console.log(this.objectId)
     for (var i in views){
         if (views[i] instanceof PerspectiveView){
-            correctSol = views[i].selected;
+            correctSol = views[i].brickManager.bricks[this.objectId].selectedLines;
             for (var j in correctSol){
                 if (correctSol[j].geometry.vertices[0].x == correctSol[j].geometry.vertices[1].x
                     && correctSol[j].geometry.vertices[0].y == correctSol[j].geometry.vertices[1].y){
@@ -99,8 +101,8 @@ Activity1.prototype.checkSolution = function(views){
             }
         }
         else {
-            if (views[i].selected && views[i].selected.length > 0){
-                userSol[i] = views[i].selected;
+            if (views[i].brickManager.bricks[this.objectId].selectedLines && Utils.dictLength(views[i].brickManager.bricks[this.objectId].selectedLines) > 0){
+                userSol[i] = views[i].brickManager.bricks[this.objectId].selectedLines;
             }
             else{
                 correct[i] = 0;
@@ -108,6 +110,7 @@ Activity1.prototype.checkSolution = function(views){
             }
         }
     }
+    console.log(correctSol)
     for (var i in userSol){
         correct[i] = 0;
         wrong[i] = 0;
