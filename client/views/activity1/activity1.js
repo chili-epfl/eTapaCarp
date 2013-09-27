@@ -15,7 +15,6 @@ Activity1.prototype.update = function(markersDetector) {
 		this.lastActiveMarkers = markersDetector.activeMarkers;
 	}
 	
-    console.log('updating')
 	this.renderingCallback(this.lastActiveMarkers);
 
     if (this.evaluationMode && !this.evaluationStarted){

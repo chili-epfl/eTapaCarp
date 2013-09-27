@@ -33,7 +33,8 @@ setNav = function(name) {
 
 Meteor.Router.add({
   '/activity:id/practice': function(id){
-    return 'practiceActivity'+id;
+    Session.set('isPractice', true);
+    return 'activity'+id;
   },
 
   '/activity:id/scoring/difficulty': function(id){
@@ -60,9 +61,10 @@ Meteor.Router.add({
   },
 
   '/activity:id/scoring': function(id){
-    if(Meteor.Router.page() == 'evaluationActivity'+id || Meteor.Router.page() == 'activity'+id+'Ready'){
+    if(Meteor.Router.page() == 'activity'+id || Meteor.Router.page() == 'activity'+id+'Ready'){
       if(Meteor.user()){
-        return 'evaluationActivity'+id;
+        Session.set('isPractice', false);
+        return 'activity'+id;
       }
       else{
         return 'notLoggedIn';

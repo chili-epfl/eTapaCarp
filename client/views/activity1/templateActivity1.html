@@ -43,11 +43,8 @@
 	{{> popupCalibration}}
 </template>
 
-<template name="evaluationActivity1">
-	{{#constant}}
-	<video id="cam" autoplay="true" style="display:none;"></video>
-	<canvas id="camcanvas" style="width:640px; height:480px; display:none;"></canvas>
-	{{/constant}}
+<template name="activity1">
+
 	<div class="row-fluid">
 		<div class="span12">
 			<div id="cameraMoved" class="alert alert-error" style="display: none;">
@@ -55,11 +52,18 @@
 			</div>
 		</div>
 	</div>
+	
 	<div class="row-fluid">
 		<div class="span5">
 			<span class="btn btn-info btn-small disabled">
 				{{lang.FrontView}}
 			</span>
+			{{#if isPractice}}
+			<span class="btn btn-danger btn-small feedback disabled" style="float:right;">
+				<span id="frontCorrect">0/1</span>
+				<span id="frontError"></span>
+			</span>
+			{{/if}}
 			<br>
 			{{#constant}}
 			<div id="front" class="span12">
@@ -70,6 +74,12 @@
 			<span class="btn btn-info btn-small disabled">
 				{{lang.SideView}}
 			</span>
+			{{#if isPractice}}
+			<span class="btn btn-danger btn-small feedback disabled" style="float:right;">
+				<span id="sideCorrect">0/1</span>
+				<span id="sideError"></span>
+			</span>
+			{{/if}}
 			<br>
 			{{#constant}}
 			<div id="side" class="span12">
@@ -92,8 +102,16 @@
 				<button id="transparency-on" class="btn btn-mini btn-primary">ON</button>
 				<button id="transparency-off" class="btn btn-mini">OFF</button>
 			</div>
+			{{#if isPractice}}
+			<h6>{{lang.Feedback}}</h6>
+			<div class="btn-group">
+				<button id="feedback-on" class="btn btn-mini btn-primary">ON</button>
+				<button id="feedback-off" class="btn btn-mini">OFF</button>
+			</div>
+			{{else}}
 			<h6>{{lang.Time}}</h6>
 			<h6><span id="time"></span><span>{{lang.Sec}}</span></h6>
+			{{/if}}
 		</div>
 	</div>
 	<div class="row-fluid">
@@ -101,6 +119,12 @@
 			<span class="btn btn-info btn-small disabled">
 				{{lang.TopView}}
 			</span>
+			{{#if isPractice}}
+			<span class="btn btn-danger btn-small feedback disabled" style="float:right;">
+				<span id="topCorrect">0/1</span>
+				<span id="topError"></span>
+			</span>
+			{{/if}}
 			<br>
 			{{#constant}}
 			<div id="top" class="span12">
@@ -117,6 +141,18 @@
 			</div>
 			{{/constant}}
 		</div>
+		{{#if isPractice}}
+		<div class="span1">
+			<h6>{{lang.NumEdges}}</h6>
+			<div class="btn-group">
+				<button id="difficulty1" class="btn btn-mini">1</button>
+				<button id="difficulty2" class="btn btn-mini">2</button>
+				<button id="difficulty3" class="btn btn-mini">3</button>
+			</div>
+			<br>	
+			<button id="newChallenge" class="btn btn-mini">{{lang.NewChallenge}}</button>
+		</div>
+		{{/if}}
 	</div>
 	<div id="solutionCorrect" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="solutionCorrectLabel" aria-hidden="true">
 		<div class="modal-header">
@@ -129,9 +165,6 @@
 		    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
 		    <h2>{{lang.Wrong}}</h2>
 		</div>
-	</div>
-	<div class="row-fluid">
-		<span id="time"></span>
 	</div>
 	{{> popupCalibration}}
 	{{> popupActivityFinish}}
