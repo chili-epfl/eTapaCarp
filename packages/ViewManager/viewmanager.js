@@ -17,7 +17,8 @@ ViewManager.prototype.init = function(){
 
 ViewManager.prototype.setTransparency = function(bool){
     for (var i in this.views){
-        this.views[i].transparency = bool; 
+        this.views[i].transparency = bool;
+        this.views[i].brickManager.setTransparency(bool); 
     }
 };
 
@@ -33,29 +34,33 @@ ViewManager.prototype.edgeToSelect = function(markerId, difficulty, name){
 };
 
 ViewManager.prototype.addStandardDisplayOptions = function() {
-	that = this;
+    var that = this;
 	$('#transparency-on').on('click', function () {
 		$('#transparency-off').removeClass('btn-primary');
 		$('#transparency-on').addClass('btn-primary');
 		that.setTransparency(true);
+		// views.setChangedLayout(true);
 	});
 
 	$('#transparency-off').on('click', function () {
 		$('#transparency-on').removeClass('btn-primary');
 		$('#transparency-off').addClass('btn-primary');
 		that.setTransparency(false);
+		// views.setChangedLayout(true);
 	});
 
 	$('#axis-on').on('click', function () {
 		$('#axis-off').removeClass('btn-primary');
 		$('#axis-on').addClass('btn-primary');
 		that.setAxis(true);
+		// views.setChangedLayout(true);
 	});
 
 	$('#axis-off').on('click', function () {
 		$('#axis-on').removeClass('btn-primary');
 		$('#axis-off').addClass('btn-primary');
 		that.setAxis(false);
+		// views.setChangedLayout(true);
 	});
 }
 
@@ -84,10 +89,6 @@ ViewManager.prototype.findClickedView = function(click){
     }
 }
 
-ViewManager.prototype.setDynamicView = function(viewName, isDynamic) {
-	this.views[viewName].dynamic = isDynamic;
-}
-
 // ViewManager.prototype.setChangedLayout = function(bool){
 //     for (var i in this.views){
 //         this.views[i].changedLayout = bool; 
@@ -113,8 +114,9 @@ ViewManager.prototype.setClick = function(click){
 };
 
 ViewManager.prototype.render = function(markers){
-    for (var i in this.views)
+    for (var i in this.views){
         this.views[i].render(markers);
+    }
 };
 
 // ViewManager.prototype.activity2Difficulty = function(difficulty){
