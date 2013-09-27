@@ -1,5 +1,6 @@
 CalibStatic = {
- 	recalibrate : function(markersDetector) {
+ 	showPopup : function(markersDetector) {
+ 		console.log('recalibrate popup')
  		markersDetector.updateDisplayInfo();
  		markersDetector.calibrationContext.drawImage(markersDetector.video, 0, 0, markersDetector.calibrationCanvas.width, markersDetector.calibrationCanvas.height);
  		if (markersDetector.corners){
@@ -12,6 +13,9 @@ CalibStatic = {
  			markersDetector.drawCorners(markersDetector.corners,markersDetector.calibrationContext);
  			markersDetector.drawCorners(markersDetector.markers,markersDetector.calibrationContext);
  		}
+ 	},
+ 	popupOpened: function(){
+ 		return $('#calibration').hasClass("in");
  	},
  	needCalibration : true,
 

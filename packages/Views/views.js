@@ -10,14 +10,11 @@ function View(name) {
     this.dynamic = true;
     this.difficulty = 1;
     this.click = null;
-    // this.isNotJittering = false;
     this.scene = new THREE.Scene();
     this.transparency = true;
     this.axis = true;
+    this.grid = false;
     this.brickManager = new BrickManager();
-    // this.changedLayout = true;
-    this.edges = [];
-    this.faces = [];
     this.axisObjects = [];
     this.selected = {};
     this.edgesToSelect = [];
@@ -38,10 +35,6 @@ View.prototype.init = function () {
     this.setCamera();
 };
 
-View.prototype.setClick = function(click){
-    this.click = click;
-}
-
 View.prototype.setCamera = function () {};
 
 View.prototype.addStaticBricks = function(bricks) {
@@ -50,6 +43,14 @@ View.prototype.addStaticBricks = function(bricks) {
 		this.brickManager.addStaticBrick(b);
 		this.addBrickToScene(b);
 	}
+}
+
+View.prototype.removeStaticBricks = function() {
+    for (i in this.brickManager.staticBricks) {
+        var b = this.brickManager.staticBricks[i];
+        this.removeBrickFromScene(b);
+    }
+    this.brickManager.staticBricks = {};
 }
 
 View.prototype.render = function (markers) {
@@ -69,7 +70,7 @@ View.prototype.render = function (markers) {
 	
 	if (this.axis) 
 		this.showAxis();
-	else
+	if (this.grid)
 		this.showGrid();
 	
 	this.renderer.setSize(this.width, this.height);
@@ -289,6 +290,15 @@ View.prototype.addBrickToScene = function(brick) {
 		this.scene.add(brick.lines[i]);
 
 	this.scene.add(brick.faces);		
+}
+
+View.prototype.removeBrickFromScene = function(brick) {
+    for (var i in brick.stippledLines) 
+        this.scene.remove(brick.stippledLines[i]);
+    for (var i in brick.lines) 
+        this.scene.remove(brick.lines[i]);
+
+    this.scene.remove(brick.faces);        
 }
 
 
@@ -822,38 +832,6 @@ TopView.prototype.setCamera = function() {
     this.camera.position.y = 0;
     this.camera.position.z = WS_WIDTH/2;
     this.camera.lookAt(new THREE.Vector3( 0, 0, -WS_WIDTH/2 ));
-};
-
-TopView.prototype.clear = function () {
-    for(var i in this.edges){
-        for (var j in this.edges[i]){
-            this.edges[i][j].visible = false;
-        }
-    }
-    for(var i in this.faces){
-        for (var j in this.faces[i]){
-            this.faces[i][j].visible = false;
-        }
-    }
-    for(var i in this.levelLines){
-        this.scene.remove(this.levelLines[i]);
-    }
-    for(var i in this.helpLines){
-        for (var j in this.helpLines[i]){
-            this.scene.remove(this.helpLines[i][j]);
-        }
-    }
-    for (var i in this.axisObjects){
-        this.scene.remove(this.axisObjects[i]);
-    }
-    for (var i in this.texts){
-        this.scene.remove(this.texts[i]);
-    }
-    this.texts = [];
-    this.levelLines = [];
-    this.helpLines = [];
-    this.axisObjects = [];
-    this.renderer.clear();
 };
 
 TopView.prototype.separateEdges = function(){

@@ -15,6 +15,7 @@ Activity1.prototype.update = function(markersDetector) {
 		this.lastActiveMarkers = markersDetector.activeMarkers;
 	}
 	
+    console.log('updating')
 	this.renderingCallback(this.lastActiveMarkers);
 
     if (this.evaluationMode && !this.evaluationStarted){
@@ -89,7 +90,6 @@ Activity1.prototype.checkSolution = function(views){
     var userSol = [];
     var correctSol = null;
     var verticalEdge = 0;
-    console.log(this.objectId)
     for (var i in views){
         if (views[i] instanceof PerspectiveView){
             correctSol = views[i].brickManager.bricks[this.objectId].selectedLines;

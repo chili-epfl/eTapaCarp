@@ -80,7 +80,8 @@ Meteor.startup(
     add('FrontView', 'Vue de face', 'Front view', 'Front View');
 
     add('GetReady', 'Préparez-vous', 'Get ready', 'Get ready');
-	add('GetStarted', 'Commencer', 'Get started', "Los geht's")
+    add('GetStarted', 'Commencer', 'Get started', "Los geht's");
+    add('Grid', 'Grille', 'Grid', "Grid");
 
     add('Home', 'Home', 'Home', 'Home');
 

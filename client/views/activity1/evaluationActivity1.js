@@ -35,88 +35,10 @@ function onDocumentMouseDown( event ) {
 		if(clickedView !== undefined){
 			clickedView.selectEdge(event);
 			var correction = activity.checkSolution(viewManager.views);
-			updateFeedback(correction);
 			viewManager.showHelpOnSelect(event);
-			activity.update(markersDetector)
+			activity.update(markersDetector);
 		}
 	}
-};
-
-function updateFeedback(){
-	var correct = true;
-	var correction = views.checkEdgeSolution();
-	for (var i in correction[0]){
-		if (i == 'top'){
-			if (correction[0][i] != views.views[i].difficulty-correction[2] || correction[1][i] != 0){
-				correct = false;
-			}
-		}
-		else{
-			if (correction[0][i] != views.views[i].difficulty || correction[1][i] != 0){
-				correct = false;
-			}
-		}
-	}
-	if (typeof(i) == "undefined"){
-		correct = false;
-	}
-	return correct;
-}
-
-
-Template.evaluationActivity1.animate = function() {
-
-	//id to be able to cancel the animation later
-	animationId = requestAnimationFrame( Template.evaluationActivity1.animate );
-
-    markersDetector.getMarkers();	
-	
-	if (CalibStatic.needCalibration) { CalibStatic.recalibrate(markersDetector); }
-
-//    isNotJittering = markersDetector.notJittering();
-//    views.setIsNotJittering(isNotJittering);
-	
-	views.setClick(click);
-	views.render(markersDetector.activeMarkers);
-	
-	if(!timerStarted){
-		var count = 0;
-		var markerId = -1;
-		for (var i in markersDetector.activeMarkers) {
-			count++;
-			markerId = i;
-		}
-		if (count == 1){
-			objectDetectedOnce++;
-				views.edgeToSelect(markerId,'perspective');
-				startTime = new Date().getTime();
-				scoreId = Score.insert({time:null, activity:"activity1", userId:Meteor.userId(), date: new Date(), difficulty: Session.get('activity1Level'), shape: i});
-				timerStarted = true;
-		}
-	}
-
-
-	if (click){
-		updateFeedback();
-		views.showHelpOnSelect(click);
-	}
-
-	if (stopTime == null && startTime){
-		if (updateFeedback()){
-			stopTime = new Date().getTime();
-		}
-		var endTime;
-		if (stopTime){
-			endTime = (stopTime-startTime)/1000.0;
-			Score.update({'_id':scoreId},{$set:{time:endTime}});
-		}
-		else{
-			endTime = (new Date().getTime()-startTime)/1000.0;
-		}
-		$('#time').text(endTime);
-	}
-	click = null;
-
 };
 
 Template.evaluationActivity1.updateTime = function(){
@@ -148,6 +70,8 @@ Template.evaluationActivity1.rendered = function(){
 		viewManager.addView(new SideView('side'));
 		viewManager.addView(new TopView('top'));
 		viewManager.addView(new PerspectiveView('perspective'));
+		viewManager.setAxis(true);
+		viewManager.setGrid(false);
 		viewManager.init();
 		viewManager.addStandardDisplayOptions();
 
@@ -181,8 +105,8 @@ function initActivity() {
 
 function createNextActivityHandler() {
 	$("#nextActivityButton").on('click', function() {
-		console.log('next activity')
-		newDiff = Math.min(activity.difficulty + 1, Config.Activity1.MAX_DIFFICULTY);
+		activity.difficulty++;
+		newDiff = Math.min(activity.difficulty, Config.Activity1.MAX_DIFFICULTY);
 		newChallenge(newDiff);
 	});
 }
@@ -194,12 +118,12 @@ function newChallenge(difficulty) {
 }
 
 Template.evaluationActivity1.startActivity = function(markerId){
-	console.log('startActivity',markerId, activity.difficulty)
 	viewManager.edgeToSelect(markerId, activity.difficulty, 'perspective');
 	startTime = new Date().getTime();
 	scoreId = Score.insert({time:null, activity:"activity1", userId:Meteor.userId(), date: new Date(), difficulty: activity.difficulty, shape: markerId});
 	timerStarted = true;
 	timer = setTimeout(Template.evaluationActivity1.updateTime, 100);
+	activity.update(markersDetector);
 }
 
 Template.evaluationActivity1.activityFinished = function() {

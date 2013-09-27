@@ -31,6 +31,8 @@ Template.practiceActivity1.rendered = function(){
 		viewManager.addView(new SideView('side'));
 		viewManager.addView(new TopView('top'));
 		viewManager.addView(new PerspectiveView('perspective'));
+		viewManager.setAxis(true);
+		viewManager.setGrid(false);
 		viewManager.init()
 		viewManager.addStandardDisplayOptions();
 		viewManager.addFeedbackDisplay();
@@ -122,6 +124,7 @@ function onDocumentMouseDown( event ) {
 	if (event.which == 1){
 		var clickedView = viewManager.findClickedView(event);
 		if(clickedView !== undefined){
+			console.log(activity.objectId)
 			clickedView.selectEdge(event);
 			var correction = activity.checkSolution(viewManager.views);
 			updateFeedback(correction);

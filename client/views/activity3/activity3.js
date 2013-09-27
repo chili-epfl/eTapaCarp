@@ -55,7 +55,6 @@ Activity3.prototype.checkSolution = function(markers) {
 	if (Utils.dictLength(markers) != 1) {
 		this.message = "You must use only one block for this activity."
 	} else {
-		console.log(typeof(markers[this.brickToMatch.id]));
 		if (typeof(markers[this.brickToMatch.id]) !== 'undefined') {
 			var rotPos = BrickManager.getRotationAndPositionOfBrick(markers[this.brickToMatch.id])
 			this.solution.correctBrick = true;
@@ -106,7 +105,6 @@ Activity3.prototype.getMovement = function() {
 		rotation : tRot
 	}
 	
-	console.log(movement)
 	
 	return movement;
 }

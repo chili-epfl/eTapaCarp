@@ -41,8 +41,10 @@ MarkersDetector.prototype.Start = function() {
 		that.Start();
 	});
 	that.getMarkers();
-	if (CalibStatic.needCalibration) {
-        CalibStatic.recalibrate(that);
+	if (CalibStatic.popupOpened()) {
+        CalibStatic.showPopup(that);
+    }
+    if (CalibStatic.needCalibration){ 
         if (CalibStatic.needCalibrationCallback){
             CalibStatic.needCalibrationCallback(that.activeMarkers);
         }
@@ -55,8 +57,6 @@ MarkersDetector.prototype.Start = function() {
 
 
 function detectTags(markersDetector){
-	console.log(arguments)
-	console.log(markersDetector instanceof MarkersDetector)
 	markersDetector.animationId = requestAnimationFrame(detectTags);
 }
 
@@ -191,10 +191,7 @@ MarkersDetector.prototype.updateDisplayInfo = function(){
     var blueRectangleOK = this.checkBlueRectangle();
     var lastVisibility = Math.floor(this.countTags/(this.countFrames*4)*100);
     this.countFrames++;
-    var thisCornersLength = 0;
-    for (var i in this.corners){
-        thisCornersLength++;
-    }
+    var thisCornersLength = Utils.dictLength(this.corners);
     this.countTags += thisCornersLength;
     if (this.countFrames == 100){
         this.countFrames = 0;
@@ -429,13 +426,9 @@ MarkersDetector.prototype.getMarkers = function(){
             currentMarker.active--;
             if (currentMarker.active == 0){
                 delete this.activeMarkers[currentMarker.id];
-                console.log('delete')
             }
         }
-        var thisCornersLength = 0;
-        for (var i in this.corners){
-            thisCornersLength++;
-        }
+        var thisCornersLength = Utils.dictLength(this.corners);
         if (!(this.topRight && this.bottomRight && this.bottomLeft && this.topLeft) || thisCornersLength == 0){
 
             $('#cameraMoved').show();
@@ -475,12 +468,7 @@ MarkersDetector.prototype.distanceBetweenMarkers = function(){
 };
 
 MarkersDetector.prototype.markersDifference = function(){
-	 var attrLength = function(obj) {
-		var count = 0;
-		for (var i in obj) {count++	}
-		return count;
-	}
-    if (attrLength(this.activeMarkers) != attrLength(this.activeMarkersBefore)) {
+    if (Utils.dictLength(this.activeMarkers) != Utils.dictLength(this.activeMarkersBefore)) {
         this.change_count++;
     }
     else{

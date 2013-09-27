@@ -16,6 +16,10 @@ BrickManager.prototype.setTransparency = function(bool){
         this.bricks[i].transparency = bool;
         this.bricks[i].changeStippledLinesVisibility();
     }
+    for (var i in this.staticBricks){
+        this.staticBricks[i].transparency = bool;
+        this.staticBricks[i].changeStippledLinesVisibility();
+    }
 }
 
 BrickManager.prototype.changeVisibility = function(bool){
@@ -70,23 +74,19 @@ BrickManager.generateRandomPositions = function(numberOfBricks, listOfBrickIds){
             bricks[brickId] = brick;
             brick.setRotationAndTranslation(Math.random()*Math.PI,{ x: Math.random()*Config.WORKSPACE_DIMENSION.x/2, y: Math.random()*Config.WORKSPACE_DIMENSION.y/2 });
             brick.faces.updateMatrix();
-            brick.faces.geometry.applyMatrix(brick.faces.matrix);
-			// no need to do that for stippled lines because they share the geometry with the lines
-			for (var i in brick.lines)
-				brick.lines[i].geometry.applyMatrix(brick.faces.matrix);
-			
             brick.faces.geometry.computeBoundingBox();
+            brick.faces.geometry.boundingBox.applyMatrix4(brick.faces.matrix);
+			
         }
         for (var i in bricks){
             var brick = bricks[i].faces;
-            for (var j = 0; j < brick.geometry.vertices.length; j++){
-                var vertex = brick.geometry.vertices[j];
-	       	if (Math.abs(vertex.x) > (Config.WORKSPACE_DIMENSION.x/2-40) || Math.abs(vertex.y) > (Config.WORKSPACE_DIMENSION.y/2-40)){
-			redoRandom = true;
-                    break;
-                }
-            }
-            if (redoRandom){
+            var isInWorkspace = true;
+            isInWorkspace &= Math.abs(brick.geometry.boundingBox.min.x) < Config.WORKSPACE_DIMENSION.x/2;
+            isInWorkspace &= Math.abs(brick.geometry.boundingBox.max.x) < Config.WORKSPACE_DIMENSION.x/2;
+            isInWorkspace &= Math.abs(brick.geometry.boundingBox.min.y) < Config.WORKSPACE_DIMENSION.y/2;
+            isInWorkspace &= Math.abs(brick.geometry.boundingBox.max.y) < Config.WORKSPACE_DIMENSION.y/2;
+            if (!isInWorkspace){
+                redoRandom = true;
                 break;
             }
         }

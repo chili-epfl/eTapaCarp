@@ -37,25 +37,43 @@ ViewManager.prototype.addStandardDisplayOptions = function() {
 		$('#transparency-off').removeClass('btn-primary');
 		$('#transparency-on').addClass('btn-primary');
 		that.setTransparency(true);
+        MarkersDetector.forceUpdate = true;
 	});
 
 	$('#transparency-off').on('click', function () {
 		$('#transparency-on').removeClass('btn-primary');
 		$('#transparency-off').addClass('btn-primary');
 		that.setTransparency(false);
+        MarkersDetector.forceUpdate = true;
 	});
 
 	$('#axis-on').on('click', function () {
 		$('#axis-off').removeClass('btn-primary');
 		$('#axis-on').addClass('btn-primary');
 		that.setAxis(true);
+        MarkersDetector.forceUpdate = true;
 	});
 
 	$('#axis-off').on('click', function () {
 		$('#axis-on').removeClass('btn-primary');
 		$('#axis-off').addClass('btn-primary');
 		that.setAxis(false);
+        MarkersDetector.forceUpdate = true;
 	});
+
+    $('#grid-on').on('click', function () {
+        $('#grid-off').removeClass('btn-primary');
+        $('#grid-on').addClass('btn-primary');
+        that.setGrid(true);
+        MarkersDetector.forceUpdate = true;
+    });
+
+    $('#grid-off').on('click', function () {
+        $('#grid-on').removeClass('btn-primary');
+        $('#grid-off').addClass('btn-primary');
+        that.setGrid(false);
+        MarkersDetector.forceUpdate = true;
+    });
 }
 
 ViewManager.prototype.addFeedbackDisplay = function() {
@@ -89,9 +107,9 @@ ViewManager.prototype.setAxis = function(bool){
     }
 };
 
-ViewManager.prototype.setClick = function(click){
+ViewManager.prototype.setGrid = function(bool){
     for (var i in this.views){
-        this.views[i].click = click; 
+        this.views[i].grid = bool; 
     }
 };
 
