@@ -31,6 +31,8 @@ MarkersDetector = function(video, canvas){
 	this.accessCamera();	
 }
 
+MarkersDetector.forceUpdate = false;
+
 MarkersDetector.prototype.Start = function() {
 	//detectTags(this);
 	var that = this;
@@ -45,10 +47,10 @@ MarkersDetector.prototype.Start = function() {
             CalibStatic.needCalibrationCallback(that.activeMarkers);
         }
     }
-	if (!that.isJittering()){ 
+	if (!that.isJittering() || MarkersDetector.forceUpdate){
+		MarkersDetector.forceUpdate = false; 
 	 	that.activity.update(that)
 	}
-	
 }
 
 
@@ -56,8 +58,6 @@ function detectTags(markersDetector){
 	console.log(arguments)
 	console.log(markersDetector instanceof MarkersDetector)
 	markersDetector.animationId = requestAnimationFrame(detectTags);
-	
-	
 }
 
 MarkersDetector.prototype.stopTagDetection = function() {
