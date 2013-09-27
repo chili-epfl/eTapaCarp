@@ -80,6 +80,7 @@ Meteor.startup(
     add('FrontView', 'Vue de face', 'Front view', 'Front View');
 
     add('GetReady', 'Préparez-vous', 'Get ready', 'Get ready');
+	add('GetStarted', 'Commencer', 'Get started', "Los geht's")
 
     add('Home', 'Home', 'Home', 'Home');
 
@@ -137,6 +138,8 @@ Meteor.startup(
     add('TwoEdge', 'Deux arêtes', 'Two edges', 'Two edges');
     add('TwoObject', 'Deux objets', 'Two objects', 'Two objects');
 
+	add('Welcome', 'Bienvenue', 'Welcome', 'Wilkommen')
+	add('WelcomeMsg', "Ce site est destiné aux apprentis charpentiers de Suisse. Il doit leur permettre d'améliorer leurs capacités spatiales.", 'TODO', 'TODO');
     add('Wrong', 'Faux!', 'Wrong!','Falsch!');
   }
 );

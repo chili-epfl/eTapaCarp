@@ -42,8 +42,15 @@ View.prototype.setClick = function(click){
     this.click = click;
 }
 
-View.prototype.setCamera = function () {
-};
+View.prototype.setCamera = function () {};
+
+View.prototype.addStaticBricks = function(bricks) {
+	for (i in bricks) {
+		var b = bricks[i]
+		this.brickManager.addStaticBrick(b);
+		this.addBrickToScene(b);
+	}
+}
 
 View.prototype.render = function (markers) {
 	if (this.click){
@@ -275,9 +282,21 @@ View.prototype.clear = function () {
     this.renderer.clear();
 };
 
+View.prototype.addBrickToScene = function(brick) {
+	for (var i in brick.stippledLines) 
+		this.scene.add(brick.stippledLines[i]);
+	for (var i in brick.lines) 
+		this.scene.add(brick.lines[i]);
+
+	this.scene.add(brick.faces);		
+}
+
+
 View.prototype.createObjects = function (markerId) {
     if (!this.brickManager.bricks[markerId]) {
-        this.brickManager.addBrick(new Brick(markerId, this.scene));
+		var brick = new Brick(markerId);
+        this.brickManager.addBrick(brick);
+		this.addBrickToScene(brick)
     }
     else{
         this.brickManager.bricks[markerId].changeVisibility(true);
@@ -285,6 +304,7 @@ View.prototype.createObjects = function (markerId) {
         this.brickManager.bricks[markerId].setRotationAndTranslation(0,{x:0,y:0});
     }
 };
+
 
 View.prototype.init_objects = function(){
     this.clear();

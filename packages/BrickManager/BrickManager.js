@@ -1,9 +1,14 @@
 BrickManager = function(){
 	this.bricks = {};
+	this.staticBricks = {};
 }
 
 BrickManager.prototype.addBrick = function(brick){
     this.bricks[brick.id] = brick;
+}
+
+BrickManager.prototype.addStaticBrick = function(brick) {
+	this.staticBricks[brick.id] = brick;
 }
 
 BrickManager.prototype.setTransparency = function(bool){
@@ -20,7 +25,7 @@ BrickManager.prototype.changeVisibility = function(bool){
 }
 
 //numberOfBricks <= listOfBrickIds.length
-BrickManager.prototype.generateRandomPositions = function(numberOfBricks, listOfBrickIds){
+BrickManager.generateRandomPositions = function(numberOfBricks, listOfBrickIds){
 	var MODELS = Session.get('shapes');
     var redoRandom = true;
     var bricks = {};
@@ -28,7 +33,6 @@ BrickManager.prototype.generateRandomPositions = function(numberOfBricks, listOf
 		redoRandom = false;
 	    var count = 0;
 	    var randomShapes = [];
-	    var view = new FrontView('');
 	    while (randomShapes.length < numberOfBricks){
 	    	var rand = Math.ceil(Math.random()*listOfBrickIds.length)-1;
 	    	var brickId = listOfBrickIds[rand];
@@ -38,9 +42,7 @@ BrickManager.prototype.generateRandomPositions = function(numberOfBricks, listOf
 	    }
         for (var i = 0; i<randomShapes.length; i++){
             var brickId = randomShapes[i];
-            var filledShape = view.shape(MODELS[brickId]);
             var brick = new Brick(brickId);
-            brick.faces = [new THREE.Mesh(filledShape, new THREE.MeshBasicMaterial())];
             brick.rotation = Math.random()*Math.PI;
             brick.translation = {	
 				x: Math.random()*Config.WORKSPACE_DIMENSION.x/2,
@@ -50,6 +52,10 @@ BrickManager.prototype.generateRandomPositions = function(numberOfBricks, listOf
             brick.setRotationAndTranslation(Math.random()*Math.PI,{ x: Math.random()*Config.WORKSPACE_DIMENSION.x/2, y: Math.random()*Config.WORKSPACE_DIMENSION.y/2 });
             brick.faces.updateMatrix();
             brick.faces.geometry.applyMatrix(brick.faces.matrix);
+			// no need to do that for stippled lines because they share the geometry with the lines
+			for (var i in brick.lines)
+				brick.lines[i].geometry.applyMatrix(brick.faces.matrix);
+			
             brick.faces.geometry.computeBoundingBox();
         }
         for (var i in bricks){
@@ -86,5 +92,5 @@ BrickManager.prototype.generateRandomPositions = function(numberOfBricks, listOf
 	    	bricks = {};
 		}
 	}
-    this.bricks = bricks;
+	return bricks;
 }

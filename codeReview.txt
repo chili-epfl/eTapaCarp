@@ -1,0 +1,5 @@
+
+
+– Il ne se passe rien quand on termine une activité (practice et évaluation)
+
+– Integrate config everywhere

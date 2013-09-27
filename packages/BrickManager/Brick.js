@@ -1,4 +1,4 @@
-Brick = function(id, scene){
+Brick = function(id){
 	this.id = id;
 	this.lines = [];
 	this.stippledLines = [];
@@ -8,7 +8,6 @@ Brick = function(id, scene){
 	this.rotation = 0;
 	this.transparency = true;
 	this.visibility = true;
-	this.scene = scene;
 	this.markerZ = null;
 	this.init();
 }
@@ -16,6 +15,19 @@ Brick = function(id, scene){
 Brick.prototype.init = function(){
 	this.createLines();
 	this.createFaces();
+}
+
+Brick.prototype.clone = function() {
+	var newBrick = new Brick(this.id);
+	newBrick.setRotationAndTranslation(this.rotation, this.translation);
+	return newBrick;
+}
+
+Brick.cloneBricks = function(bricks) {
+	var clonedBricks = {}
+	for (i in bricks)
+		clonedBricks[i] = bricks[i].clone()
+	return clonedBricks
 }
 
 Brick.prototype.changeVisibility = function(visibility){
@@ -59,12 +71,10 @@ Brick.prototype.createLines = function(){
         stippledLine.selected = false;
         stippledLine.visible = this.transparency && this.visibility;
         this.stippledLines[i] = stippledLine;
-        this.scene.add(stippledLine);
 
         line.selected = false;
         line.visible = this.visibility;
         this.lines[i] = line;
-        this.scene.add(line);
     }
 }
 
@@ -86,7 +96,6 @@ Brick.prototype.createFaces = function(){
     var meshMaterial = new THREE.MeshBasicMaterial({color: false, side: THREE.DoubleSide, depthTest: true, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1});
     var faces = new THREE.Mesh(geometry, meshMaterial);
     this.faces = faces;
-    this.scene.add(faces);
 }
 
 Brick.prototype.setSelectedToRed = function(){

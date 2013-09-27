@@ -40,3 +40,27 @@ div.smallGraph:hover {
 .rickshaw_graph .detail .item img{
     height: 20px;
 }
+
+#rowShape6 img,
+#rowShape20 img,
+#rowShape64 img {
+	height: 40px;
+}
+
+.activityLogo {
+	height: 180px;	
+}
+
+img.charpente {
+	width:250px;
+	margin-right: 10px;	
+}
+
+
+body {
+/*	background-image:url("/background.png")*/
+}
+
+.thumbnail {
+	background-color: white;
+}

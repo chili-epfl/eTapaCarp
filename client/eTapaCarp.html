@@ -7,6 +7,7 @@
     <div class="container">
     	{{> navbar}}
 		
+		<div class="content">
 		{{#constant}}
 		<video id="cam" autoplay="true" style="display:none;"></video>
 		<canvas id="camcanvas" style="width:640px; height:480px; display:none;"></canvas>
@@ -15,5 +16,6 @@
     	<div>
     	{{#isolate}} {{renderPage}} {{/isolate}}
     	</div>
+	</div>
     </div>
 </body>
