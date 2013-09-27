@@ -74,10 +74,28 @@
 				<button id="newChallenge" class="btn btn-large">{{lang.NewChallenge}}</button>
 			</div>
 			<div class="row-fluid">
-				<!-- FEEDBACK SHOULD COME HERE -->
+				<table id="feedback" class="table feedback">
+		    		<thead>
+		    			<tr>
+		    				<th>{{lang.Detected}}</th>
+		    				<th>{{lang.Position}}</th>
+		    				<th>{{lang.Rotation}}</th>
+	    				</tr>
+		    		</thead>
+		    		{{#constant}}
+		    		<tr style="">
+		    			<td id="correctBrick"><i class="icon-remove"></i></td>
+		    			<td id="correctRotation"><i class="icon-remove"></i></td>
+		    			<td id="correctTranslation"><i class="icon-remove"></i></td>
+		    		</tr>
+		    		{{/constant}}
+		    	</table>
+				
 			</div>
 		</div>
 	</div>
+
+	
 	<div id="solutionCorrect" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="solutionCorrectLabel" aria-hidden="true">
 		<div class="modal-header">
 		    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>

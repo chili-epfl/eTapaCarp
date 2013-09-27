@@ -4,13 +4,22 @@ Activity3 = function(difficulty) {
 	this.template = null;
 	this.lastActiveMarkers = null;
 	
-	this.brick = null;
+	this.brickToMatch = null;
 	this.difficulty = typeof difficulty === 'undefined' ? 1 : difficulty;
+	
+	this.solution = {
+		correctBrick : false,
+		correctTrans : {x: false, y: false},
+		correctRot   : false
+	}
+	this.message = "";
 }
 
-Activity3.prototype.updateFeedback = function(activeMarkers) {
-	// TODO
+Activity3.ACCEPTED_MARGIN = {
+	translation: {x:10, y:10},
+	rotation: 5
 }
+
 
 Activity3.prototype.setRenderingCallback = function(context, callback){
 	this.renderingCallback = function(markers) {
@@ -22,10 +31,39 @@ Activity3.prototype.update = function(markersDetector) {
 	if (typeof markersDetector !== 'undefined') 
 		this.lastActiveMarkers = markersDetector.activeMarkers;
 	
+	this.isFinished = this.checkSolution(this.lastActiveMarkers);
+	
+	this.template.updateFeedback(this.solution);
+	
 	this.renderingCallback(this.lastActiveMarkers);
 	
 	if (this.isFinished)
 		this.template.activityFinished();
+}
+
+Activity3.prototype.checkRotation = function(rot) {
+	return (Math.abs(rot-this.brickToMatch.rotation) < Activity3.ACCEPTED_MARGIN.rotation);
+}
+
+Activity3.prototype.checkTranslation = function(pos) {
+	return (Math.abs(pos.x-this.brickToMatch.translation.x) < Activity3.ACCEPTED_MARGIN.translation.x 
+		 && Math.abs(pos.y-this.brickToMatch.translation.y) < Activity3.ACCEPTED_MARGIN.translation.y);
+}
+
+
+Activity3.prototype.checkSolution = function(markers) {
+	if (Utils.dictLength(markers) != 1) {
+		this.message = "You must use only one block for this activity."
+	} else {
+		console.log(typeof(markers[this.brickToMatch.id]));
+		if (typeof(markers[this.brickToMatch.id]) !== 'undefined') {
+			var rotPos = BrickManager.getRotationAndPositionOfBrick(markers[this.brickToMatch.id])
+			this.solution.correctBrick = true;
+			this.solution.correctRot = this.checkRotation(rotPos.r);
+			this.solution.correctTrans = this.checkTranslation(rotPos.p);
+		}
+	}
+	return (this.solution.correctBrick && this.solution.correctRot && this.solutionCorrectTrans);
 }
 
 
