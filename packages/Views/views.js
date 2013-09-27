@@ -218,14 +218,12 @@ View.prototype.renderTempObject = function(model, addNumbers){
         }
         model.markerZ = maxZ;
         model.coordinates = [];
-        console.log(model.coordinates.length, this.tempObject.points.length)
         for (var i in this.tempObject){
             if (i != 'edges' && i != 'stippledEdges'){
                 for (var j in this.tempObject[i]){
                     var mesh = this.tempObject[i][j];
                     mesh.geometry.applyMatrix(new THREE.Matrix4(1,0,0,-maxX, 0,1,0,-minY, 0,0,1,0, 0,0,0,1));
                     if (i == 'points'){
-                        console.log('bla')
                         mesh.geometry.computeBoundingBox();
                         var center = mesh.geometry.boundingBox.center();
                         model.coordinates.push([center.x, center.y, center.z]);

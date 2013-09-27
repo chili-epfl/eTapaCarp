@@ -33,32 +33,29 @@ ViewManager.prototype.edgeToSelect = function(markerId, difficulty, name){
 };
 
 ViewManager.prototype.addStandardDisplayOptions = function() {
+	that = this;
 	$('#transparency-on').on('click', function () {
 		$('#transparency-off').removeClass('btn-primary');
 		$('#transparency-on').addClass('btn-primary');
-		views.setTransparency(true);
-		// views.setChangedLayout(true);
+		that.setTransparency(true);
 	});
 
 	$('#transparency-off').on('click', function () {
 		$('#transparency-on').removeClass('btn-primary');
 		$('#transparency-off').addClass('btn-primary');
-		views.setTransparency(false);
-		// views.setChangedLayout(true);
+		that.setTransparency(false);
 	});
 
 	$('#axis-on').on('click', function () {
 		$('#axis-off').removeClass('btn-primary');
 		$('#axis-on').addClass('btn-primary');
-		views.setAxis(true);
-		// views.setChangedLayout(true);
+		that.setAxis(true);
 	});
 
 	$('#axis-off').on('click', function () {
 		$('#axis-on').removeClass('btn-primary');
 		$('#axis-off').addClass('btn-primary');
-		views.setAxis(false);
-		// views.setChangedLayout(true);
+		that.setAxis(false);
 	});
 }
 
@@ -87,6 +84,10 @@ ViewManager.prototype.findClickedView = function(click){
     }
 }
 
+ViewManager.prototype.setDynamicView = function(viewName, isDynamic) {
+	this.views[viewName].dynamic = isDynamic;
+}
+
 // ViewManager.prototype.setChangedLayout = function(bool){
 //     for (var i in this.views){
 //         this.views[i].changedLayout = bool; 
@@ -112,9 +113,8 @@ ViewManager.prototype.setClick = function(click){
 };
 
 ViewManager.prototype.render = function(markers){
-    for (var i in this.views){
+    for (var i in this.views)
         this.views[i].render(markers);
-    }
 };
 
 // ViewManager.prototype.activity2Difficulty = function(difficulty){
