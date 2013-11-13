@@ -13,7 +13,7 @@ Template.activity2Ready.lang = function(e){
   return Session.get('lang');
 }
 
-var views = new Views();
+var viewManager = new ViewManager();
 var markersDetector;
 var isNotJittering = false;
 var startTime = null;
@@ -36,17 +36,17 @@ Template.evaluationActivity2.rendered = function(){
 	    markersDetector.accessCamera();
 	    var frontview = new FrontView('front');
 	    frontview.setDynamic(false);
-		views.addView(frontview);
+		viewManager.addView(frontview);
 	    var sideview = new SideView('side');
 	    sideview.setDynamic(false);
-		views.addView(sideview);
-		views.addView(new TopView('top'));
-		views.init();
-		views.setAxis(false);
-		views.activity2Difficulty(Session.get('activity2Level'));
-		shapes = views.generateRandomPositions();
+		viewManager.addView(sideview);
+		viewManager.addView(new TopView('top'));
+		viewManager.init();
+		viewManager.setAxis(false);
+		viewManager.activity2Difficulty(Session.get('activity2Level'));
+		shapes = viewManager.generateRandomPositions();
 		while(shapes[0]){
-			shapes = views.generateRandomPositions();
+			shapes = viewManager.generateRandomPositions();
 		}
 		Template.evaluationActivity2.animate();
 	}
@@ -56,29 +56,29 @@ Template.evaluationActivity2.events({
 	'click #transparency-on': function () {
 		$('#transparency-off').removeClass('btn-primary');
 		$('#transparency-on').addClass('btn-primary');
-		views.setTransparency(true);
-		views.setChangedLayout(true);
+		viewManager.setTransparency(true);
+		viewManager.setChangedLayout(true);
 	},
 
 	'click #transparency-off': function () {
 		$('#transparency-on').removeClass('btn-primary');
 		$('#transparency-off').addClass('btn-primary');
-		views.setTransparency(false);
-		views.setChangedLayout(true);
+		viewManager.setTransparency(false);
+		viewManager.setChangedLayout(true);
 	},
 
 	'click #axis-on': function () {
 		$('#axis-off').removeClass('btn-primary');
 		$('#axis-on').addClass('btn-primary');
-		views.setAxis(true);
-		views.setChangedLayout(true);
+		viewManager.setAxis(true);
+		viewManager.setChangedLayout(true);
 	},
 
 	'click #axis-off': function () {
 		$('#axis-on').removeClass('btn-primary');
 		$('#axis-off').addClass('btn-primary');
-		views.setAxis(false);
-		views.setChangedLayout(true);
+		viewManager.setAxis(false);
+		viewManager.setChangedLayout(true);
 	},
 
 	'click #feedback-on': function () {
@@ -95,7 +95,7 @@ Template.evaluationActivity2.events({
 });
 
 Template.evaluationActivity2.destroyed = function(){
-	views.destroy();
+	viewManager.destroy();
 	markersDetector.stopCamera();
 	cancelAnimationFrame(animationId);
 	rendered = false;

@@ -1,6 +1,9 @@
 var rendered = false;
 var animationId = null;
 var lang, isPractice;
+var viewManager;// = new ViewManager();
+var markersDetector;
+var activity;
 
 Template.activity1.lang = function(e){
 	lang = Session.get('lang');
@@ -26,18 +29,17 @@ Template.activity1Difficulty.events({
 	'click a[id^="difficulty"]': function(e, tmpl){
 		activity = new Activity1();
 		activity.difficulty = e.target.id.split('difficulty')[1];
-		Meteor.Router.to('/activity1/scoring/ready');
+		Meteor.Router.to('/activity1/scoring/ready'); 
 	}
 });
 
 Template.activity1Ready.events({
 	'click #startButton': function(e,tmpl) {
 		var numMarkers = 0;
-		for (var i in markersDetector.activeMarkers){
+		for (var i in markersDetector.activeMarkers)
 			numMarkers++;
-		}
 		if (numMarkers == 1 && !CalibStatic.needCalibration) {
-			activity.lastActiveMarkers = null;
+			// activity.lastActiveMarkers = null;
 			Meteor.Router.to('/activity1/scoring');
 		}
 	}
@@ -50,14 +52,13 @@ Template.activity1Ready.rendered = function(){
 	if(!rendered){
 		//prevent to do the initialization twice
 		rendered = true;
-		console.log(activity)
+		// console.log(activity)
 		activity.setRenderingCallback(activity, activity.updateReadyInfo);
 		CalibStatic.setNeedCalibrationCallback(activity, activity.update);
 
 	    markersDetector = new MarkersDetector("cam", "camcanvas");		
 		markersDetector.setActivity(activity);
 		markersDetector.Start();
-
 	}
 }
 
@@ -67,18 +68,29 @@ Template.activity1Ready.destroyed = function(){
 	rendered = false;
 }
 
-var viewManager = new ViewManager();
-var markersDetector;
-var activity;
 
 Template.activity1.rendered = function(){
 
-	if (!Utils.areModelsLoaded()) { return; }
+	if (!Utils.areModelsLoaded()) { 
+        console.log("Error: the models are not loaded")
+        return; 
+    }
 	
 	if(!rendered){
 		//prevent to do the initialization twice
 		rendered = true;
-		
+    
+        viewManager = new ViewManager();
+		viewManager.addView(new FrontView('front'));
+		viewManager.addView(new SideView('side'));
+		viewManager.addView(new TopView('top'));
+		viewManager.addView(new PerspectiveView('perspective'));
+		viewManager.setAxis(true);
+		viewManager.setGrid(false);
+		viewManager.init()
+		viewManager.addStandardDisplayOptions(activity);
+		viewManager.addFeedbackDisplay();
+    
 		CalibStatic.needCalibrationCallback = null;
 		if (typeof(activity) == 'undefined'){
 			activity = new Activity1();
@@ -91,16 +103,6 @@ Template.activity1.rendered = function(){
 		markersDetector.setActivity(activity);
 		markersDetector.Start();
 		
-		viewManager.addView(new FrontView('front'));
-		viewManager.addView(new SideView('side'));
-		viewManager.addView(new TopView('top'));
-		viewManager.addView(new PerspectiveView('perspective'));
-		viewManager.setAxis(true);
-		viewManager.setGrid(false);
-		viewManager.init()
-		viewManager.addStandardDisplayOptions();
-		viewManager.addFeedbackDisplay();
-		
 		// handle clicks on edges
 	    document.addEventListener( 'mousedown', onDocumentMouseDown, false );
 		$(document).keyup(function(e) {
@@ -108,10 +110,15 @@ Template.activity1.rendered = function(){
 				viewManager.clearChoiceEdges();
 			}
 		});
+		
+		// TODO should reprogramm the logic to be independent of the view
 
 		createNewChallengeHandler();
 		createDifficultyHandler();
 		createNextActivityHandler();
+		
+		// if (!isPractice) 
+//         	Template.activity1.startActivity(markersDetector.activeMarkers[0])
 		
 		viewManager.render({});
 	}
@@ -139,11 +146,11 @@ Template.activity1.activityFinished = function() {
 
 function initActivity() {
 	if (isPractice){
-		viewManager.edgeToSelect(activity.objectId, activity.difficulty, 'perspective');
+		viewManager.selectEdgesRandomly(activity.objectId, activity.difficulty, 'perspective');
 		var result = activity.checkSolution(viewManager.views)
 		updateFeedback(result);
 	}
-	else{
+	else {
 		startTime = null;
 		stopTime = null;
 		timerStarted = false;
@@ -158,7 +165,6 @@ function initActivity() {
 
 function createNextActivityHandler() {
 	$("#nextActivityButton").on('click', function() {
-		console.log('next activity')
 		newDiff = Math.min(activity.difficulty + 1, Config.Activity1.MAX_DIFFICULTY);
 		newChallenge(newDiff);
 	});
@@ -188,7 +194,6 @@ function newChallenge(difficulty) {
 	initActivity();
 }
 	
-	
 
 function createDifficultyHandler() {
 	$('button[id^="difficulty"]').on('click', function(){
@@ -207,7 +212,6 @@ function createDifficultyHandler() {
 				newChallenge(level);
 			}
 		}
-		console.log('updating diff')
 		activity.update(markersDetector);	
 	});
 }
@@ -216,7 +220,6 @@ function onDocumentMouseDown( event ) {
 	if (event.which == 1){
 		var clickedView = viewManager.findClickedView(event);
 		if(clickedView !== undefined){
-			console.log(activity.objectId)
 			clickedView.selectEdge(event);
 			var correction = activity.checkSolution(viewManager.views);
 			updateFeedback(correction);
@@ -263,12 +266,12 @@ function updateFeedback(correction){
 	}
 }
 
-Template.activity1.startActivity = function(markerId){
-	viewManager.edgeToSelect(markerId, activity.difficulty, 'perspective');
+Template.activity1.startActivity = function(markerId) {
+	viewManager.selectEdgesRandomly(markerId, activity.difficulty, 'perspective');
 	startTime = new Date().getTime();
 	scoreId = Score.insert({time:null, activity:"activity1", userId:Meteor.userId(), date: new Date(), difficulty: activity.difficulty, shape: markerId});
 	timerStarted = true;
-	timer = setTimeout(Template.activity1.updateTime, 100);
+	timer = setTimeout(Template.activity1.updateTime, 1000);
 	activity.update(markersDetector);
 }
 

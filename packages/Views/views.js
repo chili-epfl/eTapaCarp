@@ -316,9 +316,11 @@ View.prototype.createObjects = function (markerId) {
 };
 
 
+// TODO not sure we need that anymore...
 View.prototype.init_objects = function(){
     this.clear();
     for (var j = 0; j<ACTIVITYSHAPES.length; j++){
+//        console.log("INITIALIZING OBJECTS" + j)
         var thisShape = ACTIVITYSHAPES[j];
         this.createObjects(thisShape);
         for (var k in this.edges[thisShape]){
@@ -524,10 +526,15 @@ View.prototype.updateActivity2Feedback = function(markers){
     }
 };
 
-View.prototype.edgeToSelect = function(markerId, difficulty){
+View.prototype.selectEdgesRandomly = function(markerId, difficulty){
+    // if the brick does not exist, create it
+    if (!(markerId in this.brickManager.bricks)) {
+        this.createObjects(markerId);
+    }
     var brick = this.brickManager.bricks[markerId];
     var range = brick.lines.length-1;
     var selectedEdges = [];
+    // console.log("selecting edges, difficulty: " + difficulty)
     while (selectedEdges.length < difficulty){
         var edge = Math.ceil(Math.random()*range);
         if (selectedEdges.indexOf(edge) == -1){

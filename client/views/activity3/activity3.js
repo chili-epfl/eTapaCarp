@@ -5,7 +5,18 @@ Activity3 = function(difficulty) {
 	this.lastActiveMarkers = null;
 	
 	this.brickToMatch = null;
+	this.hasStarted = false;
 	this.difficulty = typeof difficulty === 'undefined' ? 1 : difficulty;
+	
+	this.ready = {
+		calib : false,
+		oneObjectDetected: false
+	}
+	
+	this.originalPosRot = {
+		pos: {x: 0, y: 0},
+		rot: 0
+	}
 	
 	this.solution = {
 		correctBrick : false,
@@ -15,11 +26,49 @@ Activity3 = function(difficulty) {
 	this.message = "";
 }
 
-Activity3.ACCEPTED_MARGIN = {
-	translation: {x:10, y:10},
-	rotation: 5
+Activity3.Config = {
+	ACCEPTED_MARGIN : {
+		translation: {x:10, y:10},
+		rotation: .2 // in radians, about 10 degrees
+	},
+	rotationRange : [30, 330]
 }
 
+Activity3.prototype.isReady = function(markersDetector) {
+	console.log("is ready");
+	if (typeof markersDetector !== 'undefined') 
+		this.lastActiveMarkers = markersDetector.activeMarkers;
+	
+	var numMarkers = Utils.dictLength(this.lastActiveMarkers);
+	this.ready.oneObjectDetected = numMarkers == 1;
+	this.ready.calibrated = !CalibStatic.needCalibration;
+	if (this.ready.oneObjectDetected && this.ready.calibrated) 
+		this.brickToMatch = this.lastActiveMarkers[Object.keys(this.lastActiveMarkers)[0]];
+	this.hasStarted = this.ready.calibrated && this.ready.oneObjectDetected;
+	return this.hasStarted;
+}
+
+Activity3.prototype.updateReadyInfo = function() {
+	console.log('update ready info');
+	var changeDisplay = function(el, isOK) {
+		if (isOK) {
+	        el.parent().removeClass('alert alert-error');
+			el.children("i").addClass("icon-ok").removeClass("icon-remove");
+		} else {
+	        el.parent().addClass('alert alert-error');
+			el.children("i").removeClass("icon-ok").addClass("icon-remove");
+		}
+	}
+	console.log(this.ready.calibrated);
+	console.log(this.ready.oneObjectDetected);
+	changeDisplay($('#calibrated'), this.ready.calibrated);
+	changeDisplay($('#objectDetected'), this.ready.oneObjectDetected);
+
+	if (this.hasStarted)
+		$('#startButton').removeClass("disabled");
+	else 
+		$('#startButton').addClass("disabled");
+}
 
 Activity3.prototype.setRenderingCallback = function(context, callback){
 	this.renderingCallback = function(markers) {
@@ -31,23 +80,28 @@ Activity3.prototype.update = function(markersDetector) {
 	if (typeof markersDetector !== 'undefined') 
 		this.lastActiveMarkers = markersDetector.activeMarkers;
 	
-	this.isFinished = this.checkSolution(this.lastActiveMarkers);
-	
-	this.template.updateFeedback(this.solution);
+	if (this.hasStarted) {
+		this.isFinished = this.checkSolution(this.lastActiveMarkers);
+		this.template.updateFeedback(this.solution);
+	} else {
+		this.isReady(markersDetector);
+	}
 	
 	this.renderingCallback(this.lastActiveMarkers);
 	
 	if (this.isFinished)
 		this.template.activityFinished();
+	
 }
 
 Activity3.prototype.checkRotation = function(rot) {
-	return (Math.abs(rot-this.brickToMatch.rotation) < Activity3.ACCEPTED_MARGIN.rotation);
+	console.log("rotation (e/r): " + this.brickToMatch.rotation, rot);
+	return (Math.abs(rot-this.brickToMatch.rotation) < Activity3.Config.ACCEPTED_MARGIN.rotation);
 }
 
 Activity3.prototype.checkTranslation = function(pos) {
-	return (Math.abs(pos.x-this.brickToMatch.translation.x) < Activity3.ACCEPTED_MARGIN.translation.x 
-		 && Math.abs(pos.y-this.brickToMatch.translation.y) < Activity3.ACCEPTED_MARGIN.translation.y);
+	return (Math.abs(pos.x-this.brickToMatch.translation.x) < Activity3.Config.ACCEPTED_MARGIN.translation.x 
+		 && Math.abs(pos.y-this.brickToMatch.translation.y) < Activity3.Config.ACCEPTED_MARGIN.translation.y);
 }
 
 
@@ -95,7 +149,10 @@ Activity3.prototype.getMovement = function() {
 		var chooseAxis = Math.round(Math.random()) == 0; // only move on one axis
 		var move = {x : chooseAxis, y: !chooseAxis }; 
 	}
-	var tRot = (this.difficulty > 2) ? (Math.round(Math.random()*135)) : 0
+	var rotAngle = Activity3.Config.rotationRange[1]-Activity3.Config.rotationRange[0];
+	var tRot = (this.difficulty > 2) 
+			 ? (Math.round(Math.random()*rotAngle)+Activity3.Config.rotationRange[1]) 
+			 : 0
 	
 	var movement = {
 		translation : {

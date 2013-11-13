@@ -11,11 +11,11 @@ Activity1 = function() {
 }
 
 Activity1.prototype.update = function(markersDetector) {
-	if (typeof markersDetector !== 'undefined') {
+	if (typeof markersDetector !== 'undefined') 
 		this.lastActiveMarkers = markersDetector.activeMarkers;
-	}
 	
-	this.renderingCallback(this.lastActiveMarkers);
+	if (!this.evaluationMode || (this.evaluationMode && this.evaluationStarted))
+		this.renderingCallback(this.lastActiveMarkers);
 
     if (this.evaluationMode && !this.evaluationStarted){
         var numMarkers = 0;
@@ -48,7 +48,6 @@ Activity1.prototype.setRenderingCallback = function(context, callback){
 }
 
 Activity1.prototype.updateReadyInfo = function(markers){
-    console.log(CalibStatic.needCalibration)
     if (CalibStatic.needCalibration) {
         $('#calibrated').parent().addClass('alert alert-error');
         $('#calibrated').text('');
@@ -68,7 +67,7 @@ Activity1.prototype.updateReadyInfo = function(markers){
         $('#objectDetected').text('');
         $('#objectDetected').append('<i class="icon-remove"></i>');
     }
-    else{
+    else {
         $('#objectDetected').parent().removeClass('alert alert-error');
         $('#objectDetected').text('');
         $('#objectDetected').append('<img class="rowShape" src="/shape'+i+'.png"></img>');
@@ -80,8 +79,6 @@ Activity1.prototype.updateReadyInfo = function(markers){
         $('#startButton').addClass("disabled");
     }
 }
-
-
 
 Activity1.prototype.checkSolution = function(views){
     var correct = [];
@@ -103,13 +100,13 @@ Activity1.prototype.checkSolution = function(views){
             if (views[i].brickManager.bricks[this.objectId].selectedLines && Utils.dictLength(views[i].brickManager.bricks[this.objectId].selectedLines) > 0){
                 userSol[i] = views[i].brickManager.bricks[this.objectId].selectedLines;
             }
-            else{
+            else {
                 correct[i] = 0;
                 wrong[i] = 0;
             }
         }
     }
-    console.log(correctSol)
+//    console.log(correctSol)
     for (var i in userSol){
         correct[i] = 0;
         wrong[i] = 0;
@@ -133,12 +130,10 @@ Activity1.prototype.checkSolution = function(views){
                     isCorrect = true;
                 }
             }
-            if (isCorrect){
+            if (isCorrect)
                 correct[i]++;
-            }
-            else{
+            else 
                 wrong[i]++;
-            }
         }
     }
 

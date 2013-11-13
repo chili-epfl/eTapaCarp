@@ -37,7 +37,6 @@ MarkersDetector.prototype.Start = function() {
 	//detectTags(this);
 	var that = this;
 	that.animationId = requestAnimationFrame(function(){
-//		console.log(that instanceof MarkersDetector)		
 		that.Start();
 	});
 	that.getMarkers();
@@ -51,7 +50,7 @@ MarkersDetector.prototype.Start = function() {
     }
 	if (!that.isJittering() || MarkersDetector.forceUpdate){
 		MarkersDetector.forceUpdate = false; 
-	 	that.activity.update(that)
+		that.activity.update(that)
 	}
 }
 

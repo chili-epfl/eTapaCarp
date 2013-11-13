@@ -56,6 +56,11 @@ img.charpente {
 	margin-right: 10px;	
 }
 
+.fat-button {
+	height:80px;
+	 vertical-align: middle;
+}
+
 
 body {
 /*	background-image:url("/background.png")*/
@@ -64,3 +69,13 @@ body {
 .thumbnail {
 	background-color: white;
 }
+
+#calibration {
+    width: 80%;
+    left: 30%;
+}
+
+.modal-body {
+    max-height: none;
+    text-align: center;
+  }

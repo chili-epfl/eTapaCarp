@@ -41,7 +41,7 @@ BrickManager.getRotationAndPositionOfBrick = function(marker) {
     if ((diffx < 0 && diffy > 0) || (diffx > 0 && diffy > 0)) {
         rotation = -Math.atan(diffx/diffy)+Math.PI/2;
     }
-    else{
+    else {
         rotation = -Math.atan(diffx/diffy)-Math.PI/2;
     }
 	return {r : rotation, p: position};

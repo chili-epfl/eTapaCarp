@@ -8,9 +8,10 @@ ViewManager.prototype.addView = function(view){
 };
 
 ViewManager.prototype.init = function(){
-    for (var i in this.views){
+	// console.log("init of viewManager")
+	// console.log(this.views)
+    for (var i in this.views)
         this.views[i].init(); 
-    }
 };
 
 ViewManager.prototype.setTransparency = function(bool){
@@ -20,14 +21,12 @@ ViewManager.prototype.setTransparency = function(bool){
     }
 };
 
-ViewManager.prototype.edgeToSelect = function(markerId, difficulty, name){
+ViewManager.prototype.selectEdgesRandomly = function(markerId, difficulty, name){
     for (var i in this.views){
-        if (i == name){
-            this.views[i].edgeToSelect(markerId, difficulty);
-        }
-        else{
+        if (i == name)
+            this.views[i].selectEdgesRandomly(markerId, difficulty);
+        else
             this.views[i].removeSelectedEdges();
-        }
     }
 };
 
@@ -108,19 +107,16 @@ ViewManager.prototype.setAxis = function(bool){
 };
 
 ViewManager.prototype.setGrid = function(bool){
-    for (var i in this.views){
+    for (var i in this.views)
         this.views[i].grid = bool; 
-    }
 };
 
 ViewManager.prototype.render = function(markers){
-    for (var i in this.views){
+    for (var i in this.views)
         this.views[i].render(markers);
-    }
 };
 
 ViewManager.prototype.init_objects = function(){
-
     for (var i in this.views){
         var view = this.views[i];
         if (!view.dynamic){
