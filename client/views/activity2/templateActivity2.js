@@ -1,51 +1,51 @@
 var rendered = false;
 var animationId = null;
-var lang, isPractice;
+var lang;
 var viewManager;// = new ViewManager();
 var markersDetector;
 var activity;
 
-Template.activity1.lang = function(e){
+Template.activity2.lang = function(e){
 	lang = Session.get('lang');
 	return lang;
 }
 
-Template.activity1.isPractice = function(){
-	isPractice = Session.get('isPractice')
+Template.activity2.isPractice = function(){
+	isPractice = Session.get('isPractice');
 	return isPractice;
 }
 
-Template.activity1Difficulty.lang = function(){
+Template.activity2Difficulty.lang = function(){
 	lang = Session.get('lang');
 	return lang;
 }
 
-Template.activity1Ready.lang = function(){
+Template.activity2Ready.lang = function(){
 	lang = Session.get('lang');
 	return lang;
 }
 
-Template.activity1Difficulty.events({
+Template.activity2Difficulty.events({
 	'click a[id^="difficulty"]': function(e, tmpl){
-		activity = new Activity1();
+		activity = new activity2();
 		activity.difficulty = e.target.id.split('difficulty')[1];
-		Meteor.Router.to('/activity1/scoring/ready'); 
+		Meteor.Router.to('/activity2/scoring/ready'); 
 	}
 });
 
-Template.activity1Ready.events({
+Template.activity2Ready.events({
 	'click #startButton': function(e,tmpl) {
 		var numMarkers = 0;
 		for (var i in markersDetector.activeMarkers)
 			numMarkers++;
 		if (numMarkers == 1 && !CalibStatic.needCalibration) {
 			// activity.lastActiveMarkers = null;
-			Meteor.Router.to('/activity1/scoring');
+			Meteor.Router.to('/activity2/scoring');
 		}
 	}
 })
 
-Template.activity1Ready.rendered = function(){
+Template.activity2Ready.rendered = function(){
 
 	if (!Utils.areModelsLoaded()) { return; }
 
@@ -62,93 +62,115 @@ Template.activity1Ready.rendered = function(){
 	}
 }
 
-Template.activity1Ready.destroyed = function(){
+Template.activity2Ready.destroyed = function(){
 	markersDetector.stopCamera();
 	cancelAnimationFrame(animationId);
 	rendered = false;
 }
 
 
-Template.activity1.rendered = function(){
+
+//--------------
+// activity 2 specific code
+//-------------
+Template.activity2.rendered = function(){
 
 	if (!Utils.areModelsLoaded()) { 
         console.log("Error: the models are not loaded")
         return; 
     }
-	
+    
 	if(!rendered){
 		//prevent to do the initialization twice
 		rendered = true;
-    
+		
         viewManager = new ViewManager();
-		viewManager.setView(new FrontView('front'));
-		viewManager.setView(new SideView('side'));
-		viewManager.setView(new TopView('top'));
-		viewManager.setView(new PerspectiveView('perspective'));
-		viewManager.setAxis(true);
-		viewManager.setGrid(false);
-		viewManager.init()
-		viewManager.addStandardDisplayOptions(activity);
-		viewManager.addFeedbackDisplay();
-    
-		CalibStatic.needCalibrationCallback = null;
-		if (typeof(activity) == 'undefined'){
-			activity = new Activity1();
-		}
-		activity.setRenderingCallback(viewManager, viewManager.render);
-		activity.template = Template.activity1;
-		activity.evaluationMode = !isPractice;
-
 	    markersDetector = new MarkersDetector("cam", "camcanvas");		
+        activity = new Activity2();
+		
+        activity.setRenderingCallback(viewManager, viewManager.render);
+		activity.template = Template.activity2;
+		activity.evaluationMode = !Session.get('isPractice');
+
 		markersDetector.setActivity(activity);
 		markersDetector.Start();
 		
-		// handle clicks on edges
-	    document.addEventListener( 'mousedown', onDocumentMouseDown, false );
-		$(document).keyup(function(e) {
-			if (e.keyCode == 27) { // ESC
-				viewManager.clearChoiceEdges();
-			}
-		});
-		
-		// TODO should reprogramm the logic to be independent of the view
-
+        initActivity();
+        viewManager.init()
+        
 		createNewChallengeHandler();
 		createDifficultyHandler();
 		createNextActivityHandler();
-		
-		// if (!isPractice) 
-//         	Template.activity1.startActivity(markersDetector.activeMarkers[0])
 		
 		viewManager.render({});
 	}
 	$("#difficulty" + activity.difficulty).addClass("btn-primary");
 }
 
-Template.activity1.updateTime = function(){
+Template.activity2.updateTime = function(){
 	if (timer){
 		var endTime = (new Date().getTime()-startTime)/1000.0;
 		$('#time').text(endTime);
-		timer = setTimeout(Template.activity1.updateTime, 100);
+		timer = setTimeout(Template.activity2.updateTime, 100);
 	}
 }
 
-Template.activity1.activityFinished = function() {
-	if (!isPractice){
+Template.activity2.activityFinished = function() {
+	if (!Session.get('isPractice')){
 		timer = null;
 		var stopTime = new Date().getTime();
 		endTime = (stopTime-startTime)/1000.0;
-		Score.update({'_id':scoreId},{$set:{time:endTime}});
+        //TODO update database here once it is setup
+//		Score.update({'_id':scoreId},{$set:{time:endTime}});
 		$('#time').text(endTime);
 	}
 	$("#activityFinish").modal('show');
 }
 
 function initActivity() {
-	if (isPractice){
-		viewManager.selectEdgesRandomly(activity.objectId, activity.difficulty, 'perspective');
-		var result = activity.checkSolution(viewManager.views)
-		updateFeedback(result);
+    console.log("init activity " + Session.get('isPractice'))    
+    
+	if (Session.get('isPractice')){
+    	var availableBricks = $.map(Session.get('shapes'), function(a) {return a.id;})
+    	var bricks = BrickManager.generateRandomPositions(1, availableBricks);
+    	activity.bricksToMatch = bricks;
+    	var clonedBricks = Brick.cloneBricks(bricks);
+    	$("tr[id^='rowShape']").hide();
+    	for (var i in bricks){
+    		$('#rowShape'+i).show();
+    	}
+
+        var firstTime = !("side" in viewManager.views); // we only create views the first time 
+        var front, side;
+        if (!firstTime) {
+            front = viewManager.views['front'];
+            side = viewManager.views['side'];
+            top = viewManager.views['top'];
+        } else  {
+            front = new FrontView('front');
+            side = new SideView('side');
+            viewManager.setView(new TopView('top'));
+            viewManager.setAxis(false);
+            viewManager.setGrid(true);
+            viewManager.addStandardDisplayOptions();
+            viewManager.addFeedbackDisplay();
+            viewManager.setAxis(false);
+        }
+        vs = [side, front]
+        bs = [bricks, clonedBricks]
+        for (i in vs) {
+            vs[i].removeStaticBricks();
+            vs[i].addStaticBricks(bs[i]);
+            vs[i].setDynamic(false);
+        	viewManager.setView(vs[i]);
+        }
+        if (!firstTime) {
+            front.render({})
+            side.render({})
+        }
+        
+        var result = activity.checkSolution(viewManager.views)
+        updateFeedback(result);
 	}
 	else {
 		startTime = null;
@@ -165,7 +187,7 @@ function initActivity() {
 
 function createNextActivityHandler() {
 	$("#nextActivityButton").on('click', function() {
-		newDiff = Math.min(activity.difficulty + 1, Config.Activity1.MAX_DIFFICULTY);
+		newDiff = Math.min(activity.difficulty + 1, Config.Activity2.MAX_DIFFICULTY);
 		newChallenge(newDiff);
 	});
 }
@@ -178,10 +200,12 @@ function createNewChallengeHandler() {
 			id = i;
 			count++;
 		}
-		if(count == 1) {
-			activity.objectId = id;
+        // if(count == 1) {
+//			activity.objectId = id;
 			newChallenge(activity.difficulty);
-		}
+        // } else {
+            // console.log("need one object to create a challenge"); // TODO put that as error
+        // }
 	});	
 }
 
@@ -190,7 +214,6 @@ function newChallenge(difficulty) {
 	$('#difficulty'+((difficulty+1)%3 || 3)).removeClass("btn-primary");
 	$('#difficulty'+((difficulty+2)%3 || 3)).removeClass("btn-primary");
 	$('#difficulty' + difficulty).addClass("btn-primary");
-
 	initActivity();
 }
 	
@@ -216,18 +239,7 @@ function createDifficultyHandler() {
 	});
 }
 
-function onDocumentMouseDown( event ) {
-	if (event.which == 1){
-		var clickedView = viewManager.findClickedView(event);
-		if(clickedView !== undefined){
-			clickedView.selectEdge(event);
-			var correction = activity.checkSolution(viewManager.views);
-			updateFeedback(correction);
-			viewManager.showHelpOnSelect(event);
-			activity.update(markersDetector)
-		}
-	}
-};
+
 
 function updateFeedback(correction){
 	for (var i in correction[0]){
@@ -266,16 +278,16 @@ function updateFeedback(correction){
 	}
 }
 
-Template.activity1.startActivity = function(markerId) {
+Template.activity2.startActivity = function(markerId) {
 	viewManager.selectEdgesRandomly(markerId, activity.difficulty, 'perspective');
 	startTime = new Date().getTime();
-	scoreId = Score.insert({time:null, activity:"activity1", userId:Meteor.userId(), date: new Date(), difficulty: activity.difficulty, shape: markerId});
+	scoreId = Score.insert({time:null, activity:"activity2", userId:Meteor.userId(), date: new Date(), difficulty: activity.difficulty, shape: markerId});
 	timerStarted = true;
-	timer = setTimeout(Template.activity1.updateTime, 1000);
+	timer = setTimeout(Template.activity2.updateTime, 1000);
 	activity.update(markersDetector);
 }
 
-Template.activity1.destroyed = function(){
+Template.activity2.destroyed = function(){
 	viewManager.destroy();
 	markersDetector.stopTagDetection();
 	rendered = false;

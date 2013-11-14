@@ -27,9 +27,7 @@ function View(name) {
 }
 
 View.prototype.init = function () {
-
     this.renderer = new THREE.WebGLRenderer({ clearColor: 0xffffff, clearAlpha: 1, antialias: true});
-
     this.container = document.getElementById(this.name);
     this.container.appendChild(this.renderer.domElement);
     this.setCamera();
@@ -49,6 +47,7 @@ View.prototype.removeStaticBricks = function() {
     for (i in this.brickManager.staticBricks) {
         var b = this.brickManager.staticBricks[i];
         this.removeBrickFromScene(b);
+        console.log("removed from scence " + b)
     }
     this.brickManager.staticBricks = {};
 }

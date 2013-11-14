@@ -48,6 +48,7 @@ BrickManager.getRotationAndPositionOfBrick = function(marker) {
 }
 
 //numberOfBricks <= listOfBrickIds.length
+// TODO improve: the positioning seems to be always in the top right corner of the top view
 BrickManager.generateRandomPositions = function(numberOfBricks, listOfBrickIds){
 	var MODELS = Session.get('shapes');
     var redoRandom = true;

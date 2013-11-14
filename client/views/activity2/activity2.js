@@ -31,7 +31,6 @@ Activity2.prototype.update = function(markersDetector) {
         }
         if (numMarkers == 1 && !this.objectDetected){
             this.objectDetected = true;
-            this.objectId = markerId;
         }
         if (numMarkers == 1 && this.objectDetected){
             this.evaluationStarted = true;
@@ -87,7 +86,6 @@ Activity2.prototype.updateReadyInfo = function(markers){
 }
 
 
-
 Activity2.prototype.checkRotation = function(brick,rot) {
     if (Math.abs(rot-brick.rotation) < Activity2.ACCEPTED_MARGIN.rotation){
         $($('#rowShape'+brick.id+' i')[2]).removeClass('icon-remove').addClass('icon-ok');
@@ -112,7 +110,7 @@ Activity2.prototype.checkTranslation = function(brick, pos) {
 }
 
 Activity2.prototype.checkSolution = function(markers){
-    var solutionOK = Utils.dictLength(markers) == activity.difficulty;
+    var solutionOK = Utils.dictLength(markers) == this.difficulty;
     for (var i in markers){
         var marker = markers[i];
         if (typeof(this.bricksToMatch[marker.id]) != 'undefined') {
@@ -129,14 +127,3 @@ Activity2.prototype.checkSolution = function(markers){
     return solutionOK;
 }
 
-Activity2.prototype.isAllCorrect = function(correct, wrong, verticalEdge) {
-	var isCorrect = true;
-	for (var viewId in correct) {
-		isCorrect &= wrong[viewId] == 0;
-		if (viewId == "top") 
-			isCorrect &= (correct[viewId] + verticalEdge == this.difficulty);
-		else
-			isCorrect &= (correct[viewId] == this.difficulty)
-	}
-	return isCorrect;	
-} 

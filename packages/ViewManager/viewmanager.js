@@ -2,14 +2,11 @@ ViewManager = function(){
     this.views = {};
 }
 
-ViewManager.prototype.addView = function(view){
-    // view.init();
+ViewManager.prototype.setView = function(view){
     this.views[view.name] = view;
 };
 
 ViewManager.prototype.init = function(){
-	// console.log("init of viewManager")
-	// console.log(this.views)
     for (var i in this.views)
         this.views[i].init(); 
 };

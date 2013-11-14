@@ -9,6 +9,10 @@ Meteor.startup(function () {
 		VIEW_DIMENSION : {x: 360, y: 280},
 		Activity1 : {
 			MAX_DIFFICULTY : 3
-		}
+		},
+        Activity2 : {
+            MAX_DIFFICULTY : 3
+        }
+        
 	}
 });

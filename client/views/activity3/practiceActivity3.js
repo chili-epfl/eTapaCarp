@@ -86,8 +86,8 @@ Template.practiceActivity3.rendered = function(){
 		front.addStaticBricks(bricks);
 		side.addStaticBricks(clonedBricks);
 
-		viewManager.addView(front);
-		viewManager.addView(side);
+		viewManager.setView(front);
+		viewManager.setView(side);
 		viewManager.init()
 		viewManager.addStandardDisplayOptions();
 		viewManager.addFeedbackDisplay();
