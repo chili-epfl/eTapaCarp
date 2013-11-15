@@ -5,29 +5,14 @@ var viewManager;// = new ViewManager();
 var markersDetector;
 var activity;
 
-Template.activity2.lang = function(e){
-	lang = Session.get('lang');
-	return lang;
-}
-
-Template.activity2.isPractice = function(){
-	isPractice = Session.get('isPractice');
-	return isPractice;
-}
-
-Template.activity2Difficulty.lang = function(){
-	lang = Session.get('lang');
-	return lang;
-}
-
-Template.activity2Ready.lang = function(){
-	lang = Session.get('lang');
-	return lang;
-}
+Template.activity2.lang = function(e){	return Session.get('lang'); }
+Template.activity2.isPractice = function(){	return  Session.get('isPractice');}
+Template.activity2Difficulty.lang = function(){  return Session.get('lang');}
+Template.activity2Ready.lang = function(){ return Session.get('lang');}
 
 Template.activity2Difficulty.events({
 	'click a[id^="difficulty"]': function(e, tmpl){
-		activity = new activity2();
+		activity = new Activity2();
 		activity.difficulty = e.target.id.split('difficulty')[1];
 		Meteor.Router.to('/activity2/scoring/ready'); 
 	}
@@ -35,9 +20,7 @@ Template.activity2Difficulty.events({
 
 Template.activity2Ready.events({
 	'click #startButton': function(e,tmpl) {
-		var numMarkers = 0;
-		for (var i in markersDetector.activeMarkers)
-			numMarkers++;
+		var numMarkers = Utils.dictLength(markersDetector.activeMarkers);
 		if (numMarkers == 1 && !CalibStatic.needCalibration) {
 			// activity.lastActiveMarkers = null;
 			Meteor.Router.to('/activity2/scoring');
@@ -52,7 +35,7 @@ Template.activity2Ready.rendered = function(){
 	if(!rendered){
 		//prevent to do the initialization twice
 		rendered = true;
-		// console.log(activity)
+
 		activity.setRenderingCallback(activity, activity.updateReadyInfo);
 		CalibStatic.setNeedCalibrationCallback(activity, activity.update);
 
@@ -154,7 +137,6 @@ function initActivity() {
             viewManager.setGrid(true);
             viewManager.addStandardDisplayOptions();
             viewManager.addFeedbackDisplay();
-            viewManager.setAxis(false);
         }
         vs = [side, front]
         bs = [bricks, clonedBricks]
@@ -192,14 +174,15 @@ function createNextActivityHandler() {
 	});
 }
 
+// TODO this should probably take into account the brick that is active at the moment
 function createNewChallengeHandler() {
 	$('#newChallenge').on('click', function () {
-		var count = 0;
-		var id = null;
-		for (var i in markersDetector.activeMarkers){
-			id = i;
-			count++;
-		}
+        // var count = 0;        // 
+        // var id = null;
+        // for (var i in markersDetector.activeMarkers){
+        //     id = i;
+        //     count++;
+        // }
         // if(count == 1) {
 //			activity.objectId = id;
 			newChallenge(activity.difficulty);

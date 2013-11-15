@@ -47,7 +47,6 @@ View.prototype.removeStaticBricks = function() {
     for (i in this.brickManager.staticBricks) {
         var b = this.brickManager.staticBricks[i];
         this.removeBrickFromScene(b);
-        console.log("removed from scence " + b)
     }
     this.brickManager.staticBricks = {};
 }
