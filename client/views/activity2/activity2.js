@@ -110,7 +110,8 @@ Activity2.prototype.checkTranslation = function(brick, pos) {
 }
 
 Activity2.prototype.checkSolution = function(markers){
-    var solutionOK = Utils.dictLength(markers) == this.difficulty;
+    // var solutionOK = Utils.dictLength(markers) == this.difficulty;
+    var solutionOK = Utils.dictLength(markers) > 0;
     for (var i in markers){
         var marker = markers[i];
         if (typeof(this.bricksToMatch[marker.id]) != 'undefined') {
