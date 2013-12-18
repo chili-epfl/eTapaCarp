@@ -1,5 +1,6 @@
 Meteor.startup(
   function(){
+      var addShape = function(id, coordinates, edges, faces, markerZ){
       if ((Shapes.find({id: id})).count() == 0) {
         return Shapes.insert({
           id: id,
