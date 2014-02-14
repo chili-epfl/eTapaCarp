@@ -1,0 +1,41 @@
+{
+  "builtBy": "meteor/10",
+  "sliceDependencies": {
+    "browser.json": {
+      "files": {
+        "/home/chili/Dropbox/Dottorato/eTapaCarp/packages/Knob/package.js": "3ed4eb58936e3278b96410e0782eb0e8f3313fc5",
+        "/home/chili/Dropbox/Dottorato/eTapaCarp/packages/Knob/Knob.js": "f1ba267e579c2043fbd2c95b3e33bfbbbc5d8162"
+      },
+      "directories": []
+    },
+    "os.json": {
+      "files": {
+        "/home/chili/Dropbox/Dottorato/eTapaCarp/packages/Knob/package.js": "3ed4eb58936e3278b96410e0782eb0e8f3313fc5"
+      },
+      "directories": []
+    },
+    "tests.browser.json": {
+      "files": {
+        "/home/chili/Dropbox/Dottorato/eTapaCarp/packages/Knob/package.js": "3ed4eb58936e3278b96410e0782eb0e8f3313fc5"
+      },
+      "directories": []
+    },
+    "tests.os.json": {
+      "files": {
+        "/home/chili/Dropbox/Dottorato/eTapaCarp/packages/Knob/package.js": "3ed4eb58936e3278b96410e0782eb0e8f3313fc5"
+      },
+      "directories": []
+    }
+  },
+  "pluginDependencies": {
+    "files": {
+      "/home/chili/Dropbox/Dottorato/eTapaCarp/packages/Knob/package.js": "3ed4eb58936e3278b96410e0782eb0e8f3313fc5"
+    },
+    "directories": []
+  },
+  "pluginProviderPackages": {
+    "Knob": "/home/chili/Dropbox/Dottorato/eTapaCarp/packages/Knob",
+    "meteor": "/home/chili/.meteor/packages/meteor/088e5254e3"
+  },
+  "source": "/home/chili/Dropbox/Dottorato/eTapaCarp/packages/Knob"
+}

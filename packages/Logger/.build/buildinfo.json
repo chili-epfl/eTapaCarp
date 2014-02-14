@@ -1,0 +1,41 @@
+{
+  "builtBy": "meteor/10",
+  "sliceDependencies": {
+    "browser.json": {
+      "files": {
+        "/home/chili/Dropbox/Dottorato/eTapaCarp/packages/Logger/package.js": "ecab6036dc82cdb61c0a6fbc9806ecb983ed85bb",
+        "/home/chili/Dropbox/Dottorato/eTapaCarp/packages/Logger/Logger.js": "7c5124d57dd910f0af8782002de3aeadf29eea71"
+      },
+      "directories": []
+    },
+    "os.json": {
+      "files": {
+        "/home/chili/Dropbox/Dottorato/eTapaCarp/packages/Logger/package.js": "ecab6036dc82cdb61c0a6fbc9806ecb983ed85bb"
+      },
+      "directories": []
+    },
+    "tests.browser.json": {
+      "files": {
+        "/home/chili/Dropbox/Dottorato/eTapaCarp/packages/Logger/package.js": "ecab6036dc82cdb61c0a6fbc9806ecb983ed85bb"
+      },
+      "directories": []
+    },
+    "tests.os.json": {
+      "files": {
+        "/home/chili/Dropbox/Dottorato/eTapaCarp/packages/Logger/package.js": "ecab6036dc82cdb61c0a6fbc9806ecb983ed85bb"
+      },
+      "directories": []
+    }
+  },
+  "pluginDependencies": {
+    "files": {
+      "/home/chili/Dropbox/Dottorato/eTapaCarp/packages/Logger/package.js": "ecab6036dc82cdb61c0a6fbc9806ecb983ed85bb"
+    },
+    "directories": []
+  },
+  "pluginProviderPackages": {
+    "Logger": "/home/chili/Dropbox/Dottorato/eTapaCarp/packages/Logger",
+    "meteor": "/home/chili/.meteor/packages/meteor/088e5254e3"
+  },
+  "source": "/home/chili/Dropbox/Dottorato/eTapaCarp/packages/Logger"
+}

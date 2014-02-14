@@ -1,0 +1,41 @@
+{
+  "builtBy": "meteor/10",
+  "sliceDependencies": {
+    "browser.json": {
+      "files": {
+        "/home/chili/Dropbox/Dottorato/eTapaCarp/packages/ThreeCSG/package.js": "378dafc03b60bcde560f59c7feee33e042926846",
+        "/home/chili/Dropbox/Dottorato/eTapaCarp/packages/ThreeCSG/ThreeCSG.js": "bce5512d3972ca5e52d8dc5936d6569e04be1680"
+      },
+      "directories": []
+    },
+    "os.json": {
+      "files": {
+        "/home/chili/Dropbox/Dottorato/eTapaCarp/packages/ThreeCSG/package.js": "378dafc03b60bcde560f59c7feee33e042926846"
+      },
+      "directories": []
+    },
+    "tests.browser.json": {
+      "files": {
+        "/home/chili/Dropbox/Dottorato/eTapaCarp/packages/ThreeCSG/package.js": "378dafc03b60bcde560f59c7feee33e042926846"
+      },
+      "directories": []
+    },
+    "tests.os.json": {
+      "files": {
+        "/home/chili/Dropbox/Dottorato/eTapaCarp/packages/ThreeCSG/package.js": "378dafc03b60bcde560f59c7feee33e042926846"
+      },
+      "directories": []
+    }
+  },
+  "pluginDependencies": {
+    "files": {
+      "/home/chili/Dropbox/Dottorato/eTapaCarp/packages/ThreeCSG/package.js": "378dafc03b60bcde560f59c7feee33e042926846"
+    },
+    "directories": []
+  },
+  "pluginProviderPackages": {
+    "ThreeCSG": "/home/chili/Dropbox/Dottorato/eTapaCarp/packages/ThreeCSG",
+    "meteor": "/home/chili/.meteor/packages/meteor/088e5254e3"
+  },
+  "source": "/home/chili/Dropbox/Dottorato/eTapaCarp/packages/ThreeCSG"
+}

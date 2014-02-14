@@ -1,0 +1,35 @@
+{
+  "format": "unipackage-slice-pre1",
+  "packageVariables": [
+    {
+      "name": "Tool",
+      "export": true
+    },
+    {
+      "name": "ToolManager",
+      "export": true
+    },
+    {
+      "name": "ToolFactory",
+      "export": true
+    },
+    {
+      "name": "PlaneCutter"
+    }
+  ],
+  "uses": [
+    {
+      "package": "meteor"
+    }
+  ],
+  "resources": [
+    {
+      "type": "prelink",
+      "file": "browser/packages/ToolManager.js",
+      "length": 136326,
+      "offset": 0,
+      "servePath": "/packages/ToolManager.js",
+      "sourceMap": "browser/packages/ToolManager.js.map"
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "format": "unipackage-slice-pre1",
+  "packageVariables": [],
+  "uses": [
+    {
+      "package": "meteor"
+    }
+  ],
+  "resources": [
+    {
+      "type": "prelink",
+      "file": "browser/packages/Knob.js",
+      "length": 78920,
+      "offset": 0,
+      "servePath": "/packages/Knob.js",
+      "sourceMap": "browser/packages/Knob.js.map"
+    }
+  ]
+}
