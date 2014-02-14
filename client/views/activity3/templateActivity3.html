@@ -1,4 +1,50 @@
-<template name="practiceActivity3">
+<template name="activity3Difficulty">
+	<div id="difficultyLevel" class="modal" role="dialog" aria-labelledby="difficultyLevelLabel" aria-hidden="true">
+	  <div class="modal-header">
+	    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+	    <h2>{{lang.LevelDifficulty}}</h2>
+	  </div>
+	  <div class="modal-body row-fluid">
+	  	<a id="difficulty1" class="span3 btn btn-info fat-button">{{lang.OneTranslation}}</a>
+	  	<a id="difficulty2" class="span3 btn btn-info fat-button">{{lang.TwoTranslations}}</a>
+	  	<a id="difficulty3" class="span3 btn btn-info fat-button">{{lang.TwoTranslationsAndRotation}}</a>
+	  </div>
+	</div>
+</template>
+
+<template name="activity3Ready">
+	<div id="getReady" class="modal" role="dialog" aria-labelledby="getReadyLabel" aria-hidden="true">
+	  <div class="modal-header">
+	    <h2>{{lang.GetReady}}</h2>
+	  </div>
+	  <div class="modal-body">
+		<div class="row-fluid">
+			<div class="span12">
+				<div id="cameraMoved" class="alert alert-error" style="display: none;">
+					{{{lang.Recalibrate}}}
+				</div>
+			</div>
+		</div>
+	  	<table class="table">
+	  		<tr>
+	  			<td>{{lang.Calibration}}</td>
+	  			<td id="calibrated"><i class="icon-remove"></i></td>
+	  		</tr>
+	  		<tr>
+	  			<td>{{lang.ObjectDetected}}</td>
+	  			<td id="objectDetected"><i class="icon-remove"></i></td>
+	  		</tr>
+	  	</table>
+	  </div>
+	  <div class="modal-footer">
+	    <a id="startButton" class="btn btn-success disabled" data-dismiss="modal" aria-hidden="true">{{lang.Start}}</a>
+	  </div>
+	</div>
+	{{> popupCalibration}}
+</template>
+
+
+<template name="activity3">
 
 	<div class="row-fluid">
 		<div class="span12">
@@ -78,8 +124,8 @@
 		    		<thead>
 		    			<tr>
 		    				<th>{{lang.Detected}}</th>
-		    				<th>{{lang.Position}}</th>
 		    				<th>{{lang.Rotation}}</th>
+		    				<th>{{lang.Position}}</th>
 	    				</tr>
 		    		</thead>
 		    		{{#constant}}

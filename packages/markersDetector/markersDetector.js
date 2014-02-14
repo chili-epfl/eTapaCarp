@@ -37,7 +37,6 @@ MarkersDetector.prototype.Start = function() {
 	//detectTags(this);
 	var that = this;
 	that.animationId = requestAnimationFrame(function(){
-//		console.log(that instanceof MarkersDetector)		
 		that.Start();
 	});
 	that.getMarkers();
@@ -51,7 +50,7 @@ MarkersDetector.prototype.Start = function() {
     }
 	if (!that.isJittering() || MarkersDetector.forceUpdate){
 		MarkersDetector.forceUpdate = false; 
-	 	that.activity.update(that)
+		that.activity.update(that)
 	}
 }
 
@@ -292,7 +291,6 @@ MarkersDetector.prototype.calibrate = function(){
         localStorage.setItem('topRight', JSON.stringify(this.topRight));
         localStorage.setItem('bottomRight', JSON.stringify(this.bottomRight));
 
-
         $.getJSON("https://craftpc45.epfl.ch/rotAndTransMatrices.json?callback=?",
             {'x1':this.bottomLeft.corners[1].x,
                 'y1':this.bottomLeft.corners[1].y,
@@ -368,6 +366,7 @@ MarkersDetector.prototype.drawContour = function(points,thisContext,color){
     thisContext.closePath();
 };
 
+// draw a red rectangle around the given tags
 MarkersDetector.prototype.drawCorners = function(thisMarkers,thisContext){
     var thisCorners, thisCorner, i, j;
 
@@ -394,24 +393,53 @@ MarkersDetector.prototype.drawCorners = function(thisMarkers,thisContext){
     }
 };
 
+MarkersDetector.prototype.getMarkerInfo = function(tagInfo, library) {
+    
+}
+
 MarkersDetector.prototype.getMarkers = function(){
 
     if (this.video.readyState === this.video.HAVE_ENOUGH_DATA){
         this.snapshot();
 
-        var markerCount = this.detector.detectMarkerLite(this.raster,110);
+        var tagTrackerLib = Session.get('tagTrackerLib')
+        var markerCount = 0 
+        var obj = {}
+        if (tagTrackerLib === "artoolkit") {
+            markerCount = this.detector.detectMarkerLite(this.raster,110);            
+        } else if (tagTrackerLib === "chilitags") {
+            // obj = Chilitags.detect(this.camcanvas);
+            obj = Chilitags.findTagsOnImage(this.camcanvas, false);
+            markerCount = Object.keys(obj).length
+        }
+
         this.markers = {};
         this.corners = {};
-        for (var i = 0; i < markerCount; i++){
-            var id = this.detector._callback.result_stack._items[i].arcode_id;
-            var marker = {id: id, corners: this.detector._callback.result_stack._items[i].vertex};
+        for (var i = 0; i < markerCount; i++) {
+            var marker = {}
+            // TODO do this check only once (above) and assign callbacks
+            if (tagTrackerLib === "artoolkit") {
+                var id = this.detector._callback.result_stack._items[i].arcode_id;
+                var corners = this.detector._callback.result_stack._items[i].vertex;                                             marker = {id: id, corners: corners};
+            } else if (tagTrackerLib === "chilitags") {
+                var id = Object.keys(obj)[i]
+                var t = obj[id];
+                var corners = new Array();
+                corners.push({x: t[0][0], y: t[0][1]});
+                corners.push({x: t[1][0], y: t[1][1]});
+                corners.push({x: t[2][0], y: t[2][1]});
+                corners.push({x: t[3][0], y: t[3][1]});              
+                marker = {id: parseInt(id), corners: corners};
+            }
+                                        
+            // tag 0 -> 4 are used for workspace
             if (marker.id < 5){
-                if (!(marker.id in this.corners)){
+                if (!(marker.id in this.corners)) {
                     this.corners[marker.id] = marker;
                 }
             }
             else{
-                if (!(marker.id in this.markers)){
+                if (!(marker.id in this.markers)) {
                     this.markers[marker.id] = marker;
                 }
             }
@@ -430,7 +458,6 @@ MarkersDetector.prototype.getMarkers = function(){
         }
         var thisCornersLength = Utils.dictLength(this.corners);
         if (!(this.topRight && this.bottomRight && this.bottomLeft && this.topLeft) || thisCornersLength == 0){
-
             $('#cameraMoved').show();
             CalibStatic.needCalibration = true;
             this.calibrate();

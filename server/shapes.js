@@ -1,6 +1,6 @@
 Meteor.startup(
   function(){
-    var addShape = function(id, coordinates, edges, faces, markerZ){
+      var addShape = function(id, coordinates, edges, faces, markerZ){
       if ((Shapes.find({id: id})).count() == 0) {
         return Shapes.insert({
           id: id,
@@ -93,5 +93,35 @@ Meteor.startup(
       [7,3,2,6]
     ],
     55.0);
+    // FAKE SHAPE to test chilitags
+    addShape(
+      96,
+      [
+        [   5.0,  -5.0,  45.0],
+        [ -32.0,  -5.0,  45.0],
+        [ -32.0,  39.0,  45.0],
+        [   5.0,  39.0,  45.0],
+        [   5.0,  -5.0,  0.0],
+        [ -70.0,  -5.0,  0.0],
+        [ -70.0,  39.0,  0.0],
+        [   5.0,  39.0,  0.0],
+        [ -70.0,  -5.0,  20.0],
+        [ -70.0,  39.0,  20.0]
+      ],
+      [  
+        [0,1], [1,2], [2,3], [3,0],
+        [0,4], [1,8], [2,9], [3,7],[8,5],[9,6],
+        [4,5], [5,6], [6,7], [7,4],[8,9]   
+      ],
+      [
+        [0,3,2,1],
+        [4,5,6,7],
+        [0,4,7,3],
+        [4,0,1,8,5],
+        [1,8,9,2],
+        [8,5,6,9],
+        [7,3,2,9,6]
+      ],
+      45.0);
   }
 );

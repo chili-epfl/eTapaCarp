@@ -46,6 +46,14 @@ Meteor.Router.add({
     }
   },
 
+  '/activity:id/practice/difficulty': function(id){
+  	return 'activity'+id+'Difficulty';
+  },
+  
+  '/activity:id/practice/ready': function(id){
+	  return "activity"+id+"Ready";
+  },
+
   '/activity:id/scoring/ready': function(id){
     if(Meteor.Router.page() == 'activity'+id+'Difficulty' || Meteor.Router.page() == 'activity'+id+'Ready'){
       if(Meteor.user()){

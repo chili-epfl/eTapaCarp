@@ -69,6 +69,7 @@ Meteor.startup(
     add('Delete', 'Supprimer', 'Delete', 'Delete');
     add('Details', 'Détails', 'Details', 'Details');
     add('Detected', 'Détecté', 'Detected', 'Detected');
+	add('DoneWithActivity', "Cette activité est terminée. Choisissez une des actions ci-dessous pour continuer.", "This activity is over. Choose one of the actions below to continue.", "TODO")
 
     add('Edges', 'Arêtes', 'Edges', 'Edges');
     add('Errors', 'erreur(s)', 'error(s)', 'error(s)');
@@ -109,6 +110,7 @@ Meteor.startup(
     add('ObjectDetected', 'Objet detecté', 'Object detected', 'Object detected');
     add('OneEdge', 'Une arête', 'One edge', 'One edge');
     add('OneObject', 'Un objet', 'One object', 'One object');
+	add('OneTranslation', 'Une translation', 'One translation', 'Eine Versetzung');
 
     add('PerspectiveView', 'Vue en perspective', 'Perspective view', 'Perspective view');
     add('PlaceMarker', 'Placer le marker', 'Place the marker', 'Place the marker');
@@ -120,7 +122,7 @@ Meteor.startup(
         '<b>Warning: </b>Your camera or workspace may have moved!<br>Try to <a id="calibrationButton" href="#calibration" data-toggle="modal" style="margin-top: 10px;">recalibrate</a>.<button class="close">&times;</button>',
         '<b>Warning: </b>Your camera or workspace may have moved!<br>Try to <a id="calibrationButton" href="#calibration" data-toggle="modal" style="margin-top: 10px;">recalibrate</a>.<button class="close">&times;</button>'
         );
-	add('Redo', 'Refaire', 'Redo', 'Noch mals!')
+	add('NextExercise', 'Exercice suivant', 'Next exercise', 'Nächste Übung!')
     add('RedRectangle', 'Rectangle rouge', 'Red rectangle', 'Red rectangle');
     add('Rotation', 'Rotation', 'Rotation', 'Rotation');
 
@@ -138,6 +140,8 @@ Meteor.startup(
     add('Transparency', 'Transparence', 'Transparency', 'Transparency');
     add('TwoEdge', 'Deux arêtes', 'Two edges', 'Two edges');
     add('TwoObject', 'Deux objets', 'Two objects', 'Two objects');
+	add('TwoTranslations', 'Deux translations', 'Two translations', 'Zwei Versetzungen')
+	add('TwoTranslationsAndRotation', 'Deux translations et une rotation', 'Two translations and one rotation', 'Zwei Versetzungen und eine Drehung');
 
 	add('Welcome', 'Bienvenue', 'Welcome', 'Wilkommen')
 	add('WelcomeMsg', "Ce site est destiné aux apprentis charpentiers de Suisse. Il doit leur permettre d'améliorer leurs capacités spatiales.", 'TODO', 'TODO');

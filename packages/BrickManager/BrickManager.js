@@ -41,13 +41,14 @@ BrickManager.getRotationAndPositionOfBrick = function(marker) {
     if ((diffx < 0 && diffy > 0) || (diffx > 0 && diffy > 0)) {
         rotation = -Math.atan(diffx/diffy)+Math.PI/2;
     }
-    else{
+    else {
         rotation = -Math.atan(diffx/diffy)-Math.PI/2;
     }
 	return {r : rotation, p: position};
 }
 
 //numberOfBricks <= listOfBrickIds.length
+// TODO improve: the positioning seems to be always in the top right corner of the top view
 BrickManager.generateRandomPositions = function(numberOfBricks, listOfBrickIds){
 	var MODELS = Session.get('shapes');
     var redoRandom = true;
