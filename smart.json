@@ -2,6 +2,7 @@
   "packages": {
     "router": {},
     "page-js": {},
-    "jquery-ui": {}
+    "jquery-ui": {},
+    "collectionFS": {}
   }
 }
