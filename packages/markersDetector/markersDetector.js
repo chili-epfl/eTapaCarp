@@ -1,4 +1,6 @@
-MarkersDetector = function(video, canvas){
+MarkersDetector = function(video, canvas) {
+        Session.set('virtual', false);
+
     this.stream = null;
     this.video = document.getElementById(video);
     this.camcanvas = document.getElementById(canvas);
@@ -48,8 +50,15 @@ MarkersDetector.prototype.Start = function() {
             CalibStatic.needCalibrationCallback(that.activeMarkers);
         }
     }
-	if (!that.isJittering() || MarkersDetector.forceUpdate){
+    if (!that.isJittering() || MarkersDetector.forceUpdate) {
+        console.log("In");
+        if (!MarkersDetector.forceUpdate)
+            MarkersDetector.forceUpdate = true;
+        else
 		MarkersDetector.forceUpdate = false; 
+        var timeStamp=Date.now();
+        Logger.postTag("----Update----")
+        Logger.postEvent("----Update----")
 		that.activity.update(that)
 	}
 }
@@ -200,27 +209,36 @@ MarkersDetector.prototype.updateDisplayInfo = function(){
     if (isNaN(tagVisibility) && lastVisibility >= 90){
         tagVisibility = lastVisibility;
     }
-    if (sizeOK){
+    if (sizeOK) {
+        Logger.postEvent("Size Ok");
         $('#sizeOK').parent().removeClass('alert alert-error');
         $('#sizeOK').find('.icon-ok').show();
         $('#sizeOK').find('.icon-remove').hide();
     }
-    else{
+    else {
+        Logger.postEvent("Size not Ok");
+
         $('#sizeOK').parent().addClass('alert alert-error');
         $('#sizeOK').find('.icon-ok').hide();
         $('#sizeOK').find('.icon-remove').show();
     }
-    if (angleOK){
+    if (angleOK) {
+        Logger.postEvent("Angle Ok");
+
         $('#angleOK').parent().removeClass('alert alert-error');
         $('#angleOK').find('.icon-ok').show();
         $('#angleOK').find('.icon-remove').hide();
     }
-    else{
+    else {
+        Logger.postEvent("Angle not Ok");
+
         $('#angleOK').parent().addClass('alert alert-error');
         $('#angleOK').find('.icon-ok').hide();
         $('#angleOK').find('.icon-remove').show();
     }
-    if (redRectangleOK){
+    if (redRectangleOK) {
+        Logger.postEvent("Red Rectangle Ok");
+
         $('#redRectangleOK').parent().removeClass('alert alert-error');
         $('#redRectangleOK').find('.icon-ok').show();
         $('#redRectangleOK').find('.icon-remove').hide();
@@ -240,12 +258,16 @@ MarkersDetector.prototype.updateDisplayInfo = function(){
         $('#blueRectangleOK').find('.icon-ok').hide();
         $('#blueRectangleOK').find('.icon-remove').show();
     }
-    if (tagVisibility >= 90){
+    if (tagVisibility >= 90) {
+        Logger.postEvent("Tag Visibility Ok");
+
         $('#tagVisibility1').parent().removeClass('alert alert-error');
         $('#tagVisibility2').parent().removeClass('progress-danger').addClass('progress-success');
         $('#tagVisibility2').width(tagVisibility+"%");
     }
-    else{
+    else {
+        Logger.postEvent("Tag Visibility not Ok");
+
         $('#tagVisibility1').parent().addClass('alert alert-error');
         $('#tagVisibility2').parent().removeClass('progress-success').addClass('progress-danger');
         $('#tagVisibility2').width(tagVisibility+"%");
@@ -266,16 +288,26 @@ MarkersDetector.prototype.snapshot = function(){
     this.camcanvas.changed = true;
 };
 
-MarkersDetector.prototype.calibrate = function(){
+MarkersDetector.prototype.calibrate = function() {
+    Logger.postTag("Calibrating...");
+    Logger.postEvent("Calibrating...")
     this.topRight = this.topLeft = this.bottomRight = this.bottomLeft = null;
     for (var i in this.corners){
         var marker = this.corners[i];
         switch(marker.id){
             case 4:
                 this.bottomLeft = marker;
+                Logger.postTag("Calib-Marker:BottomLeft(" +
+                        this.bottomLeft.corners[1].x + "," +
+                        this.bottomLeft.corners[1].y + ")"
+                        )
                 break;
             case 3:
                 this.topLeft = marker;
+                Logger.postTag("Calib-Marker:TopLeft(" +
+                        this.topLeft.corners[2].x + "," +
+                        this.topLeft.corners[2].y + ")"
+                        )
                 break;
             case 1:
                 this.topRight = marker;
