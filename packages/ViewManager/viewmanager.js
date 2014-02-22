@@ -127,7 +127,7 @@ ViewManager.prototype.render = function(markers) {
             "("+markers[i].corners[3].x+","+markers[i].corners[3].y+")"
             )
     }
-    for (var i in this.views) {
+    for (var i in this.views) 
         this.views[i].render(markers);
 };
 
@@ -228,7 +228,7 @@ ViewManager.prototype.destroy = function() {
         view.scene = null;
         view.renderer = null;
     }
-}
+};
 
 ViewManager.prototype.saveBricks=function(){
     for(var i in this.views){
