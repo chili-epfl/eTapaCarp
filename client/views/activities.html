@@ -60,5 +60,20 @@
 		 		<p class="hide">{{lang.Activity4Desc}}</p>
 		 	</div>
 		 </li>
+                  <li class="span3">
+		 	<div class="thumbnail">
+		 		<img class="activityLogo" src="activities/crossSection.png" alt="">
+		 		<h3>{{lang.Activity5}}</h3>
+		 		<p>
+		 			<a href="/activity5/practice" class="btn btn-info">{{lang.Practice}}</a>
+		 			{{#if currentUser}}
+		 			<a href="/activity5/scoring" class="btn btn-info">{{lang.Evaluation}}</a>
+		 			{{/if}}
+		 			<br>
+		 			<a class="btn btn-link details">{{lang.Details}}</a>
+		 		</p>
+		 		<p class="hide">{{lang.Activity5Desc}}</p>
+		 	</div>
+		 </li>
 	</ul>
 </template>

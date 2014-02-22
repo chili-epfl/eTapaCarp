@@ -1,0 +1,148 @@
+<template name="activity5Difficulty">
+    <div id="difficultyLevel" class="modal" role="dialog" aria-labelledby="difficultyLevelLabel" aria-hidden="true">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        </div>
+        <div class="modal-body row-fluid" >
+            <div class="span3"></div>
+            <img class="span2 " src="/tutorial.jpg">
+            <img class="span2 " src="/shape1.jpg">
+            <img class="span2 " src="/shape2.jpg">
+        </div>
+        <div class="modal-body row-fluid " >
+            <div class="span3"></div>
+            <a id="shapeTutorial" class="span2 btn btn-info">Shape Tutorial</a>
+            <a id="shape1" class="span2 btn btn-info">Shape1</a>
+            <a id="shape2" class="span2 btn btn-info">Shape2</a>
+        </div>
+    </div>
+</template>
+
+
+
+
+<template name="activity5">
+    <div class="row-fluid">
+        <div class="span12">
+            <div id="cameraMoved" class="alert alert-error" style="display: none;">
+
+            </div>
+            <div id="anyError" class="alert alert-error" style="display: none;">
+                <strong id="text"></strong>
+            </div>
+        </div>
+    </div>
+
+    <div class="row-fluid">
+        <div class="span8">
+            <span class="btn btn-info btn-small disabled">
+                {{lang.PerspectiveView}}
+            </span>
+            <br>
+            {{#constant}}
+            <div id="perspective" class="span12">
+            </div>
+            {{/constant}}
+
+        </div>
+        <div class="span2">
+            <div class="accordion" id="accordion2">
+                <div class="accordion-group">
+                    <div class="accordion-heading">
+                        <h6 class="accordion-toggle" data-toggle="" data-parent="#accordion2" href="#collapseOne">
+                            Brick Control
+                        </h6>
+                    </div>
+                    <div id="collapseOne" class="accordion-body collapse in">
+                        <div class="accordion-inner" >
+                            {{#constant}}
+                            <input id="brickKnob" class="knob">
+                            {{/constant}}
+
+                        </div>
+                    </div>
+
+
+                </div>
+            </div>
+            <div class="accordion" id="accordion4">
+                <div class="accordion-group">
+                    <div class="accordion-heading">
+                        <h6 class="accordion-toggle" data-toggle="" data-parent="#accordion4" href="#collapse3">
+                            Selected Shape                        </h6>
+                    </div>
+                    <div id="collapse3" class="accordion-body collapse in">
+                        <div class="accordion-inner" >
+                            {{#constant}}
+                            <div id="shapes"></div>
+                            {{/constant}}
+
+
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="btn-toolbar text-center">
+                {{#constant}}
+                <button id="End" class="btn-default ">End Activity</button>
+                {{/constant}}
+            </div>
+
+        </div>
+
+        <div class="span2">
+            <div class="accordion" id="accordion3">
+                <div class="accordion-group">
+                    <div class="accordion-heading">
+                        <h6 class="accordion-toggle" data-toggle="" data-parent="#accordion3" href="#collapseTwo">
+                            Cutter Control
+                        </h6>
+                    </div>
+                    <div id="collapseTwo" class="accordion-body collapse in">
+                        <div class="accordion-inner">
+                            <label for="Degrees-Plane">Plane Inclination:<strong>0</strong></label>
+                            <hr>
+
+                            <div>
+                                {{#constant}}
+                                <input id="planeKnob" class="knob">
+                                {{/constant}}
+
+                            </div>
+                            <div>
+                                <img src="/MovePlane.png" alt="">
+                                {{#constant}}
+                                <div id="move-plane" ></div>   
+                                {{/constant}}
+
+                            </div>
+
+
+                        </div>
+
+                    </div>
+                    {{#constant}}
+                    <h6 class="text-center">Show Plane</h6>
+                    <div class="btn-toolbar text-center">
+                        <button id="show-on" class="btn btn-mini btn-primary">ON</button>
+                        <button id="show-off" class="btn btn-mini">OFF</button>
+                    </div>
+                    {{/constant}}
+                    <hr>
+                    {{#constant}}
+                    <div class="btn-toolbar text-center">
+
+                        <a id="cut" class="btn btn-default" status="cut" role="button">Cut</a>
+                    </div>
+                    {{/constant}}
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+    {{> popupCalibration}}
+    {{> popupActivityFinish}}
+</template>
