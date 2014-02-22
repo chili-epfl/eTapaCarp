@@ -109,9 +109,7 @@ Meteor.Router.add({
   	return 'activity'+id+'Difficulty';
   },
   
-  '/activity:id/practice/ready': function(id){
-	  return "activity"+id+"Ready";
-  },
+  
   '/activity:id/scoring/difficulty': function(id){
     if(Meteor.user()){
       return 'activity'+id+'Difficulty';
