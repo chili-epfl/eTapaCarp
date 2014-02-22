@@ -33,3 +33,6 @@ Tools
 Calibration
 BrickManager
 collectionFS
+Knob
+Logger
+ToolManager
