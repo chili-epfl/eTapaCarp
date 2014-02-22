@@ -41,6 +41,12 @@ Meteor.startup(
       'You will need to create cutting plans according to a 3D object.',
       'You will need to create cutting plans according to a 3D object.'
       );
+          add('Activity5', 'Activité de coupe(Virtual)', 'Cut activity(Virtual)', 'Cut activity(Virtual)');
+    add('Activity5Desc',
+      'Vous devrez créer des plans de coupes correspondant à un objet 3D.',
+      'You will need to create cutting plans according to a 3D object.',
+      'You will need to create cutting plans according to a 3D object.'
+      );
     add('ActivityInfo', 'Ici vous pouvez simplement bouger vos objets sur la zone de travail pour vérifier que l\'interface est correctement installée.',
       'Here you can simply try to put the shapes you build before and move them on the workspace to see everything is working fine.',
       'Here you can simply try to put the shapes you build before and move them on the workspace to see everything is working fine.');
@@ -122,7 +128,7 @@ Meteor.startup(
         '<b>Warning: </b>Your camera or workspace may have moved!<br>Try to <a id="calibrationButton" href="#calibration" data-toggle="modal" style="margin-top: 10px;">recalibrate</a>.<button class="close">&times;</button>',
         '<b>Warning: </b>Your camera or workspace may have moved!<br>Try to <a id="calibrationButton" href="#calibration" data-toggle="modal" style="margin-top: 10px;">recalibrate</a>.<button class="close">&times;</button>'
         );
-	add('NextExercise', 'Exercice suivant', 'Next exercise', 'Nächste Übung!')
+	add('Redo', 'Refaire', 'Redo', 'Noch mals!')
     add('RedRectangle', 'Rectangle rouge', 'Red rectangle', 'Red rectangle');
     add('Rotation', 'Rotation', 'Rotation', 'Rotation');
 

@@ -1,6 +1,7 @@
 
 
 this.Shapes = new Meteor.Collection('shapes');
+this.Tools=new Meteor.Collection('tools')
 
 
 Meteor.publish('shapes', function(){
@@ -8,9 +9,28 @@ Meteor.publish('shapes', function(){
   return collection;
 });
 
+Meteor.publish('tools', function(){
+  var collection = Tools.find({});
+  return collection;
+});
+
 Shapes.allow({
   insert: function(userId, doc) {
     if (Shapes.find({userId: userId}).count() < 3){
+      return userId;
+    }
+  },
+  update: function(userId, doc) {
+    return userId && Meteor.user().admin;
+  },
+  remove: function(userId, doc) {
+    return userId && Meteor.user().admin;
+  }
+});
+
+Tools.allow({
+  insert: function(userId, doc) {
+    if (Tools.find({userId: userId}).count() < 3){
       return userId;
     }
   },
