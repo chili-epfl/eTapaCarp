@@ -2,8 +2,8 @@ Config = {}
 
 
 Meteor.startup(function () {
-      Session.set("tagTrackerLib", 'chilitags');
-//    Session.set("tagTrackerLib", 'artoolkit'); // uncomment to swtich back to artoolkit
+//      Session.set("tagTrackerLib", 'chilitags');
+    Session.set("tagTrackerLib", 'artoolkit'); // uncomment to swtich back to artoolkit
     
 	Config = {
 		MAX_OBJECT_HEIGHT : 60, 

@@ -29,8 +29,6 @@ Template.activity5.rendered = function() {
 
     if (!rendered) {
 
-
-
         console.log("Rendering");
         var name = "Activity5-" + Meteor.user().emails[0].address + "Shape:" + shape;
         Logger.logTag = new Meteor.Collection(null);
@@ -61,6 +59,7 @@ Template.activity5.rendered = function() {
         if (typeof (activity) == 'undefined') {
             activity = new Activity5();
         }
+
         activity.setRenderingCallback(viewManager, viewManager.render);
         activity.template = Template.activity5;
         activity.evaluationMode = !isPractice;
@@ -68,7 +67,7 @@ Template.activity5.rendered = function() {
         var view = new PerspectiveView('perspective');
         view.click = false;
         view.virtual = true;
-        viewManager.addView(view);
+        viewManager.setView(view);
         viewManager.setAxis(true);
         viewManager.setGrid(true);
         viewManager.init();

@@ -105,9 +105,9 @@ Meteor.Router.add({
       return 'notAllowed';
     }
   },
-  '/activity:id/practice/difficulty': function(id){
-  	return 'activity'+id+'Difficulty';
-  },
+  //'/activity:id/practice/difficulty': function(id){
+  //	return 'activity'+id+'Difficulty';
+  //},
   
   
   '/activity:id/scoring/difficulty': function(id){

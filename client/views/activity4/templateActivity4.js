@@ -65,7 +65,7 @@ Template.activity4.rendered = function() {
 
         var view = new PerspectiveView('perspective');
         view.click = false;
-        viewManager.addView(view);
+        viewManager.setView(view);
         viewManager.setAxis(true);
         viewManager.setGrid(true);
         viewManager.init();
