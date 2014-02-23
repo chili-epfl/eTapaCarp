@@ -73,7 +73,7 @@ BrickManager.generateRandomPositions = function(numberOfBricks, listOfBrickIds){
 				y: Math.random()*Config.WORKSPACE_DIMENSION.y/2
 			}
             bricks[brickId] = brick;
-            brick.setRotationAndTranslation(Math.random()*Math.PI,{ x: Math.random()*Config.WORKSPACE_DIMENSION.x/2, y: Math.random()*Config.WORKSPACE_DIMENSION.y/2 });
+            brick.setRotationAndTranslation(Math.random()*Math.PI,{ x: Math.random()*Config.WORKSPACE_DIMENSION.x/2, y: Math.random()*Config.WORKSPACE_DIMENSION.y/2 },true);
             brick.faces.updateMatrix();
             brick.faces.geometry.computeBoundingBox();
             brick.faces.geometry.boundingBox.applyMatrix4(brick.faces.matrix);
@@ -113,4 +113,10 @@ BrickManager.generateRandomPositions = function(numberOfBricks, listOfBrickIds){
 		}
 	}
 	return bricks;
+}
+
+BrickManager.prototype.saveBricks=function(){
+    for(var i in this.bricks){
+        this.bricks[i].save();
+    }
 }
